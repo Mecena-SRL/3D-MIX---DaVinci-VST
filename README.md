@@ -22,12 +22,16 @@ e reimporta una traccia `MIX3D`. Non modifica mai i media né le tracce esistent
 
 Apre `http://127.0.0.1:8730` (solo locale, funziona offline).
 
-1. **+ File** o **Da Resolve**: ogni file diventa una o più tracce (canali a coppie). Il dispositivo è suggerito da nome, codec, bit e canale: conferma o cambia (bordo giallo = da confermare).
-2. **Analizza e sincronizza**: analisi di ogni traccia e sync (GCC-PHAT + drift) sulla traccia di riferimento; posizioni automatiche.
-3. **Scena 3D**: trascina microfoni e ascoltatore (shift = altezza). *Tutto automatico* ripristina le stime.
-4. **Analisi / Dispositivo**: grafici della traccia selezionata, specifiche con fiducia, EQ di correzione, polare.
-5. **Ascolto**: play/spazio, A = mix spaziale, B = somma semplice. Buffer ~3 s; a ogni modifica il buffer si rifà.
-6. **Stampa**: WAV 24 bit normalizzato (-14 LUFS, picco -1 dBTP), opzionalmente su una nuova traccia o su una traccia esistente di Resolve.
+Interfaccia guidata in 6 passi, con riepilogo (tracce, dispositivi, spazio, sync, picchi) sempre in alto.
+
+1. **Sorgenti**: da Resolve o da file (WAV, MP4, MOV, MXF…). Ogni coppia di canali è una traccia.
+2. **Dispositivi**: per ogni traccia registratore + microfono (anche combinazioni miste, es. DJI Mic 2 nella FX6). Specifiche con fiducia, rischi della catena, EQ di correzione, polare.
+3. **Spazio**: 12 tipologie italiane incluse (teatro all'italiana, lirico, black box, chiesa, basilica, chiostro, auditorium shoebox e a vigna, cavea, piazza, salone storico, club) o **Importa da file** uno spazio privato. RT60 per banda, distanza critica, consigli. Scena 3D con icone dei dispositivi, **lobi polari 3D** (attivabili), **sorgenti sonore** (+ Sorgente…) e tabella del guadagno polare mic → sorgente. Alt-trascina ruota un microfono.
+4. **Analisi**: tabella di salute di tutte le tracce, grafici della selezionata, sync GCC-PHAT + drift, stima della posizione delle sorgenti (TDOA) con ≥3 mic sullo stesso clock.
+5. **Ascolto e mix**: play/spazio, A = mix spaziale, B = somma. Buffer ~3 s, rifatto a ogni modifica.
+6. **Stampa**: WAV 24 bit normalizzato (picco -1 dBTP) su file, traccia MIX3D, nuova traccia o regione (marker MIX3D / In-Out).
+
+Spazi privati: schema in [`docs/spazi.md`](docs/spazi.md). Restano in `~/.mix3d/spazi/` sul Mac e non vanno nel repository.
 
 Limiti: il posizionamento automatico è approssimato (posizione tipica del profilo + ritardi fra canali dello stesso registratore); il drift in ascolto è corretto a blocchi (in F1 ricampionamento continuo). Database: [`docs/database_dispositivi.md`](docs/database_dispositivi.md).
 
