@@ -119,3 +119,42 @@ def reimport_wav(resolve, wav_path: str, record_frame: int, track_type: str = "s
     if not placed:
         raise RuntimeError("AppendToTimeline non ha posizionato il clip")
     return track
+
+
+def region(resolve) -> tuple[int, int, str] | None:
+    """Regione da elaborare, in frame relativi all'inizio della timeline.
+
+    Prima un marker chiamato "MIX3D" con durata (la "adjustment clip"), poi
+    In/Out della timeline. None se non c'è nessuno dei due. [V] GetMarkInOut
+    esiste da Resolve 19.
+    """
+    _, tl = current_timeline(resolve)
+    for frame, m in sorted((tl.GetMarkers() or {}).items()):
+        if m.get("name", "").strip().upper() == "MIX3D" and m.get("duration", 0) > 1:
+            return int(frame), int(frame + m["duration"]), "marker MIX3D"
+    io = getattr(tl, "GetMarkInOut", lambda: {})() or {}
+    io = io.get("audio") or io.get("video") or {}
+    if "in" in io and "out" in io:
+        start = tl.GetStartFrame()
+        return int(io["in"]) - start, int(io["out"]) - start, "In/Out"
+    return None
+
+
+def mix3d_track(resolve) -> int | None:
+    """Indice della traccia audio chiamata MIX3D, se esiste."""
+    _, tl = current_timeline(resolve)
+    for i in range(1, tl.GetTrackCount("audio") + 1):
+        if tl.GetTrackName("audio", i) == "MIX3D":
+            return i
+    return None
+
+
+def clear_range(resolve, track: int, start: int, end: int) -> int:
+    """Toglie dalla traccia MIX3D le stampe precedenti che si sovrappongono alla
+    regione (solo clip il cui nome inizia con MIX3D). Ritorna quante. [V] DeleteClips."""
+    _, tl = current_timeline(resolve)
+    old = [it for it in tl.GetItemListInTrack("audio", track) or []
+           if it.GetName().upper().startswith("MIX3D") and it.GetStart() < end and it.GetEnd() > start]
+    if old:
+        tl.DeleteClips(old, False)
+    return len(old)

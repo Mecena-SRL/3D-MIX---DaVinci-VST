@@ -133,3 +133,36 @@ def test_mxf_canali_in_stream_separati(concert):
     x = media.read(ts[0]["wav"], [1, 2], 1.0, 1.0, FS)
     f = np.fft.rfftfreq(FS, 1 / FS)
     assert [f[np.argmax(np.abs(np.fft.rfft(x[:, c])))] for c in (0, 1)] == [440, 880]
+
+
+def test_stampa_regione(concert):
+    server.STATE["project"] = server.new_project()
+    p = server.STATE["project"]
+    p["tracks"] = server.tracks_from_file(str(concert / "tascam_0001.wav"))
+    r = mixer.print_mix(p, str(concert / "reg.wav"), target_lufs=None, rng=(10.0, 15.0))
+    assert r["inizio_s"] == 10.0 and abs(sf.info(str(concert / "reg.wav")).duration - 5.0) < 0.01
+
+
+class _FakeTimeline:
+    def __init__(self, markers, inout=None):
+        self.markers, self.inout = markers, inout
+
+    def GetMarkers(self):
+        return self.markers
+
+    def GetMarkInOut(self):
+        return self.inout
+
+    def GetStartFrame(self):
+        return 86400
+
+
+def test_regione_da_marker_o_inout(monkeypatch):
+    from mix3d import resolve_bridge as rb
+    tl = _FakeTimeline({100: {"name": "altro", "duration": 50}, 500: {"name": "MIX3D", "duration": 250}})
+    monkeypatch.setattr(rb, "current_timeline", lambda r: (None, tl))
+    assert rb.region(None) == (500, 750, "marker MIX3D")
+    tl.markers, tl.inout = {}, {"audio": {"in": 86500, "out": 86600}}
+    assert rb.region(None) == (100, 200, "In/Out")
+    tl.inout = {}
+    assert rb.region(None) is None

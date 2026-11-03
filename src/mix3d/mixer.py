@@ -72,9 +72,11 @@ def span(project: dict) -> tuple[float, float]:
 
 
 def print_mix(project: dict, path: str, target_lufs: float | None = -14.0,
-              ceiling_dbtp: float = -1.0, block_s: float = 30.0, progress=lambda f: None) -> dict:
-    """Stampa il mix su WAV 48 kHz 24 bit. Prima passata: misura; seconda: normalizza."""
-    start, end = span(project)
+              ceiling_dbtp: float = -1.0, block_s: float = 30.0, rng: tuple[float, float] | None = None,
+              progress=lambda f: None) -> dict:
+    """Stampa il mix su WAV 48 kHz 24 bit, su tutta la timeline o sulla regione `rng`
+    (secondi). Prima passata: misura; seconda: normalizza."""
+    start, end = rng or span(project)
     sr = project.get("sr", 48000)
     tmp = path + ".tmp.wav"
     loud, peak = Loudness(sr, 2), 0.0

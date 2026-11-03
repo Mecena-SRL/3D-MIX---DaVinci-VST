@@ -18,6 +18,7 @@
   <button id="bAnalyze" class="primary">Analizza e sincronizza</button>
   <div id="job" class="job" hidden><span id="jobMsg"></span><div class="bar"><i id="jobBar"></i></div></div>
   <span class="grow"></span>
+  <button id="bIntegr" title="Apri MIX3D da Resolve">In Resolve…</button>
   <button id="bOpen">Apri</button>
   <button id="bSave">Salva</button>
   <button id="bQuit" title="Chiude MIX3D">Esci</button>
@@ -107,9 +108,10 @@
   <h3>Stampa del mix</h3>
   <label>File WAV <input id="prPath" value="~/Desktop/MIX3D.wav"></label>
   <label>Destinazione
-    <select id="prTarget"><option value="file">Solo file</option><option value="new">Resolve: nuova traccia "MIX3D"</option></select>
+    <select id="prTarget"><option value="file">Solo file</option><option value="mix3d">Resolve: traccia "MIX3D" (la crea se manca)</option><option value="new">Resolve: nuova traccia</option></select>
     <input id="prTrack" type="number" min="1" placeholder="o n° traccia esistente">
   </label>
+  <label><input type="checkbox" id="prRegion"> Solo la regione: marker "MIX3D" con durata o In/Out della timeline. La stampa sostituisce quella precedente sulla stessa regione.</label>
   <label>Loudness <select id="prLufs"><option value="-14">-14 LUFS (YouTube)</option><option value="-16">-16 LUFS</option><option value="-23">-23 LUFS (EBU R128)</option><option value="">Nessuna normalizzazione</option></select></label>
   <p class="muted small">Picco massimo -1 dBTP. Il render usa gli stessi parametri che stai ascoltando.</p>
   <div class="actions"><button id="prCancel">Annulla</button><button id="prOk" class="primary">Stampa</button></div>
@@ -119,6 +121,15 @@
   <h3>Apri progetto</h3>
   <label>Percorso JSON <input id="opPath" value="~/Desktop/mix3d_progetto.json"></label>
   <div class="actions"><button id="opCancel">Annulla</button><button id="opOk" class="primary">Apri</button></div>
+</dialog>
+
+<dialog id="dlgIntegr">
+  <h3>MIX3D dentro DaVinci Resolve</h3>
+  <p class="muted">Pannello: <b>Workspace › Workflow Integrations › MIX3D</b> (Resolve Studio). Script: <b>Workspace › Scripts › MIX3D</b>.<br>
+  Come adjustment clip: metti un marker chiamato <b>MIX3D</b> con durata sulla regione (o In/Out) e usa Stampa › Solo la regione.</p>
+  <p id="itStatus"></p>
+  <p class="muted small">Il pannello va in una cartella di sistema: macOS chiederà la password. Riavvia Resolve dopo l'installazione.</p>
+  <div class="actions"><button id="itClose">Chiudi</button><button id="itScript">Solo script</button><button id="itOk" class="primary">Installa pannello e script</button></div>
 </dialog>
 
 <div id="toast" class="toast" hidden></div>

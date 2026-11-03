@@ -116,20 +116,38 @@ def job_analyze(job):
 
 
 def job_print(job, opts):
+    """Stampa su file; con Resolve: su traccia nuova/esistente o sulla regione
+    (marker "MIX3D" o In/Out), sostituendo la stampa precedente sulla traccia MIX3D."""
     p = STATE["project"]
     path = os.path.expanduser(opts.get("path") or "~/Desktop/MIX3D.wav")
-    job["msg"] = "render"
-    res = mixer.print_mix(p, path, target_lufs=opts.get("lufs", -14.0),
-                          progress=lambda f: job.update(progress=f * 0.95))
     target = opts.get("target", "file")
+    r = p.get("resolve") or {}
+    fps = float(r.get("fps") or 25)
+    rng = resolve = None
     if target != "file":
-        from .resolve_bridge import connect, reimport_wav
-        r = p.get("resolve") or {}
-        fps = float(r.get("fps") or 25)
-        frame = int(r.get("start_frame", 0) + round(res["inizio_s"] * fps))
+        from . import resolve_bridge as rb
+        resolve = rb.connect()
+        if opts.get("regione"):
+            reg = rb.region(resolve)
+            if reg is None:
+                raise RuntimeError('nessun marker "MIX3D" con durata né In/Out sulla timeline')
+            rng = (reg[0] / fps, reg[1] / fps)
+            job["msg"] = f"regione da {reg[2]}"
+    stem, ext = os.path.splitext(path)
+    if rng:
+        path = f"{stem}_{int(rng[0] * fps)}{ext}"  # una stampa per regione: nomi diversi
+    job["msg"] = "render"
+    res = mixer.print_mix(p, path, target_lufs=opts.get("lufs", -14.0), rng=rng,
+                          progress=lambda f: job.update(progress=f * 0.95))
+    if resolve:
+        from . import resolve_bridge as rb
+        frame = int(round(res["inizio_s"] * fps))
+        track = None if target == "new" else int(target) if str(target).isdigit() else rb.mix3d_track(resolve)
+        if track and opts.get("regione"):
+            res["sostituite"] = rb.clear_range(resolve, track, int(r.get("start_frame", 0)) + frame,
+                                               int(r.get("start_frame", 0)) + frame + int(res["durata_s"] * fps))
         job["msg"] = "reimport in Resolve"
-        res["traccia"] = reimport_wav(connect(), path, frame,
-                                      track_index=None if target == "new" else int(target))
+        res["traccia"] = rb.reimport_wav(resolve, path, int(r.get("start_frame", 0)) + frame, track_index=track)
     job["progress"] = 1.0
     return res
 
@@ -221,6 +239,9 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json(public_state())
             if u.path == "/api/devices":
                 return self.send_json(devices_payload())
+            if u.path == "/api/resolve/integration":
+                from . import resolve_install
+                return self.send_json(resolve_install.status())
             if u.path == "/api/browse":
                 return self.send_json(browse(q.get("dir", "")))
             if u.path.startswith("/api/jobs/"):
@@ -277,6 +298,9 @@ class Handler(SimpleHTTPRequestHandler):
                     STATE["project"] = json.loads(Path(os.path.expanduser(b["path"])).read_text())
                     for t in STATE["project"]["tracks"]:  # progetti precedenti senza catena
                         t.setdefault("microfono", devices.profile(t["profile"])["microfono"])
+                elif u.path == "/api/resolve/install":
+                    from . import resolve_install
+                    return self.send_json(resolve_install.install(b.get("pannello", True)))
                 elif u.path == "/api/quit":
                     threading.Timer(0.3, os._exit, (0,)).start()
                     return self.send_json({"ok": True})
@@ -293,8 +317,9 @@ def serve(port: int = 8730, open_browser: bool = True):
     try:
         srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     except OSError:  # già aperto (es. doppio clic sull'app): riapri solo il browser
-        import webbrowser
-        webbrowser.open(f"http://127.0.0.1:{port}")
+        if open_browser:
+            import webbrowser
+            webbrowser.open(f"http://127.0.0.1:{port}")
         return
     url = f"http://127.0.0.1:{port}"
     print(f"MIX3D pannello: {url}  (Ctrl+C per uscire)")

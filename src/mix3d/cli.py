@@ -53,6 +53,12 @@ def cmd_ui(args):
     serve(args.port, not args.no_browser)
 
 
+def cmd_install_resolve(args):
+    from .resolve_install import install
+
+    print(install(panel=not args.solo_script))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="mix3d")
     sub = p.add_subparsers(required=True)
@@ -78,6 +84,10 @@ def main(argv=None):
     s.add_argument("--port", type=int, default=8730)
     s.add_argument("--no-browser", action="store_true")
     s.set_defaults(fn=cmd_ui)
+
+    s = sub.add_parser("install-resolve", help="aggiunge MIX3D a Workspace > Scripts e Workflow Integrations")
+    s.add_argument("--solo-script", action="store_true", help="solo lo script, senza pannello (niente password)")
+    s.set_defaults(fn=cmd_install_resolve)
 
     args = p.parse_args(argv)
     try:
