@@ -55,6 +55,31 @@ def test_rischi_catena():
     assert db["wireless_drift"] in devices.chain_risks("dji_mic2", "dji_mic2_tx")
 
 
+def test_vocabolario_e_adattatori():
+    db = devices.load()
+    conn, alim = db["_info"]["connettori"], db["_info"]["alimentazione"]
+    for k, m in db["microfoni"].items():
+        assert set(m.get("connettore", [])) <= set(conn) and set(m.get("alimentazione", [])) <= set(alim), k
+    for k, r in db["registratori"].items():
+        assert all(i["tipo"] in conn for i in r.get("ingressi", [])), k
+        assert all(mi in db["microfoni"] for mi in r.get("mic_interno", [])), k
+    for a in db["adattatori"]:
+        assert a["da"] in conn and a["a"] in conn and all(r in db["registratori"] for r in a.get("solo", []))
+
+
+def test_compatibilita():
+    c = devices.compat
+    assert c("fx6", "mkh416")["ok"] and "XLR" in c("fx6", "mkh416")["via"]
+    assert c("fx30", "mkh416")["ok"] and "XLR-H1" in c("fx30", "mkh416")["via"]
+    assert c("fx6", "ecm_b1m")["ok"] is False                  # slitta FX6 non digitale
+    assert c("osmo_action5pro", "mkh416")["ok"] is False       # niente phantom
+    assert "diretto" in c("osmo_action5pro", "dji_mic2_tx")["via"]
+    assert c("tascam_x8", "fx6_interno")["ok"] is False
+    assert c("mixer", "c2")["ok"] is None
+    for p in devices.load()["profili"]:
+        assert c(p["registratore"], p["microfono"])["ok"] is not False, p["id"]
+
+
 def test_suggerimento_32bit_tascam():
     s = devices.suggest({"name": "tascam_0001.wav", "codec": "pcm_f32le", "bits": 32, "sr": 48000, "ch_index": 1})
     assert s[0]["id"].startswith("x8_")
