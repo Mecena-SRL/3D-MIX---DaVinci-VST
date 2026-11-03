@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIX3D</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+             "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<header>
+  <b class="logo">MIX3D</b>
+  <input id="pname" class="pname" title="Nome progetto">
+  <button id="bAdd">+ File</button>
+  <button id="bResolve">Da Resolve</button>
+  <button id="bAnalyze" class="primary">Analizza e sincronizza</button>
+  <div id="job" class="job" hidden><span id="jobMsg"></span><div class="bar"><i id="jobBar"></i></div></div>
+  <span class="grow"></span>
+  <button id="bOpen">Apri</button>
+  <button id="bSave">Salva</button>
+</header>
+
+<main>
+  <section id="tracks" class="tracks">
+    <div class="empty" id="emptyTracks">Nessuna traccia. Aggiungi file o leggi la timeline di Resolve.</div>
+  </section>
+
+  <section class="panel">
+    <nav class="tabs">
+      <button data-tab="scene" class="on">Scena 3D</button>
+      <button data-tab="analysis">Analisi</button>
+      <button data-tab="device">Dispositivo</button>
+    </nav>
+
+    <div id="tab-scene" class="tab on">
+      <div class="scene-tools">
+        <label>Sala L <input type="number" id="roomW" step="1" min="4"> m</label>
+        <label>P <input type="number" id="roomD" step="1" min="4"> m</label>
+        <label>H <input type="number" id="roomH" step="0.5" min="2"> m</label>
+        <button id="bAuto">Tutto automatico</button>
+        <button id="bTop">Vista dall'alto</button>
+        <span class="hint">Trascina i microfoni o l'ascoltatore (cono) sul pavimento. Shift + trascina: altezza.</span>
+      </div>
+      <div id="scene" class="scene"></div>
+    </div>
+
+    <div id="tab-analysis" class="tab">
+      <div id="anaEmpty" class="empty">Seleziona una traccia e avvia l'analisi.</div>
+      <div id="ana" hidden>
+        <h3 id="anaTitle"></h3>
+        <div class="tiles" id="anaTiles"></div>
+        <div class="chips" id="anaWarn"></div>
+        <h4>Forma d'onda</h4><canvas id="cWave" class="chart" height="120"></canvas>
+        <div class="row2">
+          <div><h4>Spettro (1/3 ottava) e risposta del dispositivo</h4><canvas id="cSpec" class="chart" height="200"></canvas></div>
+          <div><h4>Loudness a breve termine (LUFS)</h4><canvas id="cLufs" class="chart" height="200"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-device" class="tab">
+      <div id="devEmpty" class="empty">Seleziona una traccia.</div>
+      <div id="dev" hidden>
+        <h3 id="devTitle"></h3>
+        <p id="devRole" class="muted"></p>
+        <div class="row2">
+          <div><h4>Microfono</h4><table id="devMic" class="spec"></table></div>
+          <div><h4>Registratore</h4><table id="devRec" class="spec"></table></div>
+        </div>
+        <div class="chips" id="devRisks"></div>
+        <div class="row2">
+          <div><h4>Risposta stimata e EQ di correzione</h4><canvas id="cEq" class="chart" height="200"></canvas>
+            <p class="legend"><i class="sw a"></i>risposta <i class="sw b"></i>correzione (max ±6 dB)</p></div>
+          <div><h4>Diagramma polare</h4><canvas id="cPolar" class="chart square" height="220"></canvas></div>
+        </div>
+        <p class="muted small">Fiducia: <span class="f datasheet">datasheet</span> <span class="f misurato">misurato</span> <span class="f ipotizzato">ipotizzato</span>. Fonti: <span id="devSrc"></span></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <button id="bPlay" class="play" title="Play/Pausa (spazio)">▶</button>
+  <span id="time" class="time">0:00.0</span>
+  <div id="seek" class="seek"><i id="seekBar"></i><b id="bufBar"></b></div>
+  <div class="ab"><button id="bA" class="on">A mix</button><button id="bB">B somma</button></div>
+  <label title="Volume master">Master <input type="range" id="master" min="-24" max="12" step="0.5"></label>
+  <label title="Larghezza stereo">Largh. <input type="range" id="width" min="0" max="1.5" step="0.05"></label>
+  <label title="Attenuazione con la distanza">Dist. <input type="range" id="atten" min="0" max="1" step="0.05"></label>
+  <label><input type="checkbox" id="corr"> Correggi colore</label>
+  <div class="meter master"><i id="mL"></i><i id="mR"></i></div>
+  <span id="lufsLive" class="time" title="Picco del blocco in ascolto (rosso sopra -1 dBFS)">picco -∞</span>
+  <button id="bPrint" class="primary">Stampa…</button>
+</footer>
+
+<dialog id="dlgFiles">
+  <h3>Aggiungi file</h3>
+  <div class="path"><button id="fsUp">↑</button><span id="fsDir"></span></div>
+  <ul id="fsList" class="fslist"></ul>
+  <div class="actions"><span id="fsCount" class="muted"></span><button id="fsCancel">Annulla</button><button id="fsOk" class="primary">Aggiungi</button></div>
+</dialog>
+
+<dialog id="dlgPrint">
+  <h3>Stampa del mix</h3>
+  <label>File WAV <input id="prPath" value="~/Desktop/MIX3D.wav"></label>
+  <label>Destinazione
+    <select id="prTarget"><option value="file">Solo file</option><option value="new">Resolve: nuova traccia "MIX3D"</option></select>
+    <input id="prTrack" type="number" min="1" placeholder="o n° traccia esistente">
+  </label>
+  <label>Loudness <select id="prLufs"><option value="-14">-14 LUFS (YouTube)</option><option value="-16">-16 LUFS</option><option value="-23">-23 LUFS (EBU R128)</option><option value="">Nessuna normalizzazione</option></select></label>
+  <p class="muted small">Picco massimo -1 dBTP. Il render usa gli stessi parametri che stai ascoltando.</p>
+  <div class="actions"><button id="prCancel">Annulla</button><button id="prOk" class="primary">Stampa</button></div>
+</dialog>
+
+<dialog id="dlgOpen">
+  <h3>Apri progetto</h3>
+  <label>Percorso JSON <input id="opPath" value="~/Desktop/mix3d_progetto.json"></label>
+  <div class="actions"><button id="opCancel">Annulla</button><button id="opOk" class="primary">Apri</button></div>
+</dialog>
+
+<div id="toast" class="toast" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

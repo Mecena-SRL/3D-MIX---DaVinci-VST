@@ -47,6 +47,12 @@ def cmd_reimport(args):
     print(f"traccia audio {track} 'MIX3D' creata")
 
 
+def cmd_ui(args):
+    from .server import serve
+
+    serve(args.port, not args.no_browser)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="mix3d")
     sub = p.add_subparsers(required=True)
@@ -67,6 +73,11 @@ def main(argv=None):
     s.add_argument("wav")
     s.add_argument("--frame", type=int, required=True, help="frame di timeline di inizio")
     s.set_defaults(fn=cmd_reimport)
+
+    s = sub.add_parser("ui", help="apre il pannello MIX3D nel browser")
+    s.add_argument("--port", type=int, default=8730)
+    s.add_argument("--no-browser", action="store_true")
+    s.set_defaults(fn=cmd_ui)
 
     args = p.parse_args(argv)
     try:

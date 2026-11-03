@@ -91,10 +91,12 @@ def export_otio(resolve, path: str) -> bool:
     return bool(tl.Export(path, resolve.EXPORT_OTIO, resolve.EXPORT_NONE))
 
 
-def reimport_wav(resolve, wav_path: str, record_frame: int, track_type: str = "stereo") -> int:
-    """Passo 6: importa un WAV e lo mette su una NUOVA traccia audio.
+def reimport_wav(resolve, wav_path: str, record_frame: int, track_type: str = "stereo",
+                 track_index: int | None = None) -> int:
+    """Passo 6: importa un WAV su una NUOVA traccia audio, o su `track_index` se dato
+    (la traccia scelta da te: il clip si aggiunge, gli altri clip restano).
 
-    Ritorna l'indice della traccia creata. [V] `recordFrame`, `trackIndex` e
+    Ritorna l'indice della traccia usata. [V] `recordFrame`, `trackIndex` e
     `mediaType` in AppendToTimeline vanno verificati sulla tua versione.
     """
     project, tl = current_timeline(resolve)
@@ -104,10 +106,12 @@ def reimport_wav(resolve, wav_path: str, record_frame: int, track_type: str = "s
     items = media_pool.ImportMedia([os.path.abspath(wav_path)])
     if not items:
         raise RuntimeError(f"import fallito: {wav_path}")
-    if not tl.AddTrack("audio", track_type):
-        raise RuntimeError("impossibile creare la traccia audio")
-    track = tl.GetTrackCount("audio")
-    tl.SetTrackName("audio", track, "MIX3D")
+    track = track_index
+    if track is None:
+        if not tl.AddTrack("audio", track_type):
+            raise RuntimeError("impossibile creare la traccia audio")
+        track = tl.GetTrackCount("audio")
+        tl.SetTrackName("audio", track, "MIX3D")
     placed = media_pool.AppendToTimeline([{
         "mediaPoolItem": items[0], "trackIndex": track,
         "recordFrame": int(record_frame), "mediaType": 2,

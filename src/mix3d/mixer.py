@@ -1,0 +1,101 @@
+"""Mix stereo a blocchi: stesso codice per l'ascolto in tempo reale e per la stampa.
+
+Per ogni traccia: lettura allineata (offset + drift), correzione del colore
+del microfono (FIR dal database), guadagno, distanza e pan rispetto
+all'ascoltatore virtuale. In modalità B (bypass) solo somma con i guadagni.
+"""
+from __future__ import annotations
+
+import os
+from functools import lru_cache
+
+import numpy as np
+import soundfile as sf
+from scipy.signal import firwin2, oaconvolve
+
+from . import devices, media
+from .analysis import Loudness
+from .geometry import spatial_params
+
+FIR_TAPS = 1023
+PAD_S = FIR_TAPS / 48000
+
+
+@lru_cache(maxsize=64)
+def correction_fir(mic_id: str, sr: int) -> np.ndarray:
+    mic = devices.load()["microfoni"][mic_id]
+    f = np.linspace(0, sr / 2, 256)
+    g = 10 ** (devices.correction_db(mic, f) / 20)
+    return firwin2(FIR_TAPS, f / (sr / 2), g)
+
+
+def active(tracks: list[dict]) -> list[dict]:
+    solo = any(t.get("solo") for t in tracks)
+    return [t for t in tracks if not t.get("mute") and (t.get("solo") or not solo)]
+
+
+def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[np.ndarray, dict]:
+    """Blocco stereo [n, 2] dalla posizione t0 (s di timeline) e livelli per traccia (dBFS)."""
+    sr = project.get("sr", 48000)
+    n = int(round(dur * sr))
+    out = np.zeros((n, 2), np.float32)
+    levels = {}
+    for t in active(project["tracks"]):
+        off = t["offset_s"] - t.get("drift_ppm", 0) * 1e-6 * (t0 - t.get("sync_t0", 0))
+        x = media.read(t["wav"], t["channels"], t0 - off - PAD_S, dur + PAD_S, sr)
+        mic = devices.profile(t["profile"])["microfono"] if t.get("profile") else None
+        if mic and project.get("correzione", True) and not bypass:
+            x = oaconvolve(x, correction_fir(mic, sr)[:, None], axes=0)[FIR_TAPS // 2:][: len(x)]
+        x = x[-n:]
+        g = 10 ** (t.get("gain_db", 0) / 20)
+        if x.shape[1] == 1:
+            x = np.repeat(x, 2, axis=1)
+        if not bypass:
+            dist, pan = spatial_params(t["pos"], project["listener"])
+            pan = np.clip(pan * project.get("larghezza", 1.0) + t.get("pan", 0), -1, 1)
+            g *= (project.get("dist_ref_m", 5.0) / dist) ** project.get("attenuazione", 0.5)
+            th = (pan + 1) * np.pi / 4  # pan a potenza costante
+            x = x * np.array([np.cos(th), np.sin(th)]) * np.sqrt(2)
+        x = x[:n] * g
+        out[: len(x)] += x
+        levels[t["id"]] = round(float(20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-10)), 1)
+    out *= 10 ** (project.get("master_db", 0) / 20)
+    levels["master"] = round(float(20 * np.log10(np.abs(out).max(initial=0) + 1e-10)), 1)
+    return out, levels
+
+
+def span(project: dict) -> tuple[float, float]:
+    """Inizio e fine della timeline coperta dalle tracce attive."""
+    ts = active(project["tracks"]) or project["tracks"]
+    return (min(t["offset_s"] for t in ts),
+            max(t["offset_s"] + t["info"]["duration"] for t in ts))
+
+
+def print_mix(project: dict, path: str, target_lufs: float | None = -14.0,
+              ceiling_dbtp: float = -1.0, block_s: float = 30.0, progress=lambda f: None) -> dict:
+    """Stampa il mix su WAV 48 kHz 24 bit. Prima passata: misura; seconda: normalizza."""
+    start, end = span(project)
+    sr = project.get("sr", 48000)
+    tmp = path + ".tmp.wav"
+    loud, peak = Loudness(sr, 2), 0.0
+    with sf.SoundFile(tmp, "w", sr, 2, "FLOAT") as f:
+        t = start
+        while t < end:
+            blk, _ = render(project, t, min(block_s, end - t))
+            loud.feed(blk); f.write(blk)
+            peak = max(peak, float(np.abs(blk).max(initial=0)))
+            t += block_s
+            progress(0.8 * (t - start) / (end - start))
+    lufs = loud.integrated()
+    gain_db = 0.0 if target_lufs is None or not np.isfinite(lufs) else target_lufs - lufs
+    peak_db = 20 * np.log10(peak + 1e-10) + 0.5  # +0.5 dB: margine per il true peak fra campioni
+    gain_db = min(gain_db, ceiling_dbtp - peak_db)
+    g = 10 ** (gain_db / 20)
+    with sf.SoundFile(tmp) as src, sf.SoundFile(path, "w", sr, 2, "PCM_24") as dst:
+        for blk in src.blocks(blocksize=sr * 30, dtype="float32"):
+            dst.write(blk * g)
+    os.remove(tmp)
+    progress(1.0)
+    return {"path": path, "inizio_s": start, "durata_s": end - start, "lufs_prima": round(lufs, 1),
+            "lufs": round(lufs + gain_db, 1), "guadagno_db": round(gain_db, 1),
+            "picco_dbfs": round(peak_db - 0.5 + gain_db, 1)}

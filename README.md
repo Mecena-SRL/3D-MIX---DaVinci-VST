@@ -13,11 +13,30 @@ e reimporta una traccia `MIX3D`. Non modifica mai i media né le tracce esistent
 | `resolve_bridge` | legge le tracce audio e i file originali, esporta OTIO, reimporta un WAV su una nuova traccia | scritto, da verificare su Resolve reale |
 | `sync` (M2) | GCC-PHAT sub-campione, drift lineare robusto (RANSAC), raffinamento | testato su dati simulati: errore < 20 µs, drift < 1 ppm |
 
+| `devices` + `data/devices.json` | database dispositivi (datasheet, fiducia per campo), suggerimento automatico, curve di risposta/correzione, polari | testato |
+| `analysis` | forma d'onda, picco, rumore, dinamica, clipping, spettro 1/3 ott, banda utile, loudness BS.1770, sync grossolano+fine | testato su dati simulati |
+| `mixer` | mix stereo a blocchi (ascolto e stampa con lo stesso codice), correzione colore, distanza e pan dall'ascoltatore, normalizzazione LUFS | testato |
+| `server` + `web/` | pannello nel browser (`mix3d ui`) | provato in Chromium headless |
+
+## Pannello (`mix3d ui`)
+
+Apre `http://127.0.0.1:8730` (solo locale; serve internet per caricare Three.js dal CDN).
+
+1. **+ File** o **Da Resolve**: ogni file diventa una o più tracce (canali a coppie). Il dispositivo è suggerito da nome, codec, bit e canale: conferma o cambia (bordo giallo = da confermare).
+2. **Analizza e sincronizza**: analisi di ogni traccia e sync (GCC-PHAT + drift) sulla traccia di riferimento; posizioni automatiche.
+3. **Scena 3D**: trascina microfoni e ascoltatore (shift = altezza). *Tutto automatico* ripristina le stime.
+4. **Analisi / Dispositivo**: grafici della traccia selezionata, specifiche con fiducia, EQ di correzione, polare.
+5. **Ascolto**: play/spazio, A = mix spaziale, B = somma semplice. Buffer ~3 s; a ogni modifica il buffer si rifà.
+6. **Stampa**: WAV 24 bit normalizzato (-14 LUFS, picco -1 dBTP), opzionalmente su una nuova traccia o su una traccia esistente di Resolve.
+
+Limiti: il posizionamento automatico è approssimato (posizione tipica del profilo + ritardi fra canali dello stesso registratore); il drift in ascolto è corretto a blocchi (in F1 ricampionamento continuo). Database: [`docs/database_dispositivi.md`](docs/database_dispositivi.md).
+
 ## Installazione (macOS)
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
+brew install ffmpeg                     # audio dei file video (MP4/MOV)
 pytest
 ```
 
@@ -29,6 +48,7 @@ In Resolve Studio: **Preferenze > Sistema > Generale > External scripting using:
 mix3d info --otio backup.otio           # tracce, clip e file originali della timeline attiva
 mix3d sync tascam.wav fx6.wav dji.wav   # offset e drift di ogni file rispetto al riferimento
 mix3d reimport mix.wav --frame 86400    # nuova traccia 'MIX3D' al frame indicato
+mix3d ui                                # pannello nel browser
 ```
 
 Le verifiche da fare su Resolve sono in [`docs/F0_verifiche.md`](docs/F0_verifiche.md).
