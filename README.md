@@ -35,7 +35,7 @@ Limiti: il posizionamento automatico è approssimato (posizione tipica del profi
 
 Scarica il `.dmg` dalle [Release](https://github.com/Mecena-SRL/3D-MIX---DaVinci-VST/releases) (arm64 = Apple Silicon, x86_64 = Intel), trascina **MIX3D** in Applicazioni.
 L'app non è firmata: al primo avvio tasto destro su MIX3D > Apri > Apri. Si apre il pannello nel browser; **Esci** la chiude.
-ffmpeg e Three.js sono inclusi, nessuna installazione extra. Build locale: `packaging/build_macos.sh`; release: push di un tag `vX.Y.Z` (GitHub Actions, macOS).
+ffmpeg e Three.js sono inclusi, nessuna installazione extra. Build locale: `packaging/build_macos.sh`; release: Actions > Release macOS > Run workflow con *release* attivo (usa la versione di `pyproject.toml`), oppure push di un tag `vX.Y.Z`.
 
 ## Installazione da sorgente (macOS)
 
