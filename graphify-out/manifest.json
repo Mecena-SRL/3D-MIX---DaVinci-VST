@@ -66,15 +66,15 @@
     "semantic_hash": ""
   },
   "src/mix3d/data/devices.json": {
-    "mtime": 1793742359.2641964,
-    "seen": 1793746914.5809422,
-    "ast_hash": "a81a360fd81e0e5e182dab4cd84b3968",
+    "mtime": 1793747337.8815591,
+    "seen": 1793747467.5494745,
+    "ast_hash": "88dcbaa71e0193784f9befe7994c4d3e",
     "semantic_hash": ""
   },
   "src/mix3d/devices.py": {
-    "mtime": 1793742359.2650626,
-    "seen": 1793746914.580946,
-    "ast_hash": "64a0e6fc46183d88f142c6f44841a3be",
+    "mtime": 1793747337.8815591,
+    "seen": 1793747467.54948,
+    "ast_hash": "f90bb6ea7dd13836d0d70e4a0f5da803",
     "semantic_hash": ""
   },
   "src/mix3d/geometry.py": {
@@ -96,21 +96,21 @@
     "semantic_hash": ""
   },
   "src/mix3d/server.py": {
-    "mtime": 1793746898.6473653,
-    "seen": 1793746914.5809577,
-    "ast_hash": "54d097d39b6211574636f5610c0f4fa1",
+    "mtime": 1793747337.8821464,
+    "seen": 1793747467.5494933,
+    "ast_hash": "ab336aa32e1e88eee562d508fd8379f9",
     "semantic_hash": ""
   },
   "src/mix3d/web/app.js": {
-    "mtime": 1793746615.9572823,
-    "seen": 1793746914.5809605,
-    "ast_hash": "431fc933a5c18605232cebf88d9f3978",
+    "mtime": 1793747337.8821464,
+    "seen": 1793747467.5494967,
+    "ast_hash": "fd224db759ab72cc6d7e72d49f642b10",
     "semantic_hash": ""
   },
   "tests/test_ui_engine.py": {
-    "mtime": 1793746659.1040218,
-    "seen": 1793746914.5809703,
-    "ast_hash": "09614efcb1157874fc6ff20141176d48",
+    "mtime": 1793747337.8821464,
+    "seen": 1793747467.5495071,
+    "ast_hash": "2a49e233344bc60adb746d426edd3ed4",
     "semantic_hash": ""
   },
   "src/mix3d/web/index.html": {
@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "docs/database_dispositivi.md": {
-    "mtime": 1793742094.3862858,
-    "seen": 1793746914.5809739,
-    "ast_hash": "16b18147a7082006c0ba2b5aa8245004",
+    "mtime": 1793747337.8764877,
+    "seen": 1793747467.5495102,
+    "ast_hash": "b87f7d69f8aa46d09b3018a045e095d4",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
