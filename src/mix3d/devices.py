@@ -36,6 +36,7 @@ def profile(pid: str) -> dict:
     rec = db["registratori"][p["registratore"]]
     return {**p, "rec": rec, "mic": db["microfoni"][p["microfono"]],
             "rischi_testo": chain_risks(p["registratore"], p["microfono"]),
+            "compatibilita": compat(p["registratore"], p["microfono"]),
             "gain_db": ROLE_GAIN_DB.get(p["ruolo"], -6.0)}
 
 
@@ -44,6 +45,60 @@ def chain_risks(rec_id: str, mic_id: str) -> list[str]:
     db = load()
     keys = db["registratori"][rec_id].get("rischi", []) + db["microfoni"][mic_id].get("rischi", [])
     return [db["rischi"][k] for k in dict.fromkeys(keys)]
+
+
+FREE_POWER = {"batteria", "slitta", "usb", "nessuna"}
+
+
+def _powered(mic: dict, ing: dict, hop: dict | None) -> bool:
+    """Il mic ha l'alimentazione che l'ingresso (o l'adattatore) fornisce?"""
+    need = set(mic.get("alimentazione", []))
+    if not need or need & FREE_POWER:
+        return True
+    src = {**ing, **(hop or {})}
+    return bool(("phantom" in need and src.get("phantom")) or ("plug_in_power" in need and src.get("plug_in_power")))
+
+
+def compat(rec_id: str, mic_id: str) -> dict:
+    """Si può collegare il microfono al registratore? {ok: True/False/None, via, note}.
+
+    Prima il connettore diretto, poi gli adattatori del database; None = dati mancanti."""
+    db = load()
+    r, m = db["registratori"][rec_id], db["microfoni"][mic_id]
+    if mic_id in r.get("mic_interno", []):
+        return {"ok": True, "via": "microfono integrato", "note": ""}
+    if r.get("virtuale") or not m.get("connettore"):
+        return {"ok": None, "via": "", "note": "collegamento non verificabile"}
+    found, unpowered = [], False
+    for ing in r.get("ingressi", []):
+        for c in m["connettore"]:
+            hops = [None] if c == ing["tipo"] else [
+                a for a in db.get("adattatori", []) if a["da"] == c and a["a"] == ing["tipo"]
+                and rec_id in a.get("solo", [rec_id]) and (a.get("richiede") != "phantom" or ing.get("phantom"))]
+            for hop in hops:
+                if _powered(m, ing, hop):
+                    found.append((hop is not None, ing, hop))
+                else:
+                    unpowered = True
+    if not found:
+        why = ("è il microfono interno di un altro dispositivo" if m["connettore"] == ["integrato"]
+               else "manca phantom o plug-in power" if unpowered else "nessun ingresso compatibile")
+        return {"ok": False, "via": "", "note": why}
+    _, ing, hop = min(found, key=lambda f: f[0])
+    via = ing["nome"] + (f" con {hop['nome']}" if hop else "")
+    return {"ok": True, "via": via, "note": (hop or ing).get("note", "")}
+
+
+def compat_matrix() -> dict:
+    """{registratore: {microfono: via | False | None}} per il pannello."""
+    db = load()
+    out = {}
+    for r in db["registratori"]:
+        out[r] = {}
+        for m in db["microfoni"]:
+            c = compat(r, m)
+            out[r][m] = c["via"] if c["ok"] else c["ok"]
+    return out
 
 
 def response_db(mic: dict, freqs: np.ndarray) -> np.ndarray:

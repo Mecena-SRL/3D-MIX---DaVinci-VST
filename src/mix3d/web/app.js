@@ -202,6 +202,9 @@ function specRows(obj, keys) {
   return keys.filter(([k]) => obj[k] != null && obj[k] !== "").map(([k, label, f = (v) => v]) =>
     `<tr><td>${label}</td><td>${f(obj[k])}<span class="f ${fid[k] || "ipotizzato"}">${fid[k] || "ipotizzato"}</span></td></tr>`).join("");
 }
+// opzioni raggruppate per marca; mark(k) antepone un segno (es. ✕ = non collegabile)
+const grouped = (obj, cur, mark = () => "") => Object.entries(Object.entries(obj).reduce((g, e) => ((g[e[1].marca || "Altro"] ||= []).push(e), g), {}))
+  .map(([g, list]) => `<optgroup label="${g}">${options(list.map(([k, v]) => [k, mark(k) + v.nome]), cur)}</optgroup>`).join("");
 const options = (entries, cur) => entries.map(([k, n]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${n}</option>`).join("");
 function renderDevice() {
   const t = selected();
@@ -211,8 +214,9 @@ function renderDevice() {
   $("dProf").innerHTML = t.suggeriti.map((s) => `<option value="${s.id}">★ ${s.nome} (${Math.round(s.confidenza * 100)}%)</option>`).join("")
     + `<option disabled>──────────</option>` + DB.profili.filter((p) => !sug.has(p.id)).map((p) => `<option value="${p.id}">${p.nome}</option>`).join("");
   $("dProf").value = t.profile;
-  $("dRec").innerHTML = options(Object.entries(DB.registratori).map(([k, r]) => [k, r.nome]), t.registratore);
-  $("dMic").innerHTML = options(Object.entries(DB.microfoni).map(([k, m]) => [k, m.nome]), t.microfono);
+  $("dRec").innerHTML = grouped(DB.registratori, t.registratore);
+  const ok = DB.compat[t.registratore] || {};
+  $("dMic").innerHTML = grouped(DB.microfoni, t.microfono, (k) => (ok[k] === false ? "✕ " : ""));
   const p = DB.profili.find((x) => x.id === t.profile), m = mic(t), r = rec(t);
   $("devTitle").textContent = `${t.nome}: ${m.nome} › ${r.nome}`;
   $("devRole").textContent = `Ruolo nel mix: ${p?.ruolo || "-"} · posizione tipica: ${p?.posizione || "-"} · file ${t.info.bits === 32 ? "32 bit float" : (t.info.bits || "?") + " bit"}, ${t.info.sr / 1000} kHz`;
@@ -220,13 +224,17 @@ function renderDevice() {
   $("devWhy").innerHTML = t.confermato ? `<b>Confermato.</b> ${m.note || ""}` : `<b>Suggerito</b> perché: ${why.join(", ") || "nessun indizio dal file"}. <button id="bConfirm" class="primary small">Conferma</button>`;
   $("bConfirm")?.addEventListener("click", () => setChain(t, { confermato: true }));
   $("devMic").innerHTML = specRows(m, [
-    ["capsula", "Capsula"], ["diagramma", "Diagramma"], ["banda", "Banda", (b) => `${b[0]} Hz – ${b[1] / 1000} kHz`],
-    ["sensibilita_mv_pa", "Sensibilità", (v) => `${v} mV/Pa`], ["rumore_dba", "Rumore proprio", (v) => `${v} dB(A)`], ["spl_max", "SPL max", (v) => `${v} dB`]]);
+    ["tipo", "Tipo"], ["capsula", "Capsula"], ["diagramma", "Diagramma"], ["banda", "Banda", (b) => `${b[0]} Hz – ${b[1] / 1000} kHz`],
+    ["sensibilita_mv_pa", "Sensibilità", (v) => `${v} mV/Pa`], ["rumore_dba", "Rumore proprio", (v) => `${v} dB(A)`], ["spl_max", "SPL max", (v) => `${v} dB`],
+    ["connettore", "Connettore", (l) => l.map((c) => DB._info.connettori[c] || c).join(", ")],
+    ["alimentazione", "Alimentazione", (l) => l.map((a) => DB._info.alimentazione[a] || a).join(" o ") || "nessuna"]]);
   $("devRec").innerHTML = specRows(r, [
-    ["formato", "Formato"], ["ein_dbu", "EIN preamp", (v) => `${v} dBu`], ["max_in_dbu_mic", "Max ingresso mic", (v) => `${v} dBu`],
+    ["formato", "Formato"], ["ingressi", "Ingressi", (l) => l.map((i) => `${i.n}× ${i.nome}${i.phantom ? " (48 V)" : ""}`).join(", ") || "solo mic interno"], ["ein_dbu", "EIN preamp", (v) => `${v} dBu`], ["max_in_dbu_mic", "Max ingresso mic", (v) => `${v} dBu`],
     ["gamma_dinamica_db", "Gamma dinamica", (v) => `${v} dB`], ["clock_ppm", "Stabilità clock", (v) => `±${v} ppm`], ["timecode", "Timecode"], ["note", "Note"]]);
   const range = m.spl_max && m.rumore_dba ? `Gamma utile: ${m.spl_max - m.rumore_dba} dB (da ${m.rumore_dba} a ${m.spl_max} dB SPL)` : null;
-  $("devRisks").innerHTML = [range, ...chainRisks(t)].filter(Boolean).map((w) => `<span class="chip">${w}</span>`).join("");
+  const via = (DB.compat[t.registratore] || {})[t.microfono];
+  const link = via === false ? `⚠ ${m.nome} non si collega a ${r.nome} (connettore o alimentazione)` : via ? `Collegamento: ${via}` : null;
+  $("devRisks").innerHTML = [link, range, ...chainRisks(t)].filter(Boolean).map((w) => `<span class="chip">${w}</span>`).join("");
   const c = DB.curve[t.microfono];
   lineChart($("cEq"), [{ x: DB.f, y: c.risposta, color: css("--a") }, { x: DB.f, y: c.correzione, color: css("--b") }],
     { xlog: true, ymin: -18, ymax: 9, xlabel: kHz, ylabel: (v) => `${v} dB` });

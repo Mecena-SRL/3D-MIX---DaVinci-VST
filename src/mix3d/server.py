@@ -216,7 +216,7 @@ def devices_payload() -> dict:
                   "correzione": np.round(devices.correction_db(m, f), 1).tolist(),
                   "polare": np.round(devices.polar_gain(m, th), 3).tolist()}
               for k, m in db["microfoni"].items()}
-    return {**db, "f": np.round(f, 1).tolist(), "curve": curves}
+    return {**db, "f": np.round(f, 1).tolist(), "curve": curves, "compat": devices.compat_matrix()}
 
 
 def public_state() -> dict:

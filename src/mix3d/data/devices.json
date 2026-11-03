@@ -1,94 +1,86 @@
 {
   "_info": {
-    "versione": "0.1 (2026-11-03)",
-    "fiducia": "per ogni voce, 'fiducia' indica la fonte dei campi: datasheet = scheda del costruttore, misurato = misura propria, ipotizzato = valore tipico da verificare. Campi non elencati = ipotizzato.",
+    "versione": "0.2 (2026-11-03)",
+    "fiducia": "per ogni voce, 'fiducia' indica la fonte dei campi: datasheet = scheda del costruttore, misurato = misura propria, ipotizzato = valore tipico da verificare. Campi non elencati = ipotizzato. 'datasheet' solo per i valori verificati sulla fonte citata; gli altri sono valori noti da confermare.",
     "unita": "frequenze Hz, sensibilita mV/Pa, rumore dB(A) SPL, SPL max dB, clock ppm, curve [[Hz, dB]]",
-    "catena": "Ogni traccia ha registratore + microfono scelti liberamente; i profili sono solo combinazioni pronte. I rischi della catena sono quelli del registratore piu quelli del microfono."
+    "catena": "Ogni traccia ha registratore + microfono scelti liberamente; i profili sono solo combinazioni pronte. I rischi della catena sono quelli del registratore piu quelli del microfono.",
+    "connettori": {
+      "xlr3": "XLR 3 poli bilanciato",
+      "mini_jack": "3.5 mm TRS (mic, eventuale plug-in power)",
+      "mi_shoe": "slitta Sony Multi Interface analogica",
+      "mi_shoe_dig": "slitta Sony Multi Interface con interfaccia audio digitale",
+      "usb_c": "USB-C audio digitale",
+      "dji_wireless": "radio DJI 2.4 GHz (ricevitore o collegamento diretto OsmoAudio)",
+      "rode_wireless": "radio RODE Series IV 2.4 GHz",
+      "sony_uwp": "radio Sony UWP-D UHF",
+      "sennheiser_wireless": "radio Sennheiser (EW-D, Profile)",
+      "zoom_capsula": "capsula Zoom intercambiabile",
+      "integrato": "microfono integrato nel registratore/camera"
+    },
+    "alimentazione": {
+      "phantom": "phantom 48 V",
+      "plug_in_power": "plug-in power 2-5 V dal jack",
+      "batteria": "batteria propria",
+      "slitta": "dalla slitta/capsula",
+      "usb": "USB",
+      "nessuna": "nessuna (dinamico)"
+    },
+    "compatibilita": "Calcolata da devices.compat(registratore, microfono): connettore diretto, poi adattatori; il mic deve avere l'alimentazione che l'ingresso (o l'adattatore) fornisce."
   },
   "microfoni": {
     "ecm_ms2": {
       "nome": "Sony ECM-MS2",
       "capsula": "electret, Mid-Side",
       "diagramma": "ms",
-      "banda": [
-        80,
-        20000
-      ],
+      "banda": [80, 20000],
       "sensibilita_mv_pa": 25.1,
       "rumore_dba": 25,
       "spl_max": 125,
-      "note": "Stereo M/S: angolo regolabile. Mono 70 Hz-20 kHz, -36 dB.",
+      "note": "Stereo M/S su 2 XLR, phantom 48 V: entra nella maniglia FX6 o in XLR-H1/K3M. Mono 70 Hz-20 kHz, -36 dB.",
       "fiducia": {
         "banda": "datasheet",
         "sensibilita_mv_pa": "datasheet",
         "rumore_dba": "datasheet",
-        "spl_max": "datasheet"
+        "spl_max": "datasheet",
+        "connettore": "datasheet",
+        "alimentazione": "datasheet"
       },
-      "fonti": [
-        "https://pro.sony/en_CZ/pdf/ecm-ms2"
-      ]
+      "fonti": ["https://pro.sony/en_CZ/pdf/ecm-ms2"],
+      "marca": "Sony",
+      "tipo": "stereo M/S",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"]
     },
     "mkh416": {
       "nome": "Sennheiser MKH 416",
       "capsula": "condensatore RF, tubo d'interferenza",
       "diagramma": "supercardioide",
-      "banda": [
-        40,
-        20000
-      ],
+      "banda": [40, 20000],
       "sensibilita_mv_pa": 25,
       "rumore_dba": 13,
       "spl_max": 130,
-      "curva": [
-        [
-          40,
-          -6
-        ],
-        [
-          100,
-          -2
-        ],
-        [
-          1000,
-          0
-        ],
-        [
-          5000,
-          2
-        ],
-        [
-          10000,
-          4
-        ],
-        [
-          15000,
-          2
-        ],
-        [
-          20000,
-          -3
-        ]
-      ],
+      "curva": [[40, -6], [100, -2], [1000, 0], [5000, 2], [10000, 4], [15000, 2], [20000, -3]],
       "note": "Presenza in alto (+3/5 dB 5-12 kHz): la correzione la attenua. Molto direttivo fuori asse sopra 2 kHz.",
       "fiducia": {
         "banda": "datasheet",
         "sensibilita_mv_pa": "datasheet",
         "rumore_dba": "datasheet",
         "spl_max": "datasheet",
-        "curva": "ipotizzato"
+        "curva": "ipotizzato",
+        "connettore": "datasheet",
+        "alimentazione": "datasheet"
       },
-      "fonti": [
-        "https://docs.cloud.sennheiser.com/en-us/mkh-416-mkh-418-s/specs-mkh-416.html"
-      ]
+      "fonti": ["https://docs.cloud.sennheiser.com/en-us/mkh-416-mkh-418-s/specs-mkh-416.html"],
+      "marca": "Sennheiser",
+      "tipo": "shotgun",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"]
     },
     "c2": {
       "nome": "Behringer C-2",
       "capsula": "condensatore FET, diaframma 16 mm",
       "diagramma": "cardioide",
-      "banda": [
-        20,
-        20000
-      ],
+      "banda": [20, 20000],
       "sensibilita_mv_pa": 8.9,
       "rumore_dba": 19,
       "spl_max": 150,
@@ -97,39 +89,39 @@
         "banda": "datasheet",
         "sensibilita_mv_pa": "datasheet",
         "rumore_dba": "datasheet",
-        "spl_max": "datasheet"
+        "spl_max": "datasheet",
+        "connettore": "datasheet",
+        "alimentazione": "datasheet"
       },
-      "fonti": [
-        "https://recordinghacks.com/microphones/Behringer/C-2",
-        "https://www.manualslib.com/manual/785529/Behringer-C-2.html?page=5"
-      ]
+      "fonti": ["https://recordinghacks.com/microphones/Behringer/C-2", "https://www.manualslib.com/manual/785529/Behringer-C-2.html?page=5"],
+      "marca": "Behringer",
+      "tipo": "strumento",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"]
     },
     "x8_interni": {
       "nome": "Tascam Portacapture X8 (mic interni)",
       "capsula": "condensatore 14,6 mm, staccabili",
       "diagramma": "cardioide",
-      "banda": [
-        20,
-        20000
-      ],
+      "banda": [20, 20000],
       "spl_max": 125,
-      "note": "Configurabili XY o AB.",
+      "note": "Configurabili XY o AB; entrano negli ingressi 1-2 (3.5 mm).",
       "fiducia": {
         "banda": "ipotizzato",
-        "diagramma": "ipotizzato"
+        "diagramma": "ipotizzato",
+        "capsula": "datasheet"
       },
-      "fonti": [
-        "https://cf3.zzounds.com/media/Spec_Sheet-cd576f1c07df48cd6f293e0575291f31.pdf"
-      ]
+      "fonti": ["https://cf3.zzounds.com/media/Spec_Sheet-cd576f1c07df48cd6f293e0575291f31.pdf"],
+      "marca": "Tascam",
+      "tipo": "integrato",
+      "connettore": ["integrato"],
+      "alimentazione": []
     },
     "videomic_go_ii": {
       "nome": "RODE VideoMic GO II",
       "capsula": "electret a gradiente di pressione",
       "diagramma": "supercardioide",
-      "banda": [
-        20,
-        20000
-      ],
+      "banda": [20, 20000],
       "sensibilita_mv_pa": 28.8,
       "rumore_dba": 15,
       "spl_max": 110,
@@ -138,107 +130,1009 @@
         "banda": "datasheet",
         "sensibilita_mv_pa": "datasheet",
         "rumore_dba": "datasheet",
-        "spl_max": "datasheet"
+        "spl_max": "datasheet",
+        "connettore": "datasheet",
+        "alimentazione": "datasheet"
       },
-      "fonti": [
-        "https://edge.rode.com/pdf/products/849/VideoMic%20GO%20II_ds_V2.pdf"
-      ]
+      "fonti": ["https://edge.rode.com/pdf/products/849/VideoMic%20GO%20II_ds_V2.pdf"],
+      "marca": "RODE",
+      "tipo": "on-camera",
+      "connettore": ["mini_jack", "usb_c"],
+      "alimentazione": ["plug_in_power", "usb"],
+      "rischi": ["spl_basso"]
     },
     "videomic_go": {
       "nome": "RODE VideoMic GO (prima versione)",
       "capsula": "electret",
       "diagramma": "supercardioide",
-      "banda": [
-        100,
-        20000
-      ],
+      "banda": [100, 16000],
       "sensibilita_mv_pa": 17.8,
       "rumore_dba": 34,
       "spl_max": 120,
-      "note": "Da confermare se e la versione in uso (I o II).",
-      "fiducia": {},
-      "fonti": []
+      "note": "Banda 100 Hz-16 kHz e rumore 34 dB(A): spot o sync, non base. Da confermare se e la versione in uso (I o II).",
+      "fiducia": {
+        "banda": "datasheet",
+        "diagramma": "datasheet",
+        "sensibilita_mv_pa": "datasheet",
+        "rumore_dba": "datasheet",
+        "spl_max": "datasheet",
+        "alimentazione": "datasheet"
+      },
+      "fonti": ["https://edge.rode.com//pdf/products/624/VideoMic GO_Datasheet_FA_v2.pdf"],
+      "marca": "RODE",
+      "tipo": "on-camera",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "rischi": ["banda_limitata"]
     },
     "dji_mic2_tx": {
       "nome": "DJI Mic 2 (trasmettitore)",
       "capsula": "electret",
       "diagramma": "omni",
-      "banda": [
-        50,
-        20000
-      ],
+      "banda": [50, 20000],
       "spl_max": 120,
-      "note": "Con low-cut attivo la banda parte da 100 Hz. Riduzione rumore intelligente: tenerla spenta per musica.",
+      "note": "Con low-cut attivo la banda parte da 100 Hz. Riduzione rumore intelligente: tenerla spenta per musica. Collegamento diretto Bluetooth con Osmo Action 4/5 Pro e Pocket 3.",
       "fiducia": {
         "banda": "datasheet",
         "spl_max": "datasheet",
-        "diagramma": "datasheet"
+        "diagramma": "datasheet",
+        "connettore": "datasheet",
+        "curva": "ipotizzato"
       },
-      "fonti": [
-        "https://www.bhphotovideo.com/c/product/803146975-USE/dji_cp_rn_00000327_01_mic_2_compact_digital.html"
-      ],
-      "rischi": [
-        "limiter"
-      ]
+      "fonti": ["https://www.bhphotovideo.com/c/product/803146975-USE/dji_cp_rn_00000327_01_mic_2_compact_digital.html", "https://www.dji.com/mic-2", "https://store.dji.com/at/content/dji-mic-2-compatibility"],
+      "rischi": ["limiter"],
+      "marca": "DJI",
+      "tipo": "wireless",
+      "curva": [[100, -6], [200, -2], [1000, 0], [4000, 1], [8000, 0], [12000, -3], [16000, -8]],
+      "connettore": ["dji_wireless"],
+      "alimentazione": ["batteria"]
     },
     "dji_mic_mini_tx": {
       "nome": "DJI Mic Mini (trasmettitore)",
       "capsula": "electret",
       "diagramma": "omni",
-      "banda": [
-        50,
-        20000
-      ],
+      "banda": [50, 20000],
       "spl_max": 120,
       "fiducia": {
         "diagramma": "datasheet"
       },
-      "fonti": [
-        "https://www.dji.com/products/comparison-mic"
-      ],
-      "rischi": [
-        "limiter"
-      ]
+      "fonti": ["https://www.dji.com/products/comparison-mic"],
+      "rischi": ["limiter"],
+      "marca": "DJI",
+      "tipo": "wireless",
+      "note": "Nessuna registrazione interna: il segnale vive solo nel dispositivo che lo riceve.",
+      "connettore": ["dji_wireless"],
+      "alimentazione": ["batteria"]
     },
     "camera_interno": {
       "nome": "Mic interno di camera",
       "capsula": "electret stereo",
       "diagramma": "omni",
-      "banda": [
-        100,
-        16000
-      ],
+      "banda": [100, 16000],
       "rumore_dba": 30,
       "spl_max": 115,
       "note": "Sente rumori di maneggio e motore obiettivo.",
       "fiducia": {},
-      "fonti": []
+      "fonti": [],
+      "marca": "Generico",
+      "tipo": "integrato",
+      "connettore": ["integrato"],
+      "alimentazione": []
     },
     "osmo_action_interni": {
       "nome": "DJI Osmo Action (3 mic interni)",
       "capsula": "MEMS",
       "diagramma": "omni",
-      "banda": [
-        100,
-        16000
-      ],
+      "banda": [100, 16000],
       "spl_max": 120,
       "note": "3 microfoni con riduzione vento; audio spesso ottimo vicino ai musicisti.",
-      "fiducia": {},
-      "fonti": [
-        "https://cliftoncameras.co.uk/uploads/specifications/dji-osmo-action-5-pro-specifications.pdf"
-      ]
+      "fiducia": {
+        "diagramma": "datasheet",
+        "curva": "ipotizzato"
+      },
+      "fonti": ["https://cliftoncameras.co.uk/uploads/specifications/dji-osmo-action-5-pro-specifications.pdf", "https://www.bhphotovideo.com/c/product/1928318-REG/dji_cp_os_00000505_02_osmo_action_6_standard.html"],
+      "marca": "DJI",
+      "tipo": "integrato",
+      "curva": [[100, -6], [200, -2], [1000, 0], [4000, 1], [8000, 0], [12000, -3], [16000, -8]],
+      "connettore": ["integrato"],
+      "alimentazione": []
     },
     "feed_mixer": {
       "nome": "Feed del mixer",
       "capsula": "linea",
       "diagramma": "nessuno",
-      "banda": [
-        20,
-        20000
-      ],
+      "banda": [20, 20000],
       "note": "Segnale gia mixato dal fonico: riferimento di bilanciamento, senza ambiente.",
       "fiducia": {},
+      "fonti": [],
+      "marca": "Generico",
+      "tipo": "linea",
+      "connettore": ["xlr3", "mini_jack", "usb_c"],
+      "alimentazione": []
+    },
+    "ecm_xm1": {
+      "nome": "Sony ECM-XM1",
+      "marca": "Sony",
+      "tipo": "shotgun",
+      "capsula": "electret",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "note": "Shotgun corto dei camcorder Sony pro (Z190/Z280). Valori da confermare.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom", "batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "ecm_vg1": {
+      "nome": "Sony ECM-VG1",
+      "marca": "Sony",
+      "tipo": "shotgun",
+      "capsula": "electret",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "sensibilita_mv_pa": 22.4,
+      "rumore_dba": 19,
+      "spl_max": 125,
+      "note": "Shotgun broadcast economico Sony.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "ecm_b1m": {
+      "nome": "Sony ECM-B1M",
+      "marca": "Sony",
+      "tipo": "shotgun digitale",
+      "capsula": "8 capsule electret, beamforming DSP",
+      "diagramma": "supercardioide",
+      "note": "Uscita digitale dalla slitta MI (solo camere con interfaccia audio digitale). Diagramma super/uni/omni selezionabile.",
+      "connettore": ["mi_shoe_dig"],
+      "alimentazione": ["slitta"],
+      "fiducia": {},
+      "fonti": ["https://www.manualowl.com/m/Sony/ECM-B1M/Manual/553750?page=13"],
+      "rischi": ["dsp_interno"]
+    },
+    "ecm_b10": {
+      "nome": "Sony ECM-B10",
+      "marca": "Sony",
+      "tipo": "shotgun digitale",
+      "capsula": "electret, beamforming",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "note": "Compatto, super/uni/omni selezionabile, digitale su slitta MI.",
+      "connettore": ["mi_shoe_dig"],
+      "alimentazione": ["slitta"],
+      "fiducia": {
+        "banda": "datasheet",
+        "diagramma": "datasheet"
+      },
+      "fonti": ["https://www.cliftoncameras.co.uk/uploads/specifications/Sony%20ECM-B10%20Wireless%20Shotgun%20Microphone%20%20Specifications.pdf"],
+      "rischi": ["dsp_interno"]
+    },
+    "ecm_m1": {
+      "nome": "Sony ECM-M1",
+      "marca": "Sony",
+      "tipo": "shotgun digitale",
+      "capsula": "electret, 8 diagrammi (anche stereo)",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "rumore_dba": 14,
+      "spl_max": 120,
+      "note": "Digitale 4 canali su camere compatibili, analogico 2 canali sulle altre slitte MI. Rumore 14 dB solo in modo digitale ultra-direttivo.",
+      "connettore": ["mi_shoe_dig", "mi_shoe"],
+      "alimentazione": ["slitta"],
+      "fiducia": {
+        "banda": "datasheet",
+        "rumore_dba": "datasheet",
+        "spl_max": "datasheet",
+        "connettore": "datasheet"
+      },
+      "fonti": ["https://www.cliftoncameras.co.uk/uploads/specifications/Sony%20ECM-M1%20Shotgun%20Microphone.pdf"],
+      "rischi": ["dsp_interno"]
+    },
+    "ecm_g1": {
+      "nome": "Sony ECM-G1",
+      "marca": "Sony",
+      "tipo": "on-camera",
+      "capsula": "electret",
+      "diagramma": "cardioide",
+      "banda": [100, 20000],
+      "note": "Mic vlog 3.5 mm a plug-in power.",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "ecm_l1": {
+      "nome": "Sony ECM-L1",
+      "marca": "Sony",
+      "tipo": "lavalier",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "note": "Lavalier 3.5 mm a plug-in power (2024).",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {
+        "alimentazione": "datasheet"
+      },
+      "fonti": ["https://www.bhphotovideo.com/explora/node/120711"]
+    },
+    "ecm_w3": {
+      "nome": "Sony ECM-W3 (wireless)",
+      "marca": "Sony",
+      "tipo": "wireless",
+      "diagramma": "omni",
+      "note": "Ricevitore su slitta MI digitale o uscita 3.5 mm. 2 trasmettitori.",
+      "connettore": ["mi_shoe_dig", "mini_jack"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "ecm_w2bt": {
+      "nome": "Sony ECM-W2BT (Bluetooth)",
+      "marca": "Sony",
+      "tipo": "wireless",
+      "diagramma": "omni",
+      "note": "Bluetooth: latenza e banda limitate, solo parlato.",
+      "connettore": ["mi_shoe_dig", "mini_jack"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": [],
+      "rischi": ["banda_limitata"]
+    },
+    "sony_uwp_d": {
+      "nome": "Sony UWP-D (bodypack + lav ECM-V1BMP)",
+      "marca": "Sony",
+      "tipo": "wireless",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "note": "UHF analogico con compander: ricevitore URX-P40/P41D (3.5 mm, slitta MI con SMAD-P5).",
+      "connettore": ["sony_uwp"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "fx6_interno": {
+      "nome": "Sony FX6 mic interno",
+      "marca": "Sony",
+      "tipo": "integrato",
+      "diagramma": "omni",
+      "banda": [100, 16000],
+      "note": "Mono, sulla maniglia: solo sync.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "fx30_interno": {
+      "nome": "Sony FX3/FX30 mic interno",
+      "marca": "Sony",
+      "tipo": "integrato",
+      "diagramma": "omni",
+      "banda": [100, 16000],
+      "note": "Stereo nel corpo: rumori di maneggio e ventola.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "a6300_interno": {
+      "nome": "Sony a6300/a6400 mic interno",
+      "marca": "Sony",
+      "tipo": "integrato",
+      "diagramma": "omni",
+      "banda": [100, 14000],
+      "note": "Stereo sul top: solo sync.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "mkh8060": {
+      "nome": "Sennheiser MKH 8060",
+      "marca": "Sennheiser",
+      "tipo": "shotgun",
+      "capsula": "condensatore RF",
+      "diagramma": "supercardioide",
+      "banda": [50, 25000],
+      "sensibilita_mv_pa": 63,
+      "rumore_dba": 11,
+      "spl_max": 129,
+      "curva": [[50, -4], [100, -1], [1000, 0], [5000, 1], [10000, 2], [15000, 1], [25000, -3]],
+      "note": "Shotgun corto, adatto anche al chiuso.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {
+        "banda": "datasheet",
+        "sensibilita_mv_pa": "datasheet",
+        "rumore_dba": "datasheet",
+        "spl_max": "datasheet",
+        "alimentazione": "datasheet",
+        "curva": "ipotizzato"
+      },
+      "fonti": ["https://docs.cloud.sennheiser.com/en-us/mkh-8000/specs-mkh8060.html"]
+    },
+    "mkh50": {
+      "nome": "Sennheiser MKH 50",
+      "marca": "Sennheiser",
+      "tipo": "studio",
+      "capsula": "condensatore RF",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "sensibilita_mv_pa": 25,
+      "rumore_dba": 12,
+      "spl_max": 134,
+      "note": "Riferimento per dialoghi al chiuso e spot strumenti.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "mke600": {
+      "nome": "Sennheiser MKE 600",
+      "marca": "Sennheiser",
+      "tipo": "shotgun",
+      "capsula": "electret",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "sensibilita_mv_pa": 21,
+      "rumore_dba": 15,
+      "spl_max": 132,
+      "curva": [[40, -6], [100, -2], [1000, 0], [3000, 2], [6000, 3], [10000, 2], [20000, -3]],
+      "note": "A batteria: 19 mV/Pa, 16 dB(A), SPL max 126. Con cavo KA 600 va nel 3.5 mm.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom", "batteria"],
+      "fiducia": {
+        "banda": "datasheet",
+        "sensibilita_mv_pa": "datasheet",
+        "rumore_dba": "datasheet",
+        "spl_max": "datasheet",
+        "alimentazione": "datasheet",
+        "connettore": "datasheet",
+        "curva": "ipotizzato"
+      },
+      "fonti": ["https://docs.cloud.sennheiser.com/en-us/mke-600/specifications.html"]
+    },
+    "mke400": {
+      "nome": "Sennheiser MKE 400 (2a gen.)",
+      "marca": "Sennheiser",
+      "tipo": "on-camera",
+      "capsula": "electret",
+      "diagramma": "supercardioide",
+      "banda": [50, 20000],
+      "note": "3.5 mm, batterie AAA, guadagno a 3 posizioni.",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": ["https://www.sennheiser.com/en-us/catalog/products/microphones/mke-400/mke-400-508898"]
+    },
+    "me66": {
+      "nome": "Sennheiser ME 66/K6",
+      "marca": "Sennheiser",
+      "tipo": "shotgun",
+      "capsula": "electret",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "sensibilita_mv_pa": 50,
+      "rumore_dba": 10,
+      "spl_max": 125,
+      "note": "K6: phantom 12-48 V o batteria AA.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom", "batteria"],
+      "fiducia": {},
+      "fonti": ["https://www.sennheiser.com/en-us/catalog/uncategorized/me-66/me-66-003284"]
+    },
+    "mke2": {
+      "nome": "Sennheiser MKE 2",
+      "marca": "Sennheiser",
+      "tipo": "lavalier",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "banda": [20, 20000],
+      "note": "Lav per bodypack EW; versione MKE 2-P con XLR phantom.",
+      "connettore": ["sennheiser_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "ew_d_me2": {
+      "nome": "Sennheiser EW-D + ME 2",
+      "marca": "Sennheiser",
+      "tipo": "wireless",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "banda": [30, 20000],
+      "note": "Digitale UHF: ricevitore EK con 3.5 mm/XLR.",
+      "connettore": ["sennheiser_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "profile_wireless": {
+      "nome": "Sennheiser Profile Wireless (TX)",
+      "marca": "Sennheiser",
+      "tipo": "wireless",
+      "diagramma": "omni",
+      "note": "2.4 GHz, ricevitore USB-C/3.5 mm, registrazione interna nel TX.",
+      "connettore": ["sennheiser_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "e835": {
+      "nome": "Sennheiser e 835",
+      "marca": "Sennheiser",
+      "tipo": "dinamico",
+      "diagramma": "cardioide",
+      "banda": [40, 16000],
+      "sensibilita_mv_pa": 2.7,
+      "curva": [[50, -8], [100, -3], [200, -1], [1000, 0], [3000, 2], [5000, 5], [8000, 2], [12000, -4], [16000, -10]],
+      "note": "Voce live: presenza 4-6 kHz.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["nessuna"],
+      "fiducia": {
+        "curva": "ipotizzato"
+      },
+      "fonti": []
+    },
+    "e935": {
+      "nome": "Sennheiser e 935",
+      "marca": "Sennheiser",
+      "tipo": "dinamico",
+      "diagramma": "cardioide",
+      "banda": [40, 18000],
+      "sensibilita_mv_pa": 3.3,
+      "curva": [[50, -8], [100, -3], [200, -1], [1000, 0], [3000, 2], [5000, 5], [8000, 2], [12000, -4], [16000, -10]],
+      "note": "Voce live, piu aperto dell'e 835.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["nessuna"],
+      "fiducia": {
+        "curva": "ipotizzato"
+      },
+      "fonti": []
+    },
+    "e906": {
+      "nome": "Sennheiser e 906",
+      "marca": "Sennheiser",
+      "tipo": "dinamico",
+      "diagramma": "supercardioide",
+      "banda": [40, 18000],
+      "sensibilita_mv_pa": 2.2,
+      "note": "Ampli chitarra, presenza commutabile.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["nessuna"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "e614": {
+      "nome": "Sennheiser e 614",
+      "marca": "Sennheiser",
+      "tipo": "strumento",
+      "capsula": "condensatore electret",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "note": "Overhead, percussioni, acustici.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "ntg3": {
+      "nome": "RODE NTG3",
+      "marca": "RODE",
+      "tipo": "shotgun",
+      "capsula": "condensatore RF",
+      "diagramma": "supercardioide",
+      "banda": [40, 20000],
+      "sensibilita_mv_pa": 31.6,
+      "rumore_dba": 13,
+      "spl_max": 130,
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": ["https://help.rode.com/hc/en-us/articles/8379343667727-Shotgun-Microphone-Comparison-Chart"]
+    },
+    "ntg4plus": {
+      "nome": "RODE NTG4+",
+      "marca": "RODE",
+      "tipo": "shotgun",
+      "capsula": "condensatore",
+      "diagramma": "supercardioide",
+      "banda": [20, 20000],
+      "sensibilita_mv_pa": 25.1,
+      "rumore_dba": 16,
+      "spl_max": 135,
+      "note": "Batteria interna ricaricabile o phantom.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom", "batteria"],
+      "fiducia": {},
+      "fonti": ["https://help.rode.com/hc/en-us/articles/8379343667727-Shotgun-Microphone-Comparison-Chart"]
+    },
+    "ntg5": {
+      "nome": "RODE NTG5",
+      "marca": "RODE",
+      "tipo": "shotgun",
+      "capsula": "condensatore RF",
+      "diagramma": "supercardioide",
+      "banda": [20, 20000],
+      "rumore_dba": 10,
+      "spl_max": 135,
+      "curva": [[40, -3], [100, -1], [1000, 0], [4000, 1], [8000, 2], [12000, 1], [20000, -2]],
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {
+        "rumore_dba": "datasheet",
+        "curva": "ipotizzato"
+      },
+      "fonti": ["https://rode.com/en-us/products/ntg5", "https://help.rode.com/hc/en-us/articles/8379343667727-Shotgun-Microphone-Comparison-Chart"]
+    },
+    "ntg2": {
+      "nome": "RODE NTG2",
+      "marca": "RODE",
+      "tipo": "shotgun",
+      "capsula": "condensatore",
+      "diagramma": "supercardioide",
+      "banda": [20, 20000],
+      "sensibilita_mv_pa": 6.3,
+      "rumore_dba": 18,
+      "spl_max": 131,
+      "note": "Sensibilita bassa a batteria: serve guadagno alto.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom", "batteria"],
+      "fiducia": {},
+      "fonti": ["https://help.rode.com/hc/en-us/articles/8379343667727-Shotgun-Microphone-Comparison-Chart"]
+    },
+    "ntg1": {
+      "nome": "RODE NTG1",
+      "marca": "RODE",
+      "tipo": "shotgun",
+      "capsula": "condensatore",
+      "diagramma": "supercardioide",
+      "banda": [20, 20000],
+      "sensibilita_mv_pa": 15.8,
+      "rumore_dba": 18,
+      "spl_max": 139,
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": ["https://help.rode.com/hc/en-us/articles/8379343667727-Shotgun-Microphone-Comparison-Chart"]
+    },
+    "videomic_ntg": {
+      "nome": "RODE VideoMic NTG",
+      "marca": "RODE",
+      "tipo": "on-camera",
+      "capsula": "condensatore",
+      "diagramma": "supercardioide",
+      "banda": [20, 20000],
+      "sensibilita_mv_pa": 50,
+      "rumore_dba": 15,
+      "spl_max": 120,
+      "note": "Risposta 35 Hz-18 kHz ±3 dB. Uscita 3.5 mm auto-sensing e USB-C 24/48.",
+      "connettore": ["mini_jack", "usb_c"],
+      "alimentazione": ["batteria"],
+      "fiducia": {
+        "banda": "datasheet",
+        "diagramma": "datasheet",
+        "sensibilita_mv_pa": "datasheet",
+        "rumore_dba": "datasheet",
+        "spl_max": "datasheet",
+        "connettore": "datasheet"
+      },
+      "fonti": ["https://edge.rode.com/pdf/page/127/modules/8/videomicntg_datasheet.pdf"]
+    },
+    "videomic_pro_plus": {
+      "nome": "RODE VideoMic Pro+",
+      "marca": "RODE",
+      "tipo": "on-camera",
+      "capsula": "condensatore",
+      "diagramma": "supercardioide",
+      "banda": [20, 20000],
+      "rumore_dba": 14,
+      "spl_max": 122,
+      "connettore": ["mini_jack"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "videomicro_ii": {
+      "nome": "RODE VideoMicro II",
+      "marca": "RODE",
+      "tipo": "on-camera",
+      "capsula": "electret",
+      "diagramma": "cardioide",
+      "note": "Plug-in power dalla camera.",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "nt5": {
+      "nome": "RODE NT5",
+      "marca": "RODE",
+      "tipo": "strumento",
+      "capsula": "condensatore 1/2\"",
+      "diagramma": "cardioide",
+      "banda": [20, 20000],
+      "sensibilita_mv_pa": 12,
+      "rumore_dba": 16,
+      "spl_max": 143,
+      "note": "Coppia ORTF/XY per ambiente o overhead.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "nt4": {
+      "nome": "RODE NT4",
+      "marca": "RODE",
+      "tipo": "stereo XY",
+      "capsula": "2 condensatori XY 90°",
+      "diagramma": "cardioide",
+      "banda": [20, 20000],
+      "rumore_dba": 16,
+      "spl_max": 143,
+      "note": "XLR 5 poli: cavo a 2 XLR3.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom", "batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "nt1a": {
+      "nome": "RODE NT1-A",
+      "marca": "RODE",
+      "tipo": "studio",
+      "capsula": "condensatore 1\"",
+      "diagramma": "cardioide",
+      "banda": [20, 20000],
+      "sensibilita_mv_pa": 25,
+      "rumore_dba": 5,
+      "spl_max": 137,
+      "note": "Rumore bassissimo: ambiente lontano.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "lavalier_ii": {
+      "nome": "RODE Lavalier II",
+      "marca": "RODE",
+      "tipo": "lavalier",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "banda": [20, 20000],
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "wireless_go_ii_tx": {
+      "nome": "RODE Wireless GO II (TX)",
+      "marca": "RODE",
+      "tipo": "wireless",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "banda": [50, 20000],
+      "rumore_dba": 22,
+      "spl_max": 100,
+      "note": "SPL max 100 dB: in concerto satura vicino a casse, batteria, fiati. Ingresso 3.5 mm per lav.",
+      "connettore": ["rode_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {
+        "banda": "datasheet",
+        "diagramma": "datasheet",
+        "rumore_dba": "datasheet",
+        "spl_max": "datasheet"
+      },
+      "fonti": ["https://fullcompass.com/prod/599821-rode-wireless-go-ii-dual-channel-wireless-microphone-system"],
+      "rischi": ["spl_basso"]
+    },
+    "wireless_pro_tx": {
+      "nome": "RODE Wireless PRO (TX)",
+      "marca": "RODE",
+      "tipo": "wireless",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "note": "Registrazione interna 32 bit float e timecode.",
+      "connettore": ["rode_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": ["https://rode.com/en-us/products/wireless-pro"]
+    },
+    "ecm8000": {
+      "nome": "Behringer ECM8000",
+      "marca": "Behringer",
+      "tipo": "misura",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "banda": [15, 20000],
+      "curva": [[15, -2], [30, 0], [1000, 0], [10000, 1], [15000, 2], [20000, 0]],
+      "note": "Mic di misura: sweep e rumore rosa per passare da 'datasheet' a 'misurato' e misurare RT60.",
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {
+        "curva": "ipotizzato"
+      },
+      "fonti": []
+    },
+    "x6_interni": {
+      "nome": "Tascam Portacapture X6 (mic interni)",
+      "marca": "Tascam",
+      "tipo": "integrato",
+      "diagramma": "cardioide",
+      "banda": [20, 20000],
+      "note": "Stereo AB/XY commutabile.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": ["https://tascam.com/us/product/portacapture_x6"]
+    },
+    "dr40x_interni": {
+      "nome": "Tascam DR-40X (mic interni)",
+      "marca": "Tascam",
+      "tipo": "integrato",
+      "diagramma": "cardioide",
+      "banda": [20, 20000],
+      "spl_max": 125,
+      "note": "XY/AB orientabili.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "dr05x_interni": {
+      "nome": "Tascam DR-05X (mic interni)",
+      "marca": "Tascam",
+      "tipo": "integrato",
+      "diagramma": "omni",
+      "banda": [20, 20000],
+      "spl_max": 125,
+      "note": "Coppia AB omni.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "dr07x_interni": {
+      "nome": "Tascam DR-07X (mic interni)",
+      "marca": "Tascam",
+      "tipo": "integrato",
+      "diagramma": "cardioide",
+      "banda": [20, 20000],
+      "spl_max": 125,
+      "note": "XY/AB orientabili.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "tm80": {
+      "nome": "Tascam TM-80",
+      "marca": "Tascam",
+      "tipo": "studio",
+      "capsula": "condensatore",
+      "diagramma": "cardioide",
+      "banda": [20, 20000],
+      "connettore": ["xlr3"],
+      "alimentazione": ["phantom"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "tm2x": {
+      "nome": "Tascam TM-2X",
+      "marca": "Tascam",
+      "tipo": "stereo XY",
+      "capsula": "electret XY",
+      "diagramma": "cardioide",
+      "note": "Stereo XY per camera, plug-in power.",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "tm10l": {
+      "nome": "Tascam TM-10L",
+      "marca": "Tascam",
+      "tipo": "lavalier",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "dr10l_lav": {
+      "nome": "Tascam lav del DR-10L Pro",
+      "marca": "Tascam",
+      "tipo": "lavalier",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "note": "3.5 mm a vite.",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {},
+      "fonti": ["https://tascam.com/us/product/dr-10l_pro"]
+    },
+    "zoom_xyh6": {
+      "nome": "Zoom XYH-6 (capsula XY)",
+      "marca": "Zoom",
+      "tipo": "stereo XY",
+      "capsula": "2 capsule 14,6 mm, XY 90/120°",
+      "diagramma": "cardioide",
+      "spl_max": 140,
+      "note": "Per H5/H6/H8 e capsule-compatibili.",
+      "connettore": ["zoom_capsula"],
+      "alimentazione": ["slitta"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_xyh6e": {
+      "nome": "Zoom XYH-6e (H6essential)",
+      "marca": "Zoom",
+      "tipo": "integrato",
+      "diagramma": "cardioide",
+      "spl_max": 135,
+      "note": "XY 90°.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {
+        "spl_max": "datasheet",
+        "diagramma": "datasheet"
+      },
+      "fonti": ["https://zoomcorp.com/en/us/handheld-recorders/handheld-recorders/h6essential/"]
+    },
+    "zoom_msh6": {
+      "nome": "Zoom MSH-6 (capsula M/S)",
+      "marca": "Zoom",
+      "tipo": "stereo M/S",
+      "diagramma": "ms",
+      "note": "M/S con larghezza regolabile in post (file RAW M/S).",
+      "connettore": ["zoom_capsula"],
+      "alimentazione": ["slitta"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_sgh6": {
+      "nome": "Zoom SGH-6 (capsula shotgun)",
+      "marca": "Zoom",
+      "tipo": "shotgun",
+      "diagramma": "supercardioide",
+      "connettore": ["zoom_capsula"],
+      "alimentazione": ["slitta"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h1_interni": {
+      "nome": "Zoom H1n/H1essential (mic interni)",
+      "marca": "Zoom",
+      "tipo": "integrato",
+      "diagramma": "cardioide",
+      "spl_max": 120,
+      "note": "XY 90°.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h4_interni": {
+      "nome": "Zoom H4n Pro/H4essential (mic interni)",
+      "marca": "Zoom",
+      "tipo": "integrato",
+      "diagramma": "cardioide",
+      "spl_max": 140,
+      "note": "XY 90/120°.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_m3": {
+      "nome": "Zoom M3 MicTrak",
+      "marca": "Zoom",
+      "tipo": "shotgun stereo M/S",
+      "diagramma": "ms",
+      "note": "Mic + registratore 32 bit float; uscita 3.5 mm verso camera.",
+      "connettore": ["integrato", "mini_jack"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_m4_interni": {
+      "nome": "Zoom M4 MicTrak (mic interni)",
+      "marca": "Zoom",
+      "tipo": "integrato",
+      "diagramma": "cardioide",
+      "note": "XY 90°.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_f2_lav": {
+      "nome": "Zoom LMF-2 (lav dello F2)",
+      "marca": "Zoom",
+      "tipo": "lavalier",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "connettore": ["mini_jack"],
+      "alimentazione": ["plug_in_power"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_zdm1": {
+      "nome": "Zoom ZDM-1",
+      "marca": "Zoom",
+      "tipo": "dinamico",
+      "diagramma": "supercardioide",
+      "curva": [[50, -8], [100, -3], [200, -1], [1000, 0], [3000, 2], [5000, 5], [8000, 2], [12000, -4], [16000, -10]],
+      "connettore": ["xlr3"],
+      "alimentazione": ["nessuna"],
+      "fiducia": {
+        "curva": "ipotizzato"
+      },
+      "fonti": []
+    },
+    "dji_mic1_tx": {
+      "nome": "DJI Mic (1a gen., TX)",
+      "marca": "DJI",
+      "tipo": "wireless",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "banda": [50, 20000],
+      "spl_max": 114,
+      "connettore": ["dji_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": [],
+      "rischi": ["limiter"]
+    },
+    "dji_mic_mini2_tx": {
+      "nome": "DJI Mic Mini 2 (trasmettitore)",
+      "marca": "DJI",
+      "tipo": "wireless",
+      "diagramma": "omni",
+      "banda": [50, 20000],
+      "spl_max": 120,
+      "connettore": ["dji_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {},
+      "fonti": [],
+      "rischi": ["limiter"]
+    },
+    "dji_mic3_tx": {
+      "nome": "DJI Mic 3 (trasmettitore)",
+      "marca": "DJI",
+      "tipo": "wireless",
+      "capsula": "electret",
+      "diagramma": "omni",
+      "banda": [20, 20000],
+      "sensibilita_mv_pa": 15.8,
+      "rumore_dba": 22,
+      "spl_max": 126,
+      "note": "SPL max 126 dB (1% THD), 130 dB al 10%. Low-cut 100 Hz opzionale.",
+      "connettore": ["dji_wireless"],
+      "alimentazione": ["batteria"],
+      "fiducia": {
+        "diagramma": "datasheet",
+        "banda": "datasheet",
+        "sensibilita_mv_pa": "datasheet",
+        "rumore_dba": "datasheet",
+        "spl_max": "datasheet"
+      },
+      "fonti": ["https://www.dji.com/mic-3/specs"]
+    },
+    "osmo_pocket3_interni": {
+      "nome": "DJI Osmo Pocket 3 (3 mic interni)",
+      "marca": "DJI",
+      "tipo": "integrato",
+      "diagramma": "omni",
+      "banda": [100, 16000],
+      "curva": [[100, -6], [200, -2], [1000, 0], [4000, 1], [8000, 0], [12000, -3], [16000, -8]],
+      "note": "Stereo, riduzione vento.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {
+        "curva": "ipotizzato"
+      },
       "fonti": []
     }
   },
@@ -246,121 +1140,142 @@
     "fx6": {
       "nome": "Sony FX6",
       "formato": "LPCM 24 bit 48 kHz, 4 canali",
-      "bit": [
-        24
-      ],
-      "sr": [
-        48000
-      ],
-      "codec": [
-        "pcm_s24le",
-        "pcm_s16be",
-        "pcm_s24be"
-      ],
+      "bit": [24],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s16be", "pcm_s24be"],
       "clock_ppm": 1,
       "timecode": "in/out BNC, free run o rec run",
-      "rischi": [
-        "agc"
-      ],
+      "rischi": ["agc"],
       "fiducia": {
         "formato": "datasheet",
-        "timecode": "datasheet"
+        "timecode": "datasheet",
+        "ingressi": "datasheet",
+        "canali": "datasheet"
       },
-      "fonti": [
-        "https://wolfcrow.com/important-quirks-and-features-of-the-sony-fx6-for-cinematography/"
-      ]
+      "fonti": ["https://wolfcrow.com/important-quirks-and-features-of-the-sony-fx6-for-cinematography/", "https://www.bhphotovideo.com/c/product/803238742-USE/sony_ilme_fx6v_fx6_full_frame_cinema_camera.html"],
+      "marca": "Sony",
+      "tipo": "cinema camera",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR 1-2 (maniglia)",
+          "phantom": true
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI (maniglia, analogica 2 canali)"
+        }
+      ],
+      "mic_interno": ["fx6_interno", "camera_interno"],
+      "note": "Nessun ingresso 3.5 mm per microfono: mic a plug-in power solo con adattatore (es. RODE VXLR Pro)."
     },
     "fx30": {
       "nome": "Sony FX30",
       "formato": "LPCM 24 bit 48 kHz, 2 canali (4 con maniglia XLR)",
-      "bit": [
-        24,
-        16
-      ],
-      "sr": [
-        48000
-      ],
-      "codec": [
-        "pcm_s24le",
-        "pcm_s16be",
-        "pcm_s24be"
-      ],
+      "bit": [24, 16],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s16be", "pcm_s24be"],
       "clock_ppm": 10,
       "timecode": "free run / rec run interno",
-      "rischi": [
-        "clipping"
+      "rischi": ["clipping"],
+      "fiducia": {
+        "ingressi": "datasheet"
+      },
+      "fonti": ["https://www.sony-asia.com/electronics/interchangeable-lens-cameras-tripods-remotes/xlr-h1"],
+      "marca": "Sony",
+      "tipo": "cinema camera",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe_dig",
+          "n": 1,
+          "nome": "slitta MI digitale"
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
       ],
-      "fiducia": {},
-      "fonti": []
+      "mic_interno": ["fx30_interno", "camera_interno"]
     },
     "a6300": {
       "nome": "Sony a6300",
       "formato": "LPCM 16 bit 48 kHz, 2 canali (XAVC S)",
-      "bit": [
-        16
-      ],
-      "sr": [
-        48000
-      ],
-      "codec": [
-        "pcm_s16be",
-        "pcm_s16le"
-      ],
+      "bit": [16],
+      "sr": [48000],
+      "codec": ["pcm_s16be", "pcm_s16le"],
       "clock_ppm": 20,
       "timecode": "no",
-      "rischi": [
-        "file_divisi",
-        "agc"
-      ],
-      "note": "Clip di max ~30 min: ogni blocco si ancora separatamente.",
+      "rischi": ["file_divisi", "agc", "solo_16bit"],
+      "note": "Clip di max ~30 min: ogni blocco si ancora separatamente. Nessuna uscita cuffia.",
       "fiducia": {},
-      "fonti": []
+      "fonti": [],
+      "marca": "Sony",
+      "tipo": "mirrorless",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["a6300_interno", "camera_interno"]
     },
     "osmo_action": {
-      "nome": "DJI Osmo Action",
+      "nome": "DJI Osmo Action (modello da confermare)",
       "formato": "AAC 48 kHz 16 bit",
-      "bit": [
-        16
-      ],
-      "sr": [
-        48000
-      ],
-      "codec": [
-        "aac"
-      ],
+      "bit": [16],
+      "sr": [48000],
+      "codec": ["aac"],
       "clock_ppm": 20,
       "timecode": "no",
-      "rischi": [
-        "agc",
-        "codec_lossy",
-        "banda_limitata"
-      ],
+      "rischi": ["agc", "codec_lossy", "banda_limitata", "solo_16bit"],
       "fiducia": {
         "formato": "datasheet"
       },
-      "fonti": [
-        "https://cliftoncameras.co.uk/uploads/specifications/dji-osmo-action-5-pro-specifications.pdf"
-      ]
+      "fonti": ["https://cliftoncameras.co.uk/uploads/specifications/dji-osmo-action-5-pro-specifications.pdf"],
+      "marca": "DJI",
+      "tipo": "action cam",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "dji_wireless",
+          "n": 2,
+          "nome": "collegamento diretto DJI (OsmoAudio)"
+        },
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm via adattatore USB-C DJI",
+          "plug_in_power": true,
+          "note": "plug-in power da verificare"
+        }
+      ],
+      "mic_interno": ["osmo_action_interni"]
     },
     "tascam_x8": {
       "nome": "Tascam Portacapture X8",
       "formato": "WAV/BWF fino a 192 kHz, 16/24/32 bit float, 6 ingressi + mix",
-      "bit": [
-        32,
-        24,
-        16
-      ],
-      "sr": [
-        44100,
-        48000,
-        96000,
-        192000
-      ],
-      "codec": [
-        "pcm_f32le",
-        "pcm_s24le",
-        "pcm_s16le"
-      ],
+      "bit": [32, 24, 16],
+      "sr": [44100, 48000, 96000, 192000],
+      "codec": ["pcm_f32le", "pcm_s24le", "pcm_s16le"],
       "ein_dbu": -126,
       "max_in_dbu_mic": 2,
       "gamma_dinamica_db": 113,
@@ -372,55 +1287,74 @@
         "ein_dbu": "datasheet",
         "max_in_dbu_mic": "datasheet",
         "gamma_dinamica_db": "datasheet",
-        "timecode": "datasheet"
+        "timecode": "datasheet",
+        "ingressi": "datasheet"
       },
-      "fonti": [
-        "https://cf3.zzounds.com/media/Spec_Sheet-cd576f1c07df48cd6f293e0575291f31.pdf"
-      ]
+      "fonti": ["https://cf3.zzounds.com/media/Spec_Sheet-cd576f1c07df48cd6f293e0575291f31.pdf"],
+      "marca": "Tascam",
+      "tipo": "registratore",
+      "canali": 8,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 2,
+          "nome": "ingressi 1-2 (3.5 mm, mic interni)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "xlr3",
+          "n": 4,
+          "nome": "XLR/TRS 3-6",
+          "phantom": true,
+          "ein_dbu": -126,
+          "max_dbu": 2
+        }
+      ],
+      "mic_interno": ["x8_interni"]
     },
     "dji_mic2": {
       "nome": "DJI Mic 2 (registrazione interna)",
       "formato": "WAV 48 kHz 24 bit o 32 bit float, traccia di sicurezza -6 dB",
-      "bit": [
-        24,
-        32
-      ],
-      "sr": [
-        48000
-      ],
-      "codec": [
-        "pcm_s24le",
-        "pcm_f32le"
-      ],
+      "bit": [24, 32],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_f32le"],
       "clock_ppm": 20,
       "timecode": "no",
-      "rischi": [
-        "wireless_drift"
-      ],
+      "rischi": ["wireless_drift"],
       "fiducia": {
         "formato": "datasheet"
       },
-      "fonti": [
-        "https://www.bhphotovideo.com/c/product/803146975-USE/dji_cp_rn_00000327_01_mic_2_compact_digital.html"
-      ]
+      "fonti": ["https://www.bhphotovideo.com/c/product/803146975-USE/dji_cp_rn_00000327_01_mic_2_compact_digital.html"],
+      "marca": "DJI",
+      "tipo": "wireless (registra)",
+      "canali": 1,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm del TX",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["dji_mic2_tx"]
     },
     "dji_mic_mini": {
       "nome": "DJI Mic Mini (via ricevitore)",
       "formato": "48 kHz 24 bit, ripreso dalla camera",
-      "bit": [
-        24,
-        16
-      ],
-      "sr": [
-        48000
-      ],
+      "bit": [24, 16],
+      "sr": [48000],
       "codec": [],
       "clock_ppm": 20,
       "timecode": "no",
       "rischi": [],
       "note": "Segnale via ricevitore: di solito si sceglie come registratore la camera che lo riceve.",
       "fiducia": {},
-      "fonti": []
+      "fonti": [],
+      "marca": "DJI",
+      "tipo": "ricevitore",
+      "canali": 2,
+      "ingressi": [],
+      "mic_interno": ["dji_mic_mini_tx", "dji_mic_mini2_tx"]
     },
     "mixer": {
       "nome": "Mixer di sala (uscita)",
@@ -430,6 +1364,1107 @@
       "codec": [],
       "clock_ppm": 0,
       "timecode": "dipende dal registratore",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": [],
+      "virtuale": true,
+      "marca": "Generico",
+      "tipo": "sorgente di linea"
+    },
+    "fx9": {
+      "nome": "Sony FX9",
+      "marca": "Sony",
+      "tipo": "cinema camera",
+      "formato": "LPCM 24 bit 48 kHz, 4 canali",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR 1-2",
+          "phantom": true
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI (analogica)"
+        }
+      ],
+      "mic_interno": ["camera_interno"],
+      "bit": [24],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be"],
+      "clock_ppm": 1,
+      "timecode": "in/out BNC",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "fx3": {
+      "nome": "Sony FX3",
+      "marca": "Sony",
+      "tipo": "cinema camera",
+      "formato": "LPCM 24 bit 48 kHz, 2 canali (4 con XLR-H1)",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe_dig",
+          "n": 1,
+          "nome": "slitta MI digitale"
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["fx30_interno", "camera_interno"],
+      "bit": [24, 16],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "free run / rec run, in via cavo multi",
+      "rischi": ["clipping"],
+      "fiducia": {},
+      "fonti": ["https://www.sony-asia.com/electronics/interchangeable-lens-cameras-tripods-remotes/xlr-h1"]
+    },
+    "fx2": {
+      "nome": "Sony FX2",
+      "marca": "Sony",
+      "tipo": "cinema camera",
+      "formato": "LPCM 24 bit 48 kHz, 4 canali con XLR-H1",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe_dig",
+          "n": 1,
+          "nome": "slitta MI digitale"
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["camera_interno"],
+      "bit": [24, 16],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "rischi": [],
+      "fiducia": {},
+      "fonti": ["https://www.sony-asia.com/electronics/interchangeable-lens-cameras-tripods-remotes/xlr-h1"]
+    },
+    "a7s3": {
+      "nome": "Sony a7S III",
+      "marca": "Sony",
+      "tipo": "mirrorless",
+      "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe_dig",
+          "n": 1,
+          "nome": "slitta MI digitale"
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["camera_interno"],
+      "bit": [24, 16],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "free run / rec run",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "a7iv": {
+      "nome": "Sony a7 IV",
+      "marca": "Sony",
+      "tipo": "mirrorless",
+      "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe_dig",
+          "n": 1,
+          "nome": "slitta MI digitale"
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["camera_interno"],
+      "bit": [24, 16],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "free run / rec run",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "a6700": {
+      "nome": "Sony a6700",
+      "marca": "Sony",
+      "tipo": "mirrorless",
+      "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe_dig",
+          "n": 1,
+          "nome": "slitta MI digitale"
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["camera_interno"],
+      "bit": [24, 16],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "free run / rec run",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zv_e1": {
+      "nome": "Sony ZV-E1",
+      "marca": "Sony",
+      "tipo": "mirrorless",
+      "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe_dig",
+          "n": 1,
+          "nome": "slitta MI digitale"
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["camera_interno"],
+      "bit": [24, 16],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "a6400": {
+      "nome": "Sony a6400",
+      "marca": "Sony",
+      "tipo": "mirrorless",
+      "formato": "LPCM 16 bit 48 kHz, 2 canali (XAVC S)",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "mi_shoe",
+          "n": 1,
+          "nome": "slitta MI analogica"
+        }
+      ],
+      "mic_interno": ["a6300_interno", "camera_interno"],
+      "bit": [16],
+      "sr": [48000],
+      "codec": ["pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["agc", "solo_16bit"],
+      "note": "Nessuna uscita cuffia.",
+      "fiducia": {},
+      "fonti": []
+    },
+    "osmo_action4": {
+      "nome": "DJI Osmo Action 4",
+      "marca": "DJI",
+      "tipo": "action cam",
+      "formato": "AAC 48 kHz 16 bit",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "dji_wireless",
+          "n": 2,
+          "nome": "collegamento diretto DJI (OsmoAudio)"
+        },
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm via adattatore USB-C DJI",
+          "plug_in_power": true,
+          "note": "plug-in power da verificare"
+        }
+      ],
+      "mic_interno": ["osmo_action_interni"],
+      "bit": [16],
+      "sr": [48000],
+      "codec": ["aac"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["agc", "codec_lossy", "solo_16bit"],
+      "fiducia": {
+        "ingressi": "datasheet"
+      },
+      "fonti": ["https://store.dji.com/at/content/dji-mic-2-compatibility"]
+    },
+    "osmo_action5pro": {
+      "nome": "DJI Osmo Action 5 Pro",
+      "marca": "DJI",
+      "tipo": "action cam",
+      "formato": "AAC 48 kHz 16 bit, 3 mic",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "dji_wireless",
+          "n": 2,
+          "nome": "collegamento diretto DJI (OsmoAudio)"
+        },
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm via adattatore USB-C DJI",
+          "plug_in_power": true,
+          "note": "plug-in power da verificare"
+        }
+      ],
+      "mic_interno": ["osmo_action_interni"],
+      "bit": [16],
+      "sr": [48000],
+      "codec": ["aac"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["agc", "codec_lossy", "solo_16bit"],
+      "fiducia": {
+        "formato": "datasheet",
+        "ingressi": "datasheet"
+      },
+      "fonti": ["https://cliftoncameras.co.uk/uploads/specifications/dji-osmo-action-5-pro-specifications.pdf", "https://store.dji.com/at/content/dji-mic-2-compatibility"]
+    },
+    "osmo_action6": {
+      "nome": "DJI Osmo Action 6",
+      "marca": "DJI",
+      "tipo": "action cam",
+      "formato": "AAC 48 kHz 16 bit, 3 mic omni",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "dji_wireless",
+          "n": 2,
+          "nome": "collegamento diretto DJI (OsmoAudio)"
+        },
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm via adattatore USB-C DJI",
+          "plug_in_power": true,
+          "note": "plug-in power da verificare"
+        }
+      ],
+      "mic_interno": ["osmo_action_interni"],
+      "bit": [16],
+      "sr": [48000],
+      "codec": ["aac"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["agc", "codec_lossy", "solo_16bit"],
+      "note": "WAV non supportato. Fino a 2 TX DJI (Mic 2, Mic 3, Mic Mini).",
+      "fiducia": {
+        "formato": "datasheet",
+        "ingressi": "datasheet"
+      },
+      "fonti": ["https://www.bhphotovideo.com/c/product/1928318-REG/dji_cp_os_00000505_02_osmo_action_6_standard.html"]
+    },
+    "osmo_pocket3": {
+      "nome": "DJI Osmo Pocket 3",
+      "marca": "DJI",
+      "tipo": "gimbal camera",
+      "formato": "AAC 48 kHz 16 bit, 3 mic",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "dji_wireless",
+          "n": 2,
+          "nome": "collegamento diretto DJI (fino a 2 TX)"
+        },
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm via adattatore DJI",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["osmo_pocket3_interni"],
+      "bit": [16],
+      "sr": [48000],
+      "codec": ["aac"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["agc", "codec_lossy", "solo_16bit"],
+      "fiducia": {
+        "ingressi": "datasheet"
+      },
+      "fonti": ["https://store.dji.com/at/content/dji-mic-2-compatibility"]
+    },
+    "dji_mic1": {
+      "nome": "DJI Mic (1a gen., registrazione interna)",
+      "marca": "DJI",
+      "tipo": "wireless (registra)",
+      "formato": "WAV 48 kHz 24 bit",
+      "canali": 1,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm del TX",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["dji_mic1_tx"],
+      "bit": [24],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["wireless_drift"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "dji_mic3": {
+      "nome": "DJI Mic 3 (registrazione interna)",
+      "marca": "DJI",
+      "tipo": "wireless (registra)",
+      "formato": "WAV 48 kHz 32 bit float o 24 bit, timecode",
+      "canali": 1,
+      "ingressi": [],
+      "mic_interno": ["dji_mic3_tx"],
+      "bit": [32, 24],
+      "sr": [48000],
+      "codec": ["pcm_f32le", "pcm_s24le", "pcm_s24be"],
+      "clock_ppm": 0.5,
+      "timecode": "LTC in, ±0.5 ppm (< 1 frame in 24 h)",
+      "rischi": [],
+      "fiducia": {
+        "formato": "datasheet",
+        "clock_ppm": "datasheet",
+        "timecode": "datasheet"
+      },
+      "fonti": ["https://www.dji.com/mic-3/specs"]
+    },
+    "rode_wireless_go_ii": {
+      "nome": "RODE Wireless GO II (registrazione interna)",
+      "marca": "RODE",
+      "tipo": "wireless (registra)",
+      "formato": "registrazione interna nel TX (oltre 40 h)",
+      "canali": 1,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm del TX",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["wireless_go_ii_tx"],
+      "bit": [24],
+      "sr": [48000],
+      "codec": ["pcm_s24le", "pcm_s24be"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["wireless_drift"],
+      "fiducia": {},
+      "fonti": ["https://fullcompass.com/prod/599821-rode-wireless-go-ii-dual-channel-wireless-microphone-system"]
+    },
+    "rode_wireless_pro": {
+      "nome": "RODE Wireless PRO (registrazione interna)",
+      "marca": "RODE",
+      "tipo": "wireless (registra)",
+      "formato": "32 bit float interno, timecode",
+      "canali": 1,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm del TX",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["wireless_pro_tx"],
+      "bit": [32],
+      "sr": [48000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 1,
+      "timecode": "si (interno)",
+      "rischi": [],
+      "fiducia": {
+        "formato": "datasheet",
+        "timecode": "datasheet"
+      },
+      "fonti": ["https://rode.com/en-us/products/wireless-pro"]
+    },
+    "tascam_x6": {
+      "nome": "Tascam Portacapture X6",
+      "marca": "Tascam",
+      "tipo": "registratore",
+      "formato": "WAV/BWF 44.1-96 kHz, 16/24/32 bit float",
+      "canali": 6,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 4,
+          "nome": "XLR 1-2 + XLR/TRS 3-4",
+          "phantom": true,
+          "ein_dbu": -125,
+          "max_dbu": 2
+        },
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm MIC/EXT IN",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["x6_interni"],
+      "bit": [32, 24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le", "pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 5,
+      "timecode": "via Atomos (AK-BT1)",
+      "rischi": [],
+      "ein_dbu": -125,
+      "max_in_dbu_mic": 2,
+      "fiducia": {
+        "formato": "datasheet",
+        "ingressi": "datasheet",
+        "timecode": "datasheet"
+      },
+      "fonti": ["https://tascam.com/us/product/portacapture_x6"]
+    },
+    "tascam_dr40x": {
+      "nome": "Tascam DR-40X",
+      "marca": "Tascam",
+      "tipo": "registratore",
+      "formato": "WAV 44.1-96 kHz 16/24 bit, 4 tracce",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        }
+      ],
+      "mic_interno": ["dr40x_interni"],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 5,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": ["https://www.tascam.eu/en/docs/PG2025-1.pdf"]
+    },
+    "tascam_dr05x": {
+      "nome": "Tascam DR-05X",
+      "marca": "Tascam",
+      "tipo": "registratore",
+      "formato": "WAV 44.1-96 kHz 16/24 bit",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm MIC/EXT IN",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["dr05x_interni"],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 5,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": ["https://www.tascam.eu/en/docs/PG2025-1.pdf"]
+    },
+    "tascam_dr07x": {
+      "nome": "Tascam DR-07X",
+      "marca": "Tascam",
+      "tipo": "registratore",
+      "formato": "WAV 44.1-96 kHz 16/24 bit",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm MIC/EXT IN",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["dr07x_interni"],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 5,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": ["https://www.tascam.eu/en/docs/PG2025-1.pdf"]
+    },
+    "tascam_dr10l_pro": {
+      "nome": "Tascam DR-10L Pro",
+      "marca": "Tascam",
+      "tipo": "registratore lav",
+      "formato": "WAV 32 bit float 44.1-96 kHz",
+      "canali": 1,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm a vite",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": [],
+      "bit": [32],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 5,
+      "timecode": "via Atomos (AK-BT1)",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": ["https://tascam.com/us/product/dr-10l_pro"]
+    },
+    "tascam_fr_av2": {
+      "nome": "Tascam FR-AV2",
+      "marca": "Tascam",
+      "tipo": "registratore",
+      "formato": "WAV 32 bit float, timecode",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        }
+      ],
+      "mic_interno": [],
+      "bit": [32, 24],
+      "sr": [44100, 48000, 96000, 192000],
+      "codec": ["pcm_f32le", "pcm_s24le", "pcm_s24be"],
+      "clock_ppm": 0.2,
+      "timecode": "BNC in/out",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": ["https://tascam.com/us/product/fr-av2"]
+    },
+    "tascam_dr701d": {
+      "nome": "Tascam DR-701D",
+      "marca": "Tascam",
+      "tipo": "registratore per camera",
+      "formato": "WAV fino a 192 kHz 24 bit, 6 tracce",
+      "canali": 6,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 4,
+          "nome": "XLR/TRS 1-4",
+          "phantom": true
+        }
+      ],
+      "mic_interno": [],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000, 192000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 1,
+      "timecode": "BNC in/out, HDMI",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "tascam_dr60d_mk2": {
+      "nome": "Tascam DR-60D MkII",
+      "marca": "Tascam",
+      "tipo": "registratore per camera",
+      "formato": "WAV 96 kHz 24 bit, 4 tracce",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        },
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm 3-4",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": [],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 5,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_f6": {
+      "nome": "Zoom F6",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV/BWF 32 bit float, fino a 192 kHz, doppio A/D",
+      "canali": 8,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 6,
+          "nome": "XLR 1-6",
+          "phantom": true,
+          "ein_dbu": -127,
+          "max_dbu": 4
+        }
+      ],
+      "mic_interno": [],
+      "bit": [32, 24, 16],
+      "sr": [44100, 48000, 96000, 192000],
+      "codec": ["pcm_f32le", "pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 0.2,
+      "timecode": "3.5 mm in/out, ±0.2 ppm",
+      "rischi": [],
+      "ein_dbu": -127,
+      "max_in_dbu_mic": 4,
+      "fiducia": {
+        "formato": "datasheet",
+        "ingressi": "datasheet",
+        "clock_ppm": "datasheet",
+        "timecode": "datasheet"
+      },
+      "fonti": ["https://zoomcorp.com/en/us/field-recorders/field-recorders/f6/"]
+    },
+    "zoom_f3": {
+      "nome": "Zoom F3",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV/BWF 32 bit float, fino a 192 kHz, doppio A/D",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR 1-2",
+          "phantom": true,
+          "ein_dbu": -127,
+          "max_dbu": 4
+        }
+      ],
+      "mic_interno": [],
+      "bit": [32],
+      "sr": [44100, 48000, 88200, 96000, 192000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 5,
+      "timecode": "via UltraSync BLUE (BTA-1)",
+      "rischi": [],
+      "ein_dbu": -127,
+      "max_in_dbu_mic": 4,
+      "fiducia": {
+        "formato": "datasheet",
+        "ingressi": "datasheet",
+        "timecode": "datasheet"
+      },
+      "fonti": ["https://zoomcorp.com/en/gb/field-recorders/field-recorders/f3/"]
+    },
+    "zoom_f8n_pro": {
+      "nome": "Zoom F8n Pro",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 32 bit float/24 bit, fino a 192 kHz",
+      "canali": 10,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 8,
+          "nome": "XLR/TRS 1-8",
+          "phantom": true
+        }
+      ],
+      "mic_interno": [],
+      "bit": [32, 24],
+      "sr": [44100, 48000, 96000, 192000],
+      "codec": ["pcm_f32le", "pcm_s24le", "pcm_s24be"],
+      "clock_ppm": 0.2,
+      "timecode": "BNC in/out",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h6essential": {
+      "nome": "Zoom H6essential",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 32 bit float 44.1-96 kHz",
+      "canali": 6,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 4,
+          "nome": "XLR/TRS 1-4",
+          "phantom": true,
+          "ein_dbu": -120,
+          "max_dbu": 4
+        }
+      ],
+      "mic_interno": ["zoom_xyh6e"],
+      "bit": [32],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 5,
+      "timecode": "via TCA-1 o UltraSync BLUE",
+      "rischi": [],
+      "ein_dbu": -120,
+      "max_in_dbu_mic": 4,
+      "fiducia": {
+        "formato": "datasheet",
+        "ingressi": "datasheet",
+        "timecode": "datasheet"
+      },
+      "fonti": ["https://zoomcorp.com/en/us/handheld-recorders/handheld-recorders/h6essential/"]
+    },
+    "zoom_h4essential": {
+      "nome": "Zoom H4essential",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 32 bit float",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        }
+      ],
+      "mic_interno": ["zoom_h4_interni"],
+      "bit": [32],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 5,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h1essential": {
+      "nome": "Zoom H1essential",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 32 bit float",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm MIC/LINE",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["zoom_h1_interni"],
+      "bit": [32],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h6": {
+      "nome": "Zoom H6 (2013/Black)",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 24 bit fino a 96 kHz",
+      "canali": 6,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 4,
+          "nome": "XLR/TRS 1-4",
+          "phantom": true
+        },
+        {
+          "tipo": "zoom_capsula",
+          "n": 1,
+          "nome": "capsula intercambiabile"
+        }
+      ],
+      "mic_interno": [],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["clipping"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h5": {
+      "nome": "Zoom H5",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 24 bit fino a 96 kHz",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        },
+        {
+          "tipo": "zoom_capsula",
+          "n": 1,
+          "nome": "capsula intercambiabile"
+        }
+      ],
+      "mic_interno": [],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["clipping"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h5studio": {
+      "nome": "Zoom H5studio",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 32 bit float",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        },
+        {
+          "tipo": "zoom_capsula",
+          "n": 1,
+          "nome": "capsula"
+        }
+      ],
+      "mic_interno": [],
+      "bit": [32, 24],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le", "pcm_s24le", "pcm_s24be"],
+      "clock_ppm": 5,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": ["https://zoomcorp.com/en/us/handheld-recorders/handheld-recorders/h5studio/"]
+    },
+    "zoom_h8": {
+      "nome": "Zoom H8",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 24 bit fino a 96 kHz",
+      "canali": 8,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 4,
+          "nome": "XLR/TRS 1-4",
+          "phantom": true
+        },
+        {
+          "tipo": "zoom_capsula",
+          "n": 1,
+          "nome": "capsula intercambiabile"
+        }
+      ],
+      "mic_interno": [],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["clipping"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h4n_pro": {
+      "nome": "Zoom H4n Pro",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 24 bit fino a 96 kHz",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        }
+      ],
+      "mic_interno": ["zoom_h4_interni"],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["clipping"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_h1n": {
+      "nome": "Zoom H1n",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 24 bit fino a 96 kHz",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm MIC/LINE",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["zoom_h1_interni"],
+      "bit": [24, 16],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_s24le", "pcm_s24be", "pcm_s16le", "pcm_s16be"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["clipping"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_m3": {
+      "nome": "Zoom M3 MicTrak",
+      "marca": "Zoom",
+      "tipo": "mic-registratore",
+      "formato": "WAV 32 bit float",
+      "canali": 2,
+      "ingressi": [],
+      "mic_interno": ["zoom_m3"],
+      "bit": [32],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_m4": {
+      "nome": "Zoom M4 MicTrak",
+      "marca": "Zoom",
+      "tipo": "registratore",
+      "formato": "WAV 32 bit float",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "xlr3",
+          "n": 2,
+          "nome": "XLR/TRS 1-2",
+          "phantom": true
+        }
+      ],
+      "mic_interno": ["zoom_m4_interni"],
+      "bit": [32],
+      "sr": [44100, 48000, 96000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 5,
+      "timecode": "no",
+      "rischi": [],
+      "fiducia": {},
+      "fonti": []
+    },
+    "zoom_f2": {
+      "nome": "Zoom F2",
+      "marca": "Zoom",
+      "tipo": "registratore lav",
+      "formato": "WAV 32 bit float",
+      "canali": 1,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm a vite",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": [],
+      "bit": [32],
+      "sr": [44100, 48000, 96000, 192000],
+      "codec": ["pcm_f32le"],
+      "clock_ppm": 10,
+      "timecode": "no",
       "rischi": [],
       "fiducia": {},
       "fonti": []
@@ -442,7 +2477,10 @@
     "codec_lossy": "Codec compresso (AAC): artefatti, meglio come spot o sync.",
     "banda_limitata": "Banda utile ridotta in alto: non usare come base per gli acuti.",
     "wireless_drift": "Clock autonomo: drift e jitter, controllare il sync su tutta la durata.",
-    "limiter": "Limiter interno: transienti schiacciati vicino alle sorgenti forti."
+    "limiter": "Limiter interno: transienti schiacciati vicino alle sorgenti forti.",
+    "spl_basso": "SPL max basso (100-110 dB): vicino a casse, batteria o fiati satura. Usarlo lontano o su sorgenti deboli.",
+    "dsp_interno": "Elaborazione interna (beamforming, riduzione rumore/vento): fase e timbro non lineari, meglio come spot.",
+    "solo_16bit": "Solo 16 bit: margine ridotto, tenere i picchi a -12 dBFS."
   },
   "profili": [
     {
@@ -452,12 +2490,10 @@
       "microfono": "ecm_ms2",
       "ruolo": "base",
       "posizione": "fondo sala",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
-        "^C\\d{4}.*\\.MP4$"
+        "^C\\d{4}.*\\.MP4$",
+        "^[A-Z]\\d{3}C\\d{3}.*\\.MP4$"
       ]
     },
     {
@@ -467,12 +2503,10 @@
       "microfono": "ecm_ms2",
       "ruolo": "riferimento picchi",
       "posizione": "fondo sala",
-      "canali": [
-        3,
-        4
-      ],
+      "canali": [3, 4],
       "file": [
-        "^C\\d{4}.*\\.MP4$"
+        "^C\\d{4}.*\\.MP4$",
+        "^[A-Z]\\d{3}C\\d{3}.*\\.MP4$"
       ]
     },
     {
@@ -482,10 +2516,7 @@
       "microfono": "videomic_go_ii",
       "ruolo": "spot",
       "posizione": "vicino palco centro",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
         "^C\\d{4}.*\\.MP4$"
       ]
@@ -497,10 +2528,7 @@
       "microfono": "camera_interno",
       "ruolo": "sync",
       "posizione": "vicino palco centro",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
         "^C\\d{4}.*\\.MP4$"
       ]
@@ -512,10 +2540,7 @@
       "microfono": "camera_interno",
       "ruolo": "sync",
       "posizione": "laterale",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
         "^C\\d{4}.*\\.MP4$",
         "^DSC\\d+"
@@ -528,12 +2553,10 @@
       "microfono": "osmo_action_interni",
       "ruolo": "spot",
       "posizione": "vicino ai musicisti",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
-        "^DJI_.*\\.MP4$"
+        "^DJI_.*\\.MP4$",
+        "^DJI_\\d{14}_\\d{4}_D\\.MP4$"
       ]
     },
     {
@@ -543,10 +2566,7 @@
       "microfono": "x8_interni",
       "ruolo": "base",
       "posizione": "sotto palco centro",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
         "tascam",
         "^\\d{6}_\\d{4}"
@@ -559,9 +2579,7 @@
       "microfono": "mkh416",
       "ruolo": "base",
       "posizione": "sotto palco centro",
-      "canali": [
-        1
-      ],
+      "canali": [1],
       "file": [
         "tascam",
         "^\\d{6}_\\d{4}"
@@ -574,9 +2592,7 @@
       "microfono": "c2",
       "ruolo": "ambiente",
       "posizione": "lati palco",
-      "canali": [
-        1
-      ],
+      "canali": [1],
       "file": [
         "tascam",
         "^\\d{6}_\\d{4}"
@@ -589,14 +2605,8 @@
       "microfono": "feed_mixer",
       "ruolo": "riferimento bilanciamento",
       "posizione": "regia",
-      "canali": [
-        1,
-        2
-      ],
-      "file": [
-        "tascam",
-        "mix"
-      ]
+      "canali": [1, 2],
+      "file": ["tascam", "mix"]
     },
     {
       "id": "dji_mic2",
@@ -605,13 +2615,8 @@
       "microfono": "dji_mic2_tx",
       "ruolo": "spot",
       "posizione": "su strumento",
-      "canali": [
-        1
-      ],
-      "file": [
-        "^TX\\d",
-        "^DJI_\\d+_\\d+\\.WAV$"
-      ]
+      "canali": [1],
+      "file": ["^TX\\d", "^DJI_\\d+_\\d+\\.WAV$"]
     },
     {
       "id": "dji_mic_mini",
@@ -620,9 +2625,7 @@
       "microfono": "dji_mic_mini_tx",
       "ruolo": "spot",
       "posizione": "su strumento",
-      "canali": [
-        1
-      ],
+      "canali": [1],
       "file": []
     },
     {
@@ -632,12 +2635,10 @@
       "microfono": "dji_mic2_tx",
       "ruolo": "spot",
       "posizione": "su strumento",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
-        "^C\\d{4}.*\\.MP4$"
+        "^C\\d{4}.*\\.MP4$",
+        "^[A-Z]\\d{3}C\\d{3}.*\\.MP4$"
       ]
     },
     {
@@ -647,13 +2648,141 @@
       "microfono": "dji_mic2_tx",
       "ruolo": "spot",
       "posizione": "su strumento",
-      "canali": [
-        1,
-        2
-      ],
+      "canali": [1, 2],
       "file": [
         "^C\\d{4}.*\\.MP4$"
       ]
+    },
+    {
+      "id": "fx6_416",
+      "nome": "FX6 + MKH 416 (XLR)",
+      "registratore": "fx6",
+      "microfono": "mkh416",
+      "ruolo": "base",
+      "posizione": "sotto palco centro",
+      "canali": [1],
+      "file": [
+        "^C\\d{4}.*\\.MP4$",
+        "^[A-Z]\\d{3}C\\d{3}.*\\.MP4$"
+      ]
+    },
+    {
+      "id": "fx6_c2",
+      "nome": "FX6 + C-2 (XLR)",
+      "registratore": "fx6",
+      "microfono": "c2",
+      "ruolo": "ambiente",
+      "posizione": "lati palco",
+      "canali": [1, 2],
+      "file": [
+        "^C\\d{4}.*\\.MP4$",
+        "^[A-Z]\\d{3}C\\d{3}.*\\.MP4$"
+      ]
+    },
+    {
+      "id": "fx30_h1_416",
+      "nome": "FX30 + XLR-H1 + MKH 416",
+      "registratore": "fx30",
+      "microfono": "mkh416",
+      "ruolo": "base",
+      "posizione": "sotto palco centro",
+      "canali": [1],
+      "file": [
+        "^C\\d{4}.*\\.MP4$"
+      ]
+    },
+    {
+      "id": "a6300_videomic_go",
+      "nome": "a6300 + VideoMic GO",
+      "registratore": "a6300",
+      "microfono": "videomic_go",
+      "ruolo": "spot",
+      "posizione": "laterale",
+      "canali": [1, 2],
+      "file": [
+        "^C\\d{4}.*\\.MP4$",
+        "^DSC\\d+"
+      ]
+    },
+    {
+      "id": "x8_ms2",
+      "nome": "Tascam X8 + ECM-MS2 (XLR 3-4)",
+      "registratore": "tascam_x8",
+      "microfono": "ecm_ms2",
+      "ruolo": "base",
+      "posizione": "fondo sala",
+      "canali": [1, 2],
+      "file": [
+        "tascam",
+        "^\\d{6}_\\d{4}"
+      ]
+    },
+    {
+      "id": "action5_mic2",
+      "nome": "Osmo Action 5 Pro + DJI Mic 2 diretto",
+      "registratore": "osmo_action5pro",
+      "microfono": "dji_mic2_tx",
+      "ruolo": "spot",
+      "posizione": "su strumento",
+      "canali": [1, 2],
+      "file": ["^DJI_.*\\.MP4$"]
+    },
+    {
+      "id": "pocket3",
+      "nome": "Osmo Pocket 3 mic interni",
+      "registratore": "osmo_pocket3",
+      "microfono": "osmo_pocket3_interni",
+      "ruolo": "sync",
+      "posizione": "vicino ai musicisti",
+      "canali": [1, 2],
+      "file": ["^DJI_.*\\.MP4$"]
+    },
+    {
+      "id": "dji_mic3",
+      "nome": "DJI Mic 3 file interno (32 bit float)",
+      "registratore": "dji_mic3",
+      "microfono": "dji_mic3_tx",
+      "ruolo": "spot",
+      "posizione": "su strumento",
+      "canali": [1],
+      "file": ["^TX\\d", "^DJI_\\d+_\\d+\\.WAV$"]
+    },
+    {
+      "id": "zoom_f6_xlr",
+      "nome": "Zoom F6 + shotgun XLR",
+      "registratore": "zoom_f6",
+      "microfono": "mkh416",
+      "ruolo": "base",
+      "posizione": "sotto palco centro",
+      "canali": [1],
+      "file": [
+        "^ZOOM\\d{4}",
+        "_Tr\\d",
+        "^\\d{6}_\\d{6}"
+      ]
+    },
+    {
+      "id": "h6e_xy",
+      "nome": "Zoom H6essential XY",
+      "registratore": "zoom_h6essential",
+      "microfono": "zoom_xyh6e",
+      "ruolo": "base",
+      "posizione": "sotto palco centro",
+      "canali": [1, 2],
+      "file": [
+        "^ZOOM\\d{4}",
+        "_XY"
+      ]
+    },
+    {
+      "id": "go_ii_interno",
+      "nome": "RODE Wireless GO II file interno",
+      "registratore": "rode_wireless_go_ii",
+      "microfono": "wireless_go_ii_tx",
+      "ruolo": "spot",
+      "posizione": "su strumento",
+      "canali": [1],
+      "file": ["^REC\\d+", "rode"]
     },
     {
       "id": "generico",
@@ -664,6 +2793,115 @@
       "posizione": "",
       "canali": [],
       "file": []
+    }
+  ],
+  "adattatori": [
+    {
+      "nome": "Sony XLR-H1 (maniglia)",
+      "da": "xlr3",
+      "a": "mi_shoe_dig",
+      "phantom": true,
+      "solo": ["fx3", "fx30", "fx2"],
+      "note": "2 XLR/TRS + 3.5 mm, 4 canali 24 bit digitali.",
+      "fonti": ["https://www.sony-asia.com/electronics/interchangeable-lens-cameras-tripods-remotes/xlr-h1"]
+    },
+    {
+      "nome": "Sony XLR-K3M",
+      "da": "xlr3",
+      "a": "mi_shoe_dig",
+      "phantom": true,
+      "note": "2 XLR, digitale 4 canali 24 bit sulle camere con slitta digitale."
+    },
+    {
+      "nome": "Sony XLR-K2M / K1M",
+      "da": "xlr3",
+      "a": "mi_shoe",
+      "phantom": true,
+      "note": "2 XLR analogici sulla slitta MI. Verificare il modello di camera nella lista Sony."
+    },
+    {
+      "nome": "RODE VXLR Pro",
+      "da": "mini_jack",
+      "a": "xlr3",
+      "plug_in_power": true,
+      "richiede": "phantom",
+      "note": "Converte il phantom in plug-in power: mic 3.5 mm in ingresso XLR."
+    },
+    {
+      "nome": "cavo XLR - 3.5 mm",
+      "da": "xlr3",
+      "a": "mini_jack",
+      "note": "Nessun phantom: solo mic a batteria o dinamici, livello basso, rumore del preamp camera."
+    },
+    {
+      "nome": "ricevitore DJI (uscita 3.5 mm)",
+      "da": "dji_wireless",
+      "a": "mini_jack",
+      "note": "Il clock e quello del registratore: niente drift wireless."
+    },
+    {
+      "nome": "ricevitore DJI (USB-C)",
+      "da": "dji_wireless",
+      "a": "usb_c"
+    },
+    {
+      "nome": "ricevitore DJI + cavo 3.5 mm - XLR",
+      "da": "dji_wireless",
+      "a": "xlr3",
+      "note": "Livello mic, phantom spento."
+    },
+    {
+      "nome": "ricevitore RODE (uscita 3.5 mm)",
+      "da": "rode_wireless",
+      "a": "mini_jack"
+    },
+    {
+      "nome": "ricevitore RODE (USB-C)",
+      "da": "rode_wireless",
+      "a": "usb_c"
+    },
+    {
+      "nome": "ricevitore RODE + cavo 3.5 mm - XLR",
+      "da": "rode_wireless",
+      "a": "xlr3",
+      "note": "Phantom spento."
+    },
+    {
+      "nome": "ricevitore Sony URX-P41D + SMAD-P5",
+      "da": "sony_uwp",
+      "a": "mi_shoe_dig"
+    },
+    {
+      "nome": "ricevitore Sony URX-P40 + SMAD-P5",
+      "da": "sony_uwp",
+      "a": "mi_shoe"
+    },
+    {
+      "nome": "ricevitore Sony URX (uscita 3.5 mm)",
+      "da": "sony_uwp",
+      "a": "mini_jack"
+    },
+    {
+      "nome": "ricevitore Sony URX + cavo XLR",
+      "da": "sony_uwp",
+      "a": "xlr3",
+      "note": "Phantom spento."
+    },
+    {
+      "nome": "ricevitore Sennheiser (uscita 3.5 mm)",
+      "da": "sennheiser_wireless",
+      "a": "mini_jack"
+    },
+    {
+      "nome": "ricevitore Sennheiser (XLR)",
+      "da": "sennheiser_wireless",
+      "a": "xlr3",
+      "note": "Phantom spento."
+    },
+    {
+      "nome": "ricevitore Sennheiser Profile (USB-C)",
+      "da": "sennheiser_wireless",
+      "a": "usb_c"
     }
   ]
 }
