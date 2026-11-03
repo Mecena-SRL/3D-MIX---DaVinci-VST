@@ -3,6 +3,8 @@ name: Release macOS
 on:
   push:
     tags: ["v*"]
+  pull_request:  # prova la build quando cambia il packaging
+    paths: ["packaging/**", ".github/workflows/release.yml", "pyproject.toml"]
   workflow_dispatch:
 
 permissions:
