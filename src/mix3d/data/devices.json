@@ -1,0 +1,149 @@
+{
+  "_info": {
+    "versione": "0.1 (2026-11-03)",
+    "fiducia": "per ogni voce, 'fiducia' indica la fonte dei campi: datasheet = scheda del costruttore, misurato = misura propria, ipotizzato = valore tipico da verificare. Campi non elencati = ipotizzato.",
+    "unita": "frequenze Hz, sensibilita mV/Pa, rumore dB(A) SPL, SPL max dB, clock ppm, curve [[Hz, dB]]"
+  },
+  "microfoni": {
+    "ecm_ms2": {
+      "nome": "Sony ECM-MS2", "capsula": "electret, Mid-Side", "diagramma": "ms",
+      "banda": [80, 20000], "sensibilita_mv_pa": 25.1, "rumore_dba": 25, "spl_max": 125,
+      "note": "Stereo M/S: angolo regolabile. Mono 70 Hz-20 kHz, -36 dB.",
+      "fiducia": {"banda": "datasheet", "sensibilita_mv_pa": "datasheet", "rumore_dba": "datasheet", "spl_max": "datasheet"},
+      "fonti": ["https://pro.sony/en_CZ/pdf/ecm-ms2"]
+    },
+    "mkh416": {
+      "nome": "Sennheiser MKH 416", "capsula": "condensatore RF, tubo d'interferenza", "diagramma": "supercardioide",
+      "banda": [40, 20000], "sensibilita_mv_pa": 25, "rumore_dba": 13, "spl_max": 130,
+      "curva": [[40, -6], [100, -2], [1000, 0], [5000, 2], [10000, 4], [15000, 2], [20000, -3]],
+      "note": "Presenza in alto (+3/5 dB 5-12 kHz): la correzione la attenua. Molto direttivo fuori asse sopra 2 kHz.",
+      "fiducia": {"banda": "datasheet", "sensibilita_mv_pa": "datasheet", "rumore_dba": "datasheet", "spl_max": "datasheet", "curva": "ipotizzato"},
+      "fonti": ["https://docs.cloud.sennheiser.com/en-us/mkh-416-mkh-418-s/specs-mkh-416.html"]
+    },
+    "c2": {
+      "nome": "Behringer C-2", "capsula": "condensatore FET, diaframma 16 mm", "diagramma": "cardioide",
+      "banda": [20, 20000], "sensibilita_mv_pa": 8.9, "rumore_dba": 19, "spl_max": 150,
+      "note": "Pad -10 dB e taglio 120 Hz (-6 dB/oct) a interruttore: annota se attivi.",
+      "fiducia": {"banda": "datasheet", "sensibilita_mv_pa": "datasheet", "rumore_dba": "datasheet", "spl_max": "datasheet"},
+      "fonti": ["https://recordinghacks.com/microphones/Behringer/C-2", "https://www.manualslib.com/manual/785529/Behringer-C-2.html?page=5"]
+    },
+    "x8_interni": {
+      "nome": "Tascam Portacapture X8 (mic interni)", "capsula": "condensatore 14,6 mm, staccabili", "diagramma": "cardioide",
+      "banda": [20, 20000], "spl_max": 125,
+      "note": "Configurabili XY o AB.",
+      "fiducia": {"banda": "ipotizzato", "diagramma": "ipotizzato"},
+      "fonti": ["https://cf3.zzounds.com/media/Spec_Sheet-cd576f1c07df48cd6f293e0575291f31.pdf"]
+    },
+    "videomic_go_ii": {
+      "nome": "RODE VideoMic GO II", "capsula": "electret a gradiente di pressione", "diagramma": "supercardioide",
+      "banda": [20, 20000], "sensibilita_mv_pa": 28.8, "rumore_dba": 15, "spl_max": 110,
+      "note": "SPL max 110 dB: vicino a casse o batteria satura. Plug-in power o USB.",
+      "fiducia": {"banda": "datasheet", "sensibilita_mv_pa": "datasheet", "rumore_dba": "datasheet", "spl_max": "datasheet"},
+      "fonti": ["https://edge.rode.com/pdf/products/849/VideoMic%20GO%20II_ds_V2.pdf"]
+    },
+    "videomic_go": {
+      "nome": "RODE VideoMic GO (prima versione)", "capsula": "electret", "diagramma": "supercardioide",
+      "banda": [100, 20000], "sensibilita_mv_pa": 17.8, "rumore_dba": 34, "spl_max": 120,
+      "note": "Da confermare se e la versione in uso (I o II).",
+      "fiducia": {}, "fonti": []
+    },
+    "dji_mic2_tx": {
+      "nome": "DJI Mic 2 (trasmettitore)", "capsula": "electret", "diagramma": "omni",
+      "banda": [50, 20000], "spl_max": 120,
+      "note": "Con low-cut attivo la banda parte da 100 Hz. Riduzione rumore intelligente: tenerla spenta per musica.",
+      "fiducia": {"banda": "datasheet", "spl_max": "datasheet", "diagramma": "datasheet"},
+      "fonti": ["https://www.bhphotovideo.com/c/product/803146975-USE/dji_cp_rn_00000327_01_mic_2_compact_digital.html"]
+    },
+    "dji_mic_mini_tx": {
+      "nome": "DJI Mic Mini (trasmettitore)", "capsula": "electret", "diagramma": "omni",
+      "banda": [50, 20000], "spl_max": 120,
+      "fiducia": {"diagramma": "datasheet"}, "fonti": ["https://www.dji.com/products/comparison-mic"]
+    },
+    "camera_interno": {
+      "nome": "Mic interno di camera", "capsula": "electret stereo", "diagramma": "omni",
+      "banda": [100, 16000], "rumore_dba": 30, "spl_max": 115,
+      "note": "Sente rumori di maneggio e motore obiettivo.",
+      "fiducia": {}, "fonti": []
+    },
+    "osmo_action_interni": {
+      "nome": "DJI Osmo Action (3 mic interni)", "capsula": "MEMS", "diagramma": "omni",
+      "banda": [100, 16000], "spl_max": 120,
+      "note": "3 microfoni con riduzione vento; audio spesso ottimo vicino ai musicisti.",
+      "fiducia": {}, "fonti": ["https://cliftoncameras.co.uk/uploads/specifications/dji-osmo-action-5-pro-specifications.pdf"]
+    },
+    "feed_mixer": {
+      "nome": "Feed del mixer", "capsula": "linea", "diagramma": "nessuno", "banda": [20, 20000],
+      "note": "Segnale gia mixato dal fonico: riferimento di bilanciamento, senza ambiente.",
+      "fiducia": {}, "fonti": []
+    }
+  },
+  "registratori": {
+    "fx6": {
+      "nome": "Sony FX6", "formato": "LPCM 24 bit 48 kHz, 4 canali", "bit": [24], "sr": [48000], "codec": ["pcm_s24le", "pcm_s16be", "pcm_s24be"],
+      "clock_ppm": 1, "timecode": "in/out BNC, free run o rec run",
+      "rischi": ["agc"],
+      "fiducia": {"formato": "datasheet", "timecode": "datasheet"},
+      "fonti": ["https://wolfcrow.com/important-quirks-and-features-of-the-sony-fx6-for-cinematography/"]
+    },
+    "fx30": {
+      "nome": "Sony FX30", "formato": "LPCM 24 bit 48 kHz, 2 canali (4 con maniglia XLR)", "bit": [24, 16], "sr": [48000], "codec": ["pcm_s24le", "pcm_s16be", "pcm_s24be"],
+      "clock_ppm": 10, "timecode": "free run / rec run interno",
+      "rischi": ["clipping"], "fiducia": {}, "fonti": []
+    },
+    "a6300": {
+      "nome": "Sony a6300", "formato": "LPCM 16 bit 48 kHz, 2 canali (XAVC S)", "bit": [16], "sr": [48000], "codec": ["pcm_s16be", "pcm_s16le"],
+      "clock_ppm": 20, "timecode": "no", "rischi": ["file_divisi", "agc"],
+      "note": "Clip di max ~30 min: ogni blocco si ancora separatamente.", "fiducia": {}, "fonti": []
+    },
+    "osmo_action": {
+      "nome": "DJI Osmo Action", "formato": "AAC 48 kHz 16 bit", "bit": [16], "sr": [48000], "codec": ["aac"],
+      "clock_ppm": 20, "timecode": "no", "rischi": ["agc", "codec_lossy", "banda_limitata"],
+      "fiducia": {"formato": "datasheet"}, "fonti": ["https://cliftoncameras.co.uk/uploads/specifications/dji-osmo-action-5-pro-specifications.pdf"]
+    },
+    "tascam_x8": {
+      "nome": "Tascam Portacapture X8", "formato": "WAV/BWF fino a 192 kHz, 16/24/32 bit float, 6 ingressi + mix", "bit": [32, 24, 16], "sr": [44100, 48000, 96000, 192000], "codec": ["pcm_f32le", "pcm_s24le", "pcm_s16le"],
+      "ein_dbu": -126, "max_in_dbu_mic": 2, "gamma_dinamica_db": 113,
+      "clock_ppm": 5, "timecode": "via Atomos (adattatore AK-BT1)", "rischi": [],
+      "fiducia": {"formato": "datasheet", "ein_dbu": "datasheet", "max_in_dbu_mic": "datasheet", "gamma_dinamica_db": "datasheet", "timecode": "datasheet"},
+      "fonti": ["https://cf3.zzounds.com/media/Spec_Sheet-cd576f1c07df48cd6f293e0575291f31.pdf"]
+    },
+    "dji_mic2": {
+      "nome": "DJI Mic 2 (registrazione interna)", "formato": "WAV 48 kHz 24 bit o 32 bit float, traccia di sicurezza -6 dB", "bit": [24, 32], "sr": [48000], "codec": ["pcm_s24le", "pcm_f32le"],
+      "clock_ppm": 20, "timecode": "no", "rischi": ["wireless_drift", "limiter"],
+      "fiducia": {"formato": "datasheet"}, "fonti": ["https://www.bhphotovideo.com/c/product/803146975-USE/dji_cp_rn_00000327_01_mic_2_compact_digital.html"]
+    },
+    "dji_mic_mini": {
+      "nome": "DJI Mic Mini (via ricevitore)", "formato": "48 kHz 24 bit, ripreso dalla camera", "bit": [24, 16], "sr": [48000], "codec": [],
+      "clock_ppm": 20, "timecode": "no", "rischi": ["wireless_drift", "limiter"],
+      "note": "Verificare se registra internamente.", "fiducia": {}, "fonti": []
+    },
+    "mixer": {
+      "nome": "Mixer di sala (uscita)", "formato": "linea", "bit": [], "sr": [], "codec": [],
+      "clock_ppm": 0, "timecode": "dipende dal registratore", "rischi": [], "fiducia": {}, "fonti": []
+    }
+  },
+  "rischi": {
+    "agc": "Livello automatico: la dinamica e compressa, il motore stima e inverte la curva (M3).",
+    "clipping": "Livello manuale: possibile saturazione, recupero picchi da sorgente non satura.",
+    "file_divisi": "File spezzati: ogni blocco va sincronizzato separatamente.",
+    "codec_lossy": "Codec compresso (AAC): artefatti, meglio come spot o sync.",
+    "banda_limitata": "Banda utile ridotta in alto: non usare come base per gli acuti.",
+    "wireless_drift": "Clock autonomo: drift e jitter, controllare il sync su tutta la durata.",
+    "limiter": "Limiter interno: transienti schiacciati vicino alle sorgenti forti."
+  },
+  "profili": [
+    {"id": "fx6_ms2_auto", "nome": "FX6 + ECM-MS2, livello auto (ch 1-2)", "registratore": "fx6", "microfono": "ecm_ms2", "ruolo": "base", "posizione": "fondo sala", "canali": [1, 2], "file": ["^C\\d{4}.*\\.MP4$"]},
+    {"id": "fx6_safety", "nome": "FX6 sicurezza, livello basso (ch 3-4)", "registratore": "fx6", "microfono": "ecm_ms2", "ruolo": "riferimento picchi", "posizione": "fondo sala", "canali": [3, 4], "file": ["^C\\d{4}.*\\.MP4$"]},
+    {"id": "fx30_videomic", "nome": "FX30 + VideoMic GO II", "registratore": "fx30", "microfono": "videomic_go_ii", "ruolo": "spot", "posizione": "vicino palco centro", "canali": [1, 2], "file": ["^C\\d{4}.*\\.MP4$"]},
+    {"id": "fx30_interno", "nome": "FX30 mic interno", "registratore": "fx30", "microfono": "camera_interno", "ruolo": "sync", "posizione": "vicino palco centro", "canali": [1, 2], "file": ["^C\\d{4}.*\\.MP4$"]},
+    {"id": "a6300_interno", "nome": "a6300 mic interno", "registratore": "a6300", "microfono": "camera_interno", "ruolo": "sync", "posizione": "laterale", "canali": [1, 2], "file": ["^C\\d{4}.*\\.MP4$", "^DSC\\d+"]},
+    {"id": "osmo_action", "nome": "DJI Osmo Action", "registratore": "osmo_action", "microfono": "osmo_action_interni", "ruolo": "spot", "posizione": "vicino ai musicisti", "canali": [1, 2], "file": ["^DJI_.*\\.MP4$"]},
+    {"id": "x8_xy", "nome": "Tascam X8 mic interni XY", "registratore": "tascam_x8", "microfono": "x8_interni", "ruolo": "base", "posizione": "sotto palco centro", "canali": [1, 2], "file": ["tascam", "^\\d{6}_\\d{4}"]},
+    {"id": "x8_416", "nome": "Tascam X8 + MKH 416 centro", "registratore": "tascam_x8", "microfono": "mkh416", "ruolo": "base", "posizione": "sotto palco centro", "canali": [1], "file": ["tascam", "^\\d{6}_\\d{4}"]},
+    {"id": "x8_c2", "nome": "Tascam X8 + C-2 larghi", "registratore": "tascam_x8", "microfono": "c2", "ruolo": "ambiente", "posizione": "lati palco", "canali": [1], "file": ["tascam", "^\\d{6}_\\d{4}"]},
+    {"id": "x8_mixer", "nome": "Tascam X8 feed mixer", "registratore": "tascam_x8", "microfono": "feed_mixer", "ruolo": "riferimento bilanciamento", "posizione": "regia", "canali": [1, 2], "file": ["tascam", "mix"]},
+    {"id": "dji_mic2", "nome": "DJI Mic 2 su ampli/strumento", "registratore": "dji_mic2", "microfono": "dji_mic2_tx", "ruolo": "spot", "posizione": "su strumento", "canali": [1], "file": ["^TX\\d", "^DJI_\\d+_\\d+\\.WAV$"]},
+    {"id": "dji_mic_mini", "nome": "DJI Mic Mini su ampli/strumento", "registratore": "dji_mic_mini", "microfono": "dji_mic_mini_tx", "ruolo": "spot", "posizione": "su strumento", "canali": [1], "file": []},
+    {"id": "generico", "nome": "Altro / sconosciuto", "registratore": "mixer", "microfono": "camera_interno", "ruolo": "spot", "posizione": "", "canali": [], "file": []}
+  ]
+}

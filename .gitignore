@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 *.wav
 out/
+graphify-out/cache/
