@@ -20,7 +20,7 @@ e reimporta una traccia `MIX3D`. Non modifica mai i media né le tracce esistent
 
 ## Pannello (`mix3d ui`)
 
-Apre `http://127.0.0.1:8730` (solo locale; serve internet per caricare Three.js dal CDN).
+Apre `http://127.0.0.1:8730` (solo locale, funziona offline).
 
 1. **+ File** o **Da Resolve**: ogni file diventa una o più tracce (canali a coppie). Il dispositivo è suggerito da nome, codec, bit e canale: conferma o cambia (bordo giallo = da confermare).
 2. **Analizza e sincronizza**: analisi di ogni traccia e sync (GCC-PHAT + drift) sulla traccia di riferimento; posizioni automatiche.
@@ -31,12 +31,17 @@ Apre `http://127.0.0.1:8730` (solo locale; serve internet per caricare Three.js 
 
 Limiti: il posizionamento automatico è approssimato (posizione tipica del profilo + ritardi fra canali dello stesso registratore); il drift in ascolto è corretto a blocchi (in F1 ricampionamento continuo). Database: [`docs/database_dispositivi.md`](docs/database_dispositivi.md).
 
-## Installazione (macOS)
+## App per Mac (.dmg)
+
+Scarica il `.dmg` dalle [Release](https://github.com/Mecena-SRL/3D-MIX---DaVinci-VST/releases) (arm64 = Apple Silicon, x86_64 = Intel), trascina **MIX3D** in Applicazioni.
+L'app non è firmata: al primo avvio tasto destro su MIX3D > Apri > Apri. Si apre il pannello nel browser; **Esci** la chiude.
+ffmpeg e Three.js sono inclusi, nessuna installazione extra. Build locale: `packaging/build_macos.sh`; release: push di un tag `vX.Y.Z` (GitHub Actions, macOS).
+
+## Installazione da sorgente (macOS)
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-brew install ffmpeg                     # audio dei file video (MP4/MOV)
 pytest
 ```
 

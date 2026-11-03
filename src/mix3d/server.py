@@ -273,6 +273,9 @@ class Handler(SimpleHTTPRequestHandler):
                     STATE["project"] = json.loads(Path(os.path.expanduser(b["path"])).read_text())
                     for t in STATE["project"]["tracks"]:  # progetti precedenti senza catena
                         t.setdefault("microfono", devices.profile(t["profile"])["microfono"])
+                elif u.path == "/api/quit":
+                    threading.Timer(0.3, os._exit, (0,)).start()
+                    return self.send_json({"ok": True})
                 elif u.path == "/api/new":
                     STATE["project"] = new_project()
                 else:
@@ -283,7 +286,12 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def serve(port: int = 8730, open_browser: bool = True):
-    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    try:
+        srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    except OSError:  # già aperto (es. doppio clic sull'app): riapri solo il browser
+        import webbrowser
+        webbrowser.open(f"http://127.0.0.1:{port}")
+        return
     url = f"http://127.0.0.1:{port}"
     print(f"MIX3D pannello: {url}  (Ctrl+C per uscire)")
     if open_browser:

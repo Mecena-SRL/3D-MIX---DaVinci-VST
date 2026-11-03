@@ -1,6 +1,6 @@
 // MIX3D pannello: stato dal server, tracce, scena 3D, analisi, ascolto e stampa.
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { OrbitControls } from "./vendor/OrbitControls.js";
 
 const $ = (id) => document.getElementById(id);
 const COLORS = ["#4fb3ff", "#f5b942", "#3ccf8e", "#ff7aa8", "#b38cff", "#ff8c42", "#5ee0e0", "#d4e157", "#ff5d5d", "#9aa5b1"];
@@ -417,6 +417,7 @@ $("bAnalyze").onclick = safe(async () => {
 });
 $("bResolve").onclick = safe(async () => { S = await api("/api/resolve/import", {}); await refresh(); toast("Timeline di Resolve letta"); });
 $("bSave").onclick = safe(async () => { const r = await api("/api/save", {}); toast(`Salvato in ${r.path}`); });
+$("bQuit").onclick = async () => { if (!confirm("Chiudere MIX3D? Salva prima il progetto.")) return; player.stop(); await fetch("/api/quit", { method: "POST" }).catch(() => {}); document.body.innerHTML = "<p style='padding:40px'>MIX3D chiuso.</p>"; };
 $("bOpen").onclick = () => $("dlgOpen").showModal();
 $("opCancel").onclick = () => $("dlgOpen").close();
 $("opOk").onclick = safe(async () => { await api("/api/load", { path: $("opPath").value }); $("dlgOpen").close(); await refresh(); });
