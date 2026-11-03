@@ -17,7 +17,7 @@ from urllib.parse import parse_qs, urlparse
 import numpy as np
 import soundfile as sf
 
-from . import analysis, devices, geometry, media, mixer
+from . import analysis, devices, geometry, media, mixer, spazi
 
 WEB = Path(__file__).parent / "web"
 AUDIO_EXT = {".wav", ".bwf", ".mp4", ".mov", ".mxf", ".m4a", ".aac", ".mp3", ".flac", ".aif", ".aiff"}
@@ -27,7 +27,8 @@ def new_project() -> dict:
     return {"nome": "Concerto", "sr": 48000, "sala": {"w": 20.0, "d": 30.0, "h": 8.0},
             "listener": [0.0, 1.7, 8.0], "master_db": -6.0, "correzione": True,
             "attenuazione": 0.5, "dist_ref_m": 5.0, "larghezza": 1.0,
-            "riferimento": None, "resolve": None, "tracks": []}
+            "riferimento": None, "resolve": None, "spazio": None, "palco": {"w": 12, "d": 4, "h": 0.6},
+            "sorgenti": [], "lobi": True, "tracks": []}
 
 
 STATE = {"project": new_project(), "jobs": {}}
@@ -62,12 +63,13 @@ def tracks_from_file(path: str, offset_s: float = 0.0, name: str | None = None) 
 
 def auto_place(p: dict):
     auto = [t for t in p["tracks"] if t["pos_mode"] == "auto"]
-    try:
-        extra = geometry.same_clock_distances(auto)
-    except Exception:  # file troppo corti o illeggibili: resta la stima tipica
-        extra = {}
-    for t in auto:
-        t["extra_dist_m"] = extra.get(t["id"], 0.0)
+    if any("extra_dist_m" not in t for t in auto):  # costoso (GCC): solo con tracce nuove
+        try:
+            extra = geometry.same_clock_distances(auto)
+        except Exception:  # file troppo corti o illeggibili: resta la stima tipica
+            extra = {}
+        for t in auto:
+            t["extra_dist_m"] = extra.get(t["id"], 0.0)
     for tid, pos in geometry.auto_positions(auto, p["sala"]).items():
         next(t for t in auto if t["id"] == tid)["pos"] = pos
 
@@ -109,8 +111,13 @@ def job_analyze(job):
         except Exception as e:
             t["sync"] = {"errore": str(e), "fiducia": 0}
         job["progress"] = 0.6 + 0.3 * (i + 1) / max(len(others), 1)
-    job["msg"] = "posizionamento"
+    job["msg"] = "posizionamento e stima delle sorgenti"
     auto_place(p)
+    try:
+        est = geometry.estimate_sources(ts, p["sala"], p.get("palco", {}).get("d", 4))
+    except Exception:  # stima facoltativa: se i file non bastano si va avanti senza
+        est = []
+    p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
     job["progress"] = 1.0
     return {"tracce": len(ts)}
 
@@ -193,13 +200,13 @@ def public_state() -> dict:
     return {**p, "span": span}
 
 
-def browse(d: str) -> dict:
+def browse(d: str, ext: str | None = None) -> dict:
     d = os.path.expanduser(d or "~")
     entries = []
     for e in sorted(os.scandir(d), key=lambda e: (not e.is_dir(), e.name.lower())):
         if e.name.startswith("."):
             continue
-        if e.is_dir() or Path(e.name).suffix.lower() in AUDIO_EXT:
+        if e.is_dir() or Path(e.name).suffix.lower() in ({f".{ext}"} if ext else AUDIO_EXT):
             entries.append({"nome": e.name, "path": e.path, "dir": e.is_dir()})
     return {"dir": d, "su": str(Path(d).parent), "voci": entries}
 
@@ -243,7 +250,9 @@ class Handler(SimpleHTTPRequestHandler):
                 from . import resolve_install
                 return self.send_json(resolve_install.status())
             if u.path == "/api/browse":
-                return self.send_json(browse(q.get("dir", "")))
+                return self.send_json(browse(q.get("dir", ""), q.get("ext")))
+            if u.path == "/api/spazi":
+                return self.send_json([{**s, "distanza_critica": spazi.critical_distance(s)} for s in spazi.all_spaces()])
             if u.path.startswith("/api/jobs/"):
                 return self.send_json(STATE["jobs"][u.path.rsplit("/", 1)[1]])
             if u.path == "/api/render":
@@ -284,6 +293,13 @@ class Handler(SimpleHTTPRequestHandler):
                         t.update({k: v for k, v in patch.items() if k != "profile"})
                     if "sala" in b or any(x.get("pos_mode") == "auto" for x in b.get("tracks", [])):
                         auto_place(p)
+                elif u.path == "/api/spazio":
+                    sp = spazi.get(b["id"])
+                    p.update(spazio=sp["id"], sala=dict(sp["sala"]), palco=dict(sp["palco"]),
+                             listener=list(sp["ascoltatore"]))
+                    auto_place(p)
+                elif u.path == "/api/spazi/import":
+                    return self.send_json(spazi.import_file(b["path"]))
                 elif u.path == "/api/remove":
                     p["tracks"] = [t for t in p["tracks"] if t["id"] != b["id"]]
                 elif u.path == "/api/analyze":
@@ -295,7 +311,7 @@ class Handler(SimpleHTTPRequestHandler):
                     Path(path).write_text(json.dumps(p, ensure_ascii=False, indent=1))
                     return self.send_json({"path": path})
                 elif u.path == "/api/load":
-                    STATE["project"] = json.loads(Path(os.path.expanduser(b["path"])).read_text())
+                    STATE["project"] = {**new_project(), **json.loads(Path(os.path.expanduser(b["path"])).read_text())}
                     for t in STATE["project"]["tracks"]:  # progetti precedenti senza catena
                         t.setdefault("microfono", devices.profile(t["profile"])["microfono"])
                 elif u.path == "/api/resolve/install":

@@ -166,3 +166,29 @@ def test_regione_da_marker_o_inout(monkeypatch):
     assert rb.region(None) == (100, 200, "In/Out")
     tl.inout = {}
     assert rb.region(None) is None
+
+
+def test_spazi_preset_e_import(tmp_path, monkeypatch):
+    from mix3d import spazi
+    ss = spazi.builtin()
+    assert len(ss) >= 10 and len({s["id"] for s in ss}) == len(ss)
+    for s in ss:
+        assert {"sala", "palco", "ascoltatore", "rt60"} <= s.keys() and spazi.critical_distance(s) > 0, s["id"]
+    # file privato nello schema mix3d-spazio/1: copiato solo nella cartella locale
+    monkeypatch.setattr(spazi, "LOCAL", tmp_path / "spazi")
+    f = tmp_path / "sala.mix3d-space.json"
+    f.write_text(json.dumps({"formato": "mix3d-spazio/1", "id": "sala_x", "nome": "Sala X", "capienza": 99,
+                             "sala": {"w": 10, "d": 12, "h": 6}, "listener": [0, 1.2, 5],
+                             "acustica": {"rt60_s": {"500": 0.8, "1000": 0.7}, "note": "asciutta"}}))
+    s = spazi.import_file(str(f))
+    assert s["rt60"] == {"500": 0.8, "1k": 0.7} and s["ascoltatore"] == [0, 1.2, 5]
+    assert spazi.get("sala_x")["privato"] and (tmp_path / "spazi" / "sala_x.json").exists()
+
+
+def test_localizzazione_tdoa():
+    from mix3d import geometry
+    mics = np.array([[-4, 1.5, 3], [4, 1.5, 3], [0, 1.5, 8], [-2, 1.5, -1]], float)
+    src = np.array([1.3, 1.5, -2.1])
+    d = np.linalg.norm(mics - src, axis=1)
+    pos, err = geometry.locate(mics, (d - d[0]) / geometry.C, (-6, 6, -4, 2))
+    assert np.allclose(pos, src, atol=0.11) and err < 0.1

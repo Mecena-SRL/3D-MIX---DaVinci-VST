@@ -1,0 +1,638 @@
+{
+ "_info": {
+  "versione": "0.1",
+  "nota": "Valori tipici, non misure di sale specifiche. Coordinate in metri: x larghezza, y altezza, z profondità (pubblico verso +z, palco in z<0). Schema dei file privati: docs/spazi.md"
+ },
+ "spazi": [
+  {
+   "id": "teatro_italiana",
+   "nome": "Teatro all'italiana",
+   "tipo": "teatro",
+   "descrizione": "Sala a ferro di cavallo con palchi su più ordini, platea in leggera pendenza e palco con arco scenico. Suono caldo, poco riverbero grazie ai palchi e ai velluti.",
+   "sala": {
+    "w": 18,
+    "d": 22,
+    "h": 16
+   },
+   "palco": {
+    "w": 14,
+    "d": 12,
+    "h": 1.0
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 1.4,
+    "250": 1.3,
+    "500": 1.2,
+    "1k": 1.1,
+    "2k": 1.0,
+    "4k": 0.9
+   },
+   "posti": 600,
+   "elementi": [
+    {
+     "tipo": "palchi",
+     "ordini": 4,
+     "altezza": 2.6,
+     "profondita": 2.2
+    }
+   ],
+   "consigli": [
+    "Coppia principale sopra il golfo mistico, 2-3 m dal proscenio, a 3-4 m d'altezza.",
+    "Il primo ordine di palchi centrale è il punto di ascolto migliore per i mic d'ambiente.",
+    "Evita i mic sotto i palchi: suono cupo e smorzato."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    8.8
+   ],
+   "volume_m3": 9024
+  },
+  {
+   "id": "teatro_lirico",
+   "nome": "Teatro lirico (grande)",
+   "tipo": "teatro",
+   "descrizione": "Grande teatro d'opera all'italiana: 5-6 ordini di palchi e loggione, golfo mistico profondo, palcoscenico molto ampio.",
+   "sala": {
+    "w": 26,
+    "d": 32,
+    "h": 24
+   },
+   "palco": {
+    "w": 20,
+    "d": 22,
+    "h": 1.2
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 1.7,
+    "250": 1.6,
+    "500": 1.5,
+    "1k": 1.4,
+    "2k": 1.3,
+    "4k": 1.1
+   },
+   "posti": 1500,
+   "elementi": [
+    {
+     "tipo": "palchi",
+     "ordini": 6,
+     "altezza": 2.8,
+     "profondita": 2.4
+    },
+    {
+     "tipo": "box",
+     "nome": "golfo mistico",
+     "pos": [
+      0,
+      -1.2,
+      1.5
+     ],
+     "size": [
+      16,
+      2.4,
+      3
+     ],
+     "colore": "#2a3550"
+    }
+   ],
+   "consigli": [
+    "Albero di Decca o coppia spaziata sul golfo mistico.",
+    "Ambienti al loggione: tanta riverberazione, usali con poco guadagno.",
+    "Le voci arrivano bene dal centro platea al 10° fila."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    12.8
+   ],
+   "volume_m3": 30528
+  },
+  {
+   "id": "black_box",
+   "nome": "Black box / sala prove",
+   "tipo": "teatro",
+   "descrizione": "Sala nera polivalente con palco basso e tribuna mobile. Acustica asciutta, quasi da studio.",
+   "sala": {
+    "w": 15,
+    "d": 15,
+    "h": 7
+   },
+   "palco": {
+    "w": 10,
+    "d": 6,
+    "h": 0.3
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 0.8,
+    "250": 0.7,
+    "500": 0.6,
+    "1k": 0.6,
+    "2k": 0.6,
+    "4k": 0.5
+   },
+   "posti": 150,
+   "elementi": [
+    {
+     "tipo": "gradinate",
+     "file": 6,
+     "da": 3,
+     "a": 12,
+     "alzata": 0.4,
+     "arco": 0
+    }
+   ],
+   "consigli": [
+    "Mic vicini agli strumenti: la sala aggiunge poco.",
+    "Un paio di omni a metà tribuna per un minimo di ambiente."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    6.0
+   ],
+   "volume_m3": 1995
+  },
+  {
+   "id": "chiesa_navata",
+   "nome": "Chiesa a navata unica",
+   "tipo": "chiesa",
+   "descrizione": "Chiesa a navata unica, spesso sconsacrata e usata per concerti: volta alta, superfici dure, presbiterio rialzato e abside. Riverbero lungo, ottima per voci e archi.",
+   "sala": {
+    "w": 12,
+    "d": 35,
+    "h": 16
+   },
+   "palco": {
+    "w": 10,
+    "d": 8,
+    "h": 0.6
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 3.5,
+    "250": 3.4,
+    "500": 3.2,
+    "1k": 2.9,
+    "2k": 2.5,
+    "4k": 2.0
+   },
+   "posti": 300,
+   "elementi": [
+    {
+     "tipo": "abside",
+     "raggio": 5
+    }
+   ],
+   "consigli": [
+    "Coppia principale vicina (3-5 m dagli esecutori): la distanza critica è corta.",
+    "Ambienti a metà navata, alti, per la coda del riverbero.",
+    "Attenzione alle basse: il rombo della navata maschera il dettaglio."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    14.0
+   ],
+   "volume_m3": 8000
+  },
+  {
+   "id": "basilica",
+   "nome": "Basilica a tre navate",
+   "tipo": "chiesa",
+   "descrizione": "Grande chiesa a tre navate separate da colonnati, transetto e cupola. Riverbero molto lungo e diffuso.",
+   "sala": {
+    "w": 26,
+    "d": 60,
+    "h": 22
+   },
+   "palco": {
+    "w": 14,
+    "d": 12,
+    "h": 0.8
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 5.5,
+    "250": 5.2,
+    "500": 4.8,
+    "1k": 4.2,
+    "2k": 3.5,
+    "4k": 2.6
+   },
+   "posti": 800,
+   "elementi": [
+    {
+     "tipo": "colonne",
+     "x": [
+      -6,
+      6
+     ],
+     "da": 2,
+     "a": 56,
+     "passo": 6,
+     "diametro": 1.2,
+     "altezza": 14
+    },
+    {
+     "tipo": "abside",
+     "raggio": 7
+    }
+   ],
+   "consigli": [
+    "Mic spot obbligatori: la sala da sola è troppo bagnata.",
+    "Coppia principale entro 4 m dagli esecutori.",
+    "Non mettere mic dietro le colonne: ombre e filtri a pettine."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    24.0
+   ],
+   "volume_m3": 38016
+  },
+  {
+   "id": "chiostro",
+   "nome": "Chiostro / cortile porticato",
+   "tipo": "aperto",
+   "descrizione": "Cortile all'aperto circondato da portici. Poco riverbero ma prime riflessioni dai portici; rumore esterno da tenere d'occhio.",
+   "sala": {
+    "w": 30,
+    "d": 30,
+    "h": 8
+   },
+   "palco": {
+    "w": 12,
+    "d": 8,
+    "h": 0.8
+   },
+   "aperto": true,
+   "rt60": {
+    "125": 1.2,
+    "250": 1.1,
+    "500": 1.0,
+    "1k": 0.9,
+    "2k": 0.8,
+    "4k": 0.7
+   },
+   "posti": 300,
+   "elementi": [
+    {
+     "tipo": "portico",
+     "profondita": 4,
+     "altezza": 5
+    }
+   ],
+   "consigli": [
+    "Ambienti sotto i portici laterali per riflessioni naturali.",
+    "Proteggi i mic dal vento (antivento sempre).",
+    "Registra un minuto di silenzio: utile per togliere il rumore di fondo."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    12.0
+   ],
+   "volume_m3": 3984
+  },
+  {
+   "id": "auditorium_shoebox",
+   "nome": "Auditorium a scatola (shoebox)",
+   "tipo": "auditorium",
+   "descrizione": "Sala da concerto rettangolare alta e stretta, con balconate laterali. Il riferimento per la musica sinfonica.",
+   "sala": {
+    "w": 22,
+    "d": 40,
+    "h": 17
+   },
+   "palco": {
+    "w": 18,
+    "d": 10,
+    "h": 1.0
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 2.2,
+    "250": 2.1,
+    "500": 2.0,
+    "1k": 1.9,
+    "2k": 1.8,
+    "4k": 1.6
+   },
+   "posti": 1200,
+   "elementi": [
+    {
+     "tipo": "box",
+     "nome": "balconata sx",
+     "pos": [
+      -9.5,
+      6,
+      20
+     ],
+     "size": [
+      3,
+      0.6,
+      34
+     ],
+     "colore": "#3a3f4a"
+    },
+    {
+     "tipo": "box",
+     "nome": "balconata dx",
+     "pos": [
+      9.5,
+      6,
+      20
+     ],
+     "size": [
+      3,
+      0.6,
+      34
+     ],
+     "colore": "#3a3f4a"
+    },
+    {
+     "tipo": "box",
+     "nome": "balconata fondo",
+     "pos": [
+      0,
+      6,
+      38.5
+     ],
+     "size": [
+      22,
+      0.6,
+      3
+     ],
+     "colore": "#3a3f4a"
+    }
+   ],
+   "consigli": [
+    "Albero principale 2-3 m sopra e dietro il direttore.",
+    "Ambienti a 1/3 della sala, sulle balconate laterali.",
+    "Usa i C-2 larghi come outrigger ai lati del palco."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    16.0
+   ],
+   "volume_m3": 18020
+  },
+  {
+   "id": "auditorium_vigna",
+   "nome": "Auditorium a vigna",
+   "tipo": "auditorium",
+   "descrizione": "Sala moderna con il pubblico a terrazze intorno al palco. Suono avvolgente e chiaro, molte riflessioni laterali.",
+   "sala": {
+    "w": 40,
+    "d": 40,
+    "h": 18
+   },
+   "palco": {
+    "w": 16,
+    "d": 12,
+    "h": 1.0
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 2.1,
+    "250": 2.0,
+    "500": 1.9,
+    "1k": 1.9,
+    "2k": 1.8,
+    "4k": 1.6
+   },
+   "posti": 2000,
+   "elementi": [
+    {
+     "tipo": "gradinate",
+     "file": 10,
+     "da": 4,
+     "a": 20,
+     "alzata": 0.6,
+     "arco": 300
+    }
+   ],
+   "consigli": [
+    "Coppia principale sopra il palco, puntata verso l'orchestra.",
+    "Ambienti sulle terrazze dietro e ai lati.",
+    "Il pubblico è anche dietro: controlla la fase dei mic opposti."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    16.0
+   ],
+   "volume_m3": 32256
+  },
+  {
+   "id": "cavea",
+   "nome": "Cavea / anfiteatro all'aperto",
+   "tipo": "aperto",
+   "descrizione": "Gradinate a semicerchio all'aperto (teatro antico o arena estiva). Ottima acustica diretta, quasi nessun riverbero.",
+   "sala": {
+    "w": 60,
+    "d": 35,
+    "h": 15
+   },
+   "palco": {
+    "w": 20,
+    "d": 12,
+    "h": 1.2
+   },
+   "aperto": true,
+   "rt60": {
+    "125": 0.8,
+    "250": 0.7,
+    "500": 0.7,
+    "1k": 0.6,
+    "2k": 0.6,
+    "4k": 0.5
+   },
+   "posti": 3000,
+   "elementi": [
+    {
+     "tipo": "gradinate",
+     "file": 20,
+     "da": 6,
+     "a": 32,
+     "alzata": 0.45,
+     "arco": 180
+    }
+   ],
+   "consigli": [
+    "Il riverbero va aggiunto in post: registra asciutto e vicino.",
+    "Ambienti a metà cavea per l'applauso e la sensazione di spazio.",
+    "Vento e insetti: antivento e filtro passa-alto."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    14.0
+   ],
+   "volume_m3": 17550
+  },
+  {
+   "id": "piazza",
+   "nome": "Piazza con palco",
+   "tipo": "aperto",
+   "descrizione": "Palco all'aperto in piazza, con facciate dei palazzi intorno. Echi lunghi dalle facciate lontane e molto rumore di fondo.",
+   "sala": {
+    "w": 40,
+    "d": 50,
+    "h": 20
+   },
+   "palco": {
+    "w": 14,
+    "d": 10,
+    "h": 1.5
+   },
+   "aperto": true,
+   "rt60": {
+    "125": 1.0,
+    "250": 0.9,
+    "500": 0.8,
+    "1k": 0.7,
+    "2k": 0.6,
+    "4k": 0.5
+   },
+   "posti": 3000,
+   "elementi": [
+    {
+     "tipo": "box",
+     "nome": "facciate",
+     "pos": [
+      0,
+      10,
+      50
+     ],
+     "size": [
+      40,
+      20,
+      0.5
+     ],
+     "colore": "#3a3f4a"
+    },
+    {
+     "tipo": "box",
+     "nome": "regia",
+     "pos": [
+      0,
+      1,
+      25
+     ],
+     "size": [
+      4,
+      2,
+      3
+     ],
+     "colore": "#4a3a2a"
+    }
+   ],
+   "consigli": [
+    "Il feed del mixer è la base: la piazza aggiunge eco più che riverbero.",
+    "Ambienti vicino alla regia, puntati al palco.",
+    "Gli echi dalle facciate vanno tagliati: tieni bassi i mic lontani."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    20.0
+   ],
+   "volume_m3": 21400
+  },
+  {
+   "id": "salone_storico",
+   "nome": "Salone di palazzo storico",
+   "tipo": "sala",
+   "descrizione": "Salone rettangolare affrescato con soffitto a cassettoni, tipico di palazzi e ville. Riverbero medio, suono brillante.",
+   "sala": {
+    "w": 14,
+    "d": 30,
+    "h": 10
+   },
+   "palco": {
+    "w": 6,
+    "d": 4,
+    "h": 0.4
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 2.0,
+    "250": 1.9,
+    "500": 1.8,
+    "1k": 1.7,
+    "2k": 1.5,
+    "4k": 1.3
+   },
+   "posti": 250,
+   "elementi": [],
+   "consigli": [
+    "Coppia principale a 4-6 m, all'altezza di 3 m.",
+    "Le finestre sono riflettenti: non puntare i mic verso il vetro."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    12.0
+   ],
+   "volume_m3": 4440
+  },
+  {
+   "id": "club",
+   "nome": "Club / teatro off",
+   "tipo": "sala",
+   "descrizione": "Piccola sala con palco basso, pubblico in piedi e impianto PA. Asciutta, dominata dal suono della PA.",
+   "sala": {
+    "w": 12,
+    "d": 18,
+    "h": 4.5
+   },
+   "palco": {
+    "w": 8,
+    "d": 5,
+    "h": 0.6
+   },
+   "aperto": false,
+   "rt60": {
+    "125": 0.9,
+    "250": 0.8,
+    "500": 0.7,
+    "1k": 0.6,
+    "2k": 0.6,
+    "4k": 0.5
+   },
+   "posti": 200,
+   "elementi": [
+    {
+     "tipo": "box",
+     "nome": "bancone",
+     "pos": [
+      -4.5,
+      0.55,
+      15
+     ],
+     "size": [
+      2.5,
+      1.1,
+      5
+     ],
+     "colore": "#4a3a2a"
+    }
+   ],
+   "consigli": [
+    "Il feed del mixer è fondamentale; i mic ambiente danno il pubblico.",
+    "Mic ambiente ai lati del palco puntati al pubblico per gli applausi."
+   ],
+   "ascoltatore": [
+    0,
+    1.2,
+    7.2
+   ],
+   "volume_m3": 1152
+  }
+ ]
+}

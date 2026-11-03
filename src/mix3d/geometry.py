@@ -67,3 +67,42 @@ def spatial_params(pos, listener) -> tuple[float, float]:
     dist = max(float(np.linalg.norm(v)), 0.5)
     az = np.arctan2(v[0], -v[2])  # 0 = davanti (verso il palco)
     return dist, float(np.clip(np.sin(az), -1, 1))
+
+
+def locate(mics: np.ndarray, tdoa: np.ndarray, area: tuple, y: float = 1.5, step: float = 0.1):
+    """Posizione (x, y, z) della sorgente che spiega meglio i ritardi relativi al
+    mic 0 (tdoa[i] = arrivo al mic i - arrivo al mic 0), ricerca su griglia nel
+    piano a quota y. Ritorna (pos, errore rms in metri)."""
+    x0, x1, z0, z1 = area
+    xs, zs = np.arange(x0, x1 + step, step), np.arange(z0, z1 + step, step)
+    X, Z = np.meshgrid(xs, zs)
+    P = np.stack([X, np.full_like(X, y), Z], -1)[..., None, :]          # [nz, nx, 1, 3]
+    d = np.linalg.norm(P - mics[None, None], axis=-1)                  # [nz, nx, M]
+    res = (d - d[..., :1]) - C * tdoa[None, None]
+    err = np.sqrt((res[..., 1:] ** 2).mean(-1))
+    i = np.unravel_index(np.argmin(err), err.shape)
+    return [round(float(xs[i[1]]), 2), y, round(float(zs[i[0]]), 2)], round(float(err[i]), 2)
+
+
+def estimate_sources(tracks: list[dict], room: dict, stage_d: float, seconds: float = 30.0,
+                     fs: int = 48000) -> list[dict]:
+    """Stima la sorgente dominante per ogni gruppo di almeno 3 mic con lo stesso
+    clock (stesso registratore, stessa durata) in posizioni diverse."""
+    from . import media
+    from .sync import gcc_phat
+
+    groups: dict[tuple, list[dict]] = {}
+    for t in tracks:
+        groups.setdefault((t.get("registratore"), round(t["info"]["duration"], 1)), []).append(t)
+    out = []
+    for (rec, _), g in groups.items():
+        pos = np.array([t["pos"] for t in g], float)
+        if len(g) < 3 or len({tuple(p) for p in pos.round(1)}) < 3:
+            continue
+        sig = [media.read(t["wav"], t["channels"], 30.0, seconds, fs).mean(axis=1).astype(float) for t in g]
+        tdoa = np.array([gcc_phat(sig[0], s, fs, max_tau=0.1)[0] for s in sig])
+        area = (-room["w"] / 2, room["w"] / 2, -stage_d, 2.0)
+        p, err = locate(pos, tdoa, area)
+        out.append({"id": f"stima_{rec}", "nome": f"Sorgente stimata ({rec})", "pos": p,
+                    "stimata": True, "errore_m": err})
+    return out

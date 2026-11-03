@@ -5,131 +5,186 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MIX3D</title>
 <link rel="stylesheet" href="style.css">
-<script type="importmap">
-{"imports": {"three": "./vendor/three.module.min.js"}}
-</script>
+<script type="importmap">{"imports": {"three": "./vendor/three.module.min.js"}}</script>
 </head>
 <body>
-<header>
-  <b class="logo">MIX3D</b>
-  <input id="pname" class="pname" title="Nome progetto">
-  <button id="bAdd">+ File</button>
-  <button id="bResolve">Da Resolve</button>
-  <button id="bAnalyze" class="primary">Analizza e sincronizza</button>
-  <div id="job" class="job" hidden><span id="jobMsg"></span><div class="bar"><i id="jobBar"></i></div></div>
-  <span class="grow"></span>
-  <button id="bIntegr" title="Apri MIX3D da Resolve">In Resolve…</button>
-  <button id="bOpen">Apri</button>
-  <button id="bSave">Salva</button>
-  <button id="bQuit" title="Chiude MIX3D">Esci</button>
+<header class="top">
+  <div class="brand"><span class="logo-mark"></span><b>MIX3D</b><input id="pname" class="pname" title="Nome progetto"></div>
+  <nav id="steps" class="steps"></nav>
+  <div class="top-actions">
+    <button id="bIntegr" class="ghost" title="Apri MIX3D da Resolve">Resolve</button>
+    <button id="bOpen" class="ghost">Apri</button>
+    <button id="bSave" class="ghost">Salva</button>
+    <button id="bQuit" class="ghost" title="Chiude MIX3D">Esci</button>
+  </div>
 </header>
 
+<section id="summary" class="summary"></section>
+<div id="job" class="job" hidden><span id="jobMsg"></span><div class="bar"><i id="jobBar"></i></div></div>
+
 <main>
-  <section id="tracks" class="tracks">
-    <div class="empty" id="emptyTracks">Nessuna traccia. Aggiungi file o leggi la timeline di Resolve.</div>
-  </section>
+  <aside class="tracks">
+    <div class="tracks-head"><b>Tracce</b><span id="trkCount" class="muted"></span></div>
+    <div id="tracks"></div>
+    <div class="empty" id="emptyTracks">Nessuna traccia ancora.<br>Parti dal passo 1.</div>
+  </aside>
 
-  <section class="panel">
-    <nav class="tabs">
-      <button data-tab="scene" class="on">Scena 3D</button>
-      <button data-tab="analysis">Analisi</button>
-      <button data-tab="device">Dispositivo</button>
-    </nav>
-
-    <div id="tab-scene" class="tab on">
-      <div class="scene-tools">
-        <label>Sala L <input type="number" id="roomW" step="1" min="4"> m</label>
-        <label>P <input type="number" id="roomD" step="1" min="4"> m</label>
-        <label>H <input type="number" id="roomH" step="0.5" min="2"> m</label>
-        <button id="bAuto">Tutto automatico</button>
-        <button id="bTop">Vista dall'alto</button>
-        <span class="hint">Trascina i microfoni o l'ascoltatore (cono) sul pavimento. Shift + trascina: altezza.</span>
-      </div>
-      <div id="scene" class="scene"></div>
+  <section class="stage">
+    <div class="step-head">
+      <div><span id="stepNum" class="step-num"></span><h2 id="stepTitle"></h2><p id="stepHelp" class="muted"></p></div>
+      <div class="nav"><button id="bPrev" class="ghost">‹ Indietro</button><button id="bNext" class="primary">Avanti ›</button></div>
     </div>
 
-    <div id="tab-analysis" class="tab">
-      <div id="anaEmpty" class="empty">Seleziona una traccia e avvia l'analisi.</div>
+    <!-- 1 Sorgenti -->
+    <div class="step" data-step="0">
+      <div class="cards2">
+        <button class="big-card" id="bResolve"><span class="ico">⎔</span><b>Leggi da DaVinci Resolve</b><span>Prende le clip audio e video della timeline aperta, con il loro sync. Consigliato.</span></button>
+        <button class="big-card" id="bAdd"><span class="ico">＋</span><b>Aggiungi file</b><span>WAV, BWF, MP4, MOV, MXF, M4A… Dai video si prende solo l'audio; gli originali non vengono toccati.</span></button>
+      </div>
+      <div class="tips"><b>Prima di iniziare</b><ul>
+        <li>In Resolve Studio: Preferenze › Sistema › Generale › <i>External scripting using: Local</i>.</li>
+        <li>Basta un sync approssimativo: MIX3D lo affina al campione e corregge il drift.</li>
+        <li>Ogni coppia di canali diventa una traccia: una FX6 a 4 canali dà ch1-2 e ch3-4.</li></ul></div>
+    </div>
+
+    <!-- 2 Dispositivi -->
+    <div class="step" data-step="1">
+      <div class="row-actions"><div class="progress-pill" id="confPill"></div><button id="bConfirmAll" class="ghost">Conferma tutti i suggerimenti</button></div>
+      <div id="devEmpty" class="empty">Seleziona una traccia a sinistra.</div>
+      <div id="dev" hidden>
+        <h3 id="devTitle"></h3><p id="devRole" class="muted"></p>
+        <div class="chain-pick">
+          <label>Combinazione pronta<select id="dProf"></select></label>
+          <label>Registratore<select id="dRec"></select></label>
+          <label>Microfono<select id="dMic"></select></label>
+        </div>
+        <div id="devWhy" class="why"></div>
+        <div class="chips" id="devRisks"></div>
+        <div class="grid2">
+          <div class="panel"><h4>Microfono</h4><table id="devMic" class="spec"></table></div>
+          <div class="panel"><h4>Registratore</h4><table id="devRec" class="spec"></table></div>
+          <div class="panel"><h4>Risposta stimata ed EQ di correzione</h4><canvas id="cEq" class="chart" height="190"></canvas>
+            <p class="legend"><i class="sw a"></i>risposta <i class="sw b"></i>correzione (max ±6 dB)</p></div>
+          <div class="panel"><h4>Diagramma polare</h4><canvas id="cPolar" class="chart square" height="200"></canvas></div>
+        </div>
+        <p class="muted small">Fiducia: <span class="f datasheet">datasheet</span> <span class="f misurato">misurato</span> <span class="f ipotizzato">ipotizzato</span> · Fonti: <span id="devSrc"></span></p>
+      </div>
+    </div>
+
+    <!-- 3 Spazio -->
+    <div class="step" data-step="2">
+      <div class="space-layout">
+        <div class="space-list">
+          <div class="row-actions"><b>Tipo di spazio</b><button id="bImportSpace" class="ghost small">Importa da file…</button></div>
+          <div id="spaces" class="spaces"></div>
+        </div>
+        <div class="space-main">
+          <div id="sceneSlot3" class="scene-slot"></div>
+          <div id="spaceInfo" class="space-info"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 Analisi -->
+    <div class="step" data-step="3">
+      <div class="row-actions"><button id="bAnalyze" class="primary big">Analizza e sincronizza</button><span class="muted">Livelli, clipping, rumore, spettro, loudness, sync al campione e stima delle sorgenti.</span></div>
+      <table id="health" class="health"></table>
+      <div id="anaEmpty" class="empty">Seleziona una traccia per i dettagli.</div>
       <div id="ana" hidden>
         <h3 id="anaTitle"></h3>
         <div class="tiles" id="anaTiles"></div>
         <div class="chips" id="anaWarn"></div>
-        <h4>Forma d'onda</h4><canvas id="cWave" class="chart" height="120"></canvas>
-        <div class="row2">
-          <div><h4>Spettro (1/3 ottava) e risposta del dispositivo</h4><canvas id="cSpec" class="chart" height="200"></canvas></div>
-          <div><h4>Loudness a breve termine (LUFS)</h4><canvas id="cLufs" class="chart" height="200"></canvas></div>
+        <div class="panel"><h4>Forma d'onda (rosso = saturazione)</h4><canvas id="cWave" class="chart" height="110"></canvas></div>
+        <div class="grid2">
+          <div class="panel"><h4>Spettro 1/3 ottava e risposta del dispositivo</h4><canvas id="cSpec" class="chart" height="190"></canvas></div>
+          <div class="panel"><h4>Loudness a breve termine (LUFS)</h4><canvas id="cLufs" class="chart" height="190"></canvas></div>
         </div>
       </div>
     </div>
 
-    <div id="tab-device" class="tab">
-      <div id="devEmpty" class="empty">Seleziona una traccia.</div>
-      <div id="dev" hidden>
-        <h3 id="devTitle"></h3>
-        <p id="devRole" class="muted"></p>
-        <div class="row2">
-          <div><h4>Microfono</h4><table id="devMic" class="spec"></table></div>
-          <div><h4>Registratore</h4><table id="devRec" class="spec"></table></div>
+    <!-- 5 Mix -->
+    <div class="step" data-step="4">
+      <div class="mix-layout">
+        <div id="sceneSlot5" class="scene-slot"></div>
+        <div class="mix-side">
+          <div class="panel"><h4>Ascolto</h4>
+            <div class="ab"><button id="bA" class="on">A · mix 3D</button><button id="bB">B · somma</button></div>
+            <p class="muted small">Confronta il mix spaziale con la semplice somma. Il buffer si rifà a ogni modifica.</p></div>
+          <div class="panel"><h4>Mix</h4>
+            <label class="slider">Master <input type="range" id="master" min="-24" max="12" step="0.5"><output id="oMaster"></output></label>
+            <label class="slider">Larghezza <input type="range" id="width" min="0" max="1.5" step="0.05"><output id="oWidth"></output></label>
+            <label class="slider">Distanza <input type="range" id="atten" min="0" max="1" step="0.05"><output id="oAtten"></output></label>
+            <label class="check"><input type="checkbox" id="corr"> Correggi il colore dei microfoni</label></div>
+          <div class="panel"><h4>Livelli</h4><div id="mixMeters" class="mix-meters"></div></div>
         </div>
-        <div class="chips" id="devRisks"></div>
-        <div class="row2">
-          <div><h4>Risposta stimata e EQ di correzione</h4><canvas id="cEq" class="chart" height="200"></canvas>
-            <p class="legend"><i class="sw a"></i>risposta <i class="sw b"></i>correzione (max ±6 dB)</p></div>
-          <div><h4>Diagramma polare</h4><canvas id="cPolar" class="chart square" height="220"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 6 Stampa -->
+    <div class="step" data-step="5">
+      <div class="grid2">
+        <div class="panel form">
+          <label>File WAV <input id="prPath" value="~/Desktop/MIX3D.wav"></label>
+          <label>Destinazione
+            <select id="prTarget"><option value="file">Solo file</option><option value="mix3d">Resolve: traccia "MIX3D" (la crea se manca)</option><option value="new">Resolve: nuova traccia</option></select></label>
+          <label>Oppure traccia esistente n° <input id="prTrack" type="number" min="1" placeholder="es. 5"></label>
+          <label class="check"><input type="checkbox" id="prRegion"> Solo la regione: marker <b>MIX3D</b> con durata o In/Out. Sostituisce la stampa precedente.</label>
+          <label>Loudness <select id="prLufs"><option value="-14">-14 LUFS (YouTube)</option><option value="-16">-16 LUFS (Spotify/Apple)</option><option value="-23">-23 LUFS (EBU R128, TV)</option><option value="">Nessuna normalizzazione</option></select></label>
+          <button id="prOk" class="primary big">Stampa il mix</button>
         </div>
-        <p class="muted small">Fiducia: <span class="f datasheet">datasheet</span> <span class="f misurato">misurato</span> <span class="f ipotizzato">ipotizzato</span>. Fonti: <span id="devSrc"></span></p>
+        <div class="panel"><h4>Come funziona</h4><ul class="muted">
+          <li>Il render usa gli stessi parametri che stai ascoltando.</li>
+          <li>Picco massimo -1 dBTP, WAV 48 kHz 24 bit.</li>
+          <li><b>Adjustment clip</b>: in Edit o Fairlight crea un marker chiamato MIX3D con durata sulla regione e spunta "Solo la regione".</li></ul>
+          <div id="printResult"></div></div>
+      </div>
+    </div>
+
+    <!-- scena 3D condivisa: si sposta fra il passo Spazio e il passo Mix -->
+    <div id="sceneWrap" class="scene-wrap">
+      <div id="scene" class="scene"></div>
+      <div class="scene-tools">
+        <label>L <input type="number" id="roomW" step="1" min="4"> m</label>
+        <label>P <input type="number" id="roomD" step="1" min="4"> m</label>
+        <label>H <input type="number" id="roomH" step="0.5" min="2"> m</label>
+        <label class="check"><input type="checkbox" id="showLobes" checked> Lobi polari</label>
+        <label class="check"><input type="checkbox" id="showSources" checked> Sorgenti</label>
+        <select id="srcType" title="Aggiungi una sorgente sonora"><option value="">+ Sorgente…</option><option>Voce</option><option>Pianoforte</option><option>Batteria</option><option>Chitarra</option><option>Basso</option><option>Archi</option><option>Fiati</option><option>Coro</option><option>Cassa PA</option></select>
+        <button id="bAuto" class="ghost small">Posizioni automatiche</button>
+        <button id="bTop" class="ghost small">Dall'alto</button>
+        <span class="hint">Trascina oggetti sul pavimento · Shift: altezza · Alt: ruota il mic · doppio clic su una sorgente: elimina</span>
       </div>
     </div>
   </section>
 </main>
 
-<footer>
+<footer class="transport">
   <button id="bPlay" class="play" title="Play/Pausa (spazio)">▶</button>
   <span id="time" class="time">0:00.0</span>
   <div id="seek" class="seek"><i id="seekBar"></i><b id="bufBar"></b></div>
-  <div class="ab"><button id="bA" class="on">A mix</button><button id="bB">B somma</button></div>
-  <label title="Volume master">Master <input type="range" id="master" min="-24" max="12" step="0.5"></label>
-  <label title="Larghezza stereo">Largh. <input type="range" id="width" min="0" max="1.5" step="0.05"></label>
-  <label title="Attenuazione con la distanza">Dist. <input type="range" id="atten" min="0" max="1" step="0.05"></label>
-  <label><input type="checkbox" id="corr"> Correggi colore</label>
   <div class="meter master"><i id="mL"></i><i id="mR"></i></div>
   <span id="lufsLive" class="time" title="Picco del blocco in ascolto (rosso sopra -1 dBFS)">picco -∞</span>
-  <button id="bPrint" class="primary">Stampa…</button>
 </footer>
 
 <dialog id="dlgFiles">
-  <h3>Aggiungi file</h3>
-  <div class="path"><button id="fsUp">↑</button><span id="fsDir"></span></div>
+  <h3 id="fsTitle">Aggiungi file</h3>
+  <div class="path"><button id="fsUp" class="ghost">↑</button><span id="fsDir"></span></div>
   <ul id="fsList" class="fslist"></ul>
-  <div class="actions"><span id="fsCount" class="muted"></span><button id="fsCancel">Annulla</button><button id="fsOk" class="primary">Aggiungi</button></div>
-</dialog>
-
-<dialog id="dlgPrint">
-  <h3>Stampa del mix</h3>
-  <label>File WAV <input id="prPath" value="~/Desktop/MIX3D.wav"></label>
-  <label>Destinazione
-    <select id="prTarget"><option value="file">Solo file</option><option value="mix3d">Resolve: traccia "MIX3D" (la crea se manca)</option><option value="new">Resolve: nuova traccia</option></select>
-    <input id="prTrack" type="number" min="1" placeholder="o n° traccia esistente">
-  </label>
-  <label><input type="checkbox" id="prRegion"> Solo la regione: marker "MIX3D" con durata o In/Out della timeline. La stampa sostituisce quella precedente sulla stessa regione.</label>
-  <label>Loudness <select id="prLufs"><option value="-14">-14 LUFS (YouTube)</option><option value="-16">-16 LUFS</option><option value="-23">-23 LUFS (EBU R128)</option><option value="">Nessuna normalizzazione</option></select></label>
-  <p class="muted small">Picco massimo -1 dBTP. Il render usa gli stessi parametri che stai ascoltando.</p>
-  <div class="actions"><button id="prCancel">Annulla</button><button id="prOk" class="primary">Stampa</button></div>
+  <div class="actions"><span id="fsCount" class="muted"></span><button id="fsCancel" class="ghost">Annulla</button><button id="fsOk" class="primary">Aggiungi</button></div>
 </dialog>
 
 <dialog id="dlgOpen">
   <h3>Apri progetto</h3>
   <label>Percorso JSON <input id="opPath" value="~/Desktop/mix3d_progetto.json"></label>
-  <div class="actions"><button id="opCancel">Annulla</button><button id="opOk" class="primary">Apri</button></div>
+  <div class="actions"><button id="opCancel" class="ghost">Annulla</button><button id="opOk" class="primary">Apri</button></div>
 </dialog>
 
 <dialog id="dlgIntegr">
   <h3>MIX3D dentro DaVinci Resolve</h3>
-  <p class="muted">Pannello: <b>Workspace › Workflow Integrations › MIX3D</b> (Resolve Studio). Script: <b>Workspace › Scripts › MIX3D</b>.<br>
-  Come adjustment clip: metti un marker chiamato <b>MIX3D</b> con durata sulla regione (o In/Out) e usa Stampa › Solo la regione.</p>
+  <p class="muted">Pannello: <b>Workspace › Workflow Integrations › MIX3D</b> (Studio). Script: <b>Workspace › Scripts › MIX3D</b>.</p>
   <p id="itStatus"></p>
   <p class="muted small">Il pannello va in una cartella di sistema: macOS chiederà la password. Riavvia Resolve dopo l'installazione.</p>
-  <div class="actions"><button id="itClose">Chiudi</button><button id="itScript">Solo script</button><button id="itOk" class="primary">Installa pannello e script</button></div>
+  <div class="actions"><button id="itClose" class="ghost">Chiudi</button><button id="itScript" class="ghost">Solo script</button><button id="itOk" class="primary">Installa pannello e script</button></div>
 </dialog>
 
 <div id="toast" class="toast" hidden></div>
