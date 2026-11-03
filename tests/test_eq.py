@@ -69,3 +69,19 @@ def test_auto_taratura(tmp_path):
 def _bp(lo, hi):
     from scipy.signal import butter
     return butter(2, [lo, hi], "bandpass", fs=FS)
+
+
+def test_master_continuo_e_auto(tmp_path):
+    rng = np.random.default_rng(1)
+    x = 0.1 * rng.standard_normal(30 * FS)
+    p = server.new_project()
+    p["tracks"] = [_track(tmp_path / "a.wav", x, "base", "a")]
+    p["eq_master"] = [{"tipo": "passa_alto", "f": 60, "pendenza": 24},
+                      {"tipo": "campana", "f": 2000, "g": -6, "q": 2, "dyn": {"soglia_db": -40, "rapporto": 3}}]
+    one, _ = mixer.render(p, 5.0, 2.0)
+    two = np.concatenate([mixer.render(p, 5.0, 1.0)[0], mixer.render(p, 6.0, 1.0)[0]])
+    assert np.abs(one - two).max() < 1e-3 * np.abs(one).max()  # niente click fra i blocchi
+    assert autotune.run_master(p) >= 1 and p["eq_master_analisi"]["sorgente"] == "mix"
+    assert p["eq_master"][0]["tipo"] == "passa_alto" and p["eq_master"][0].get("auto") is None  # manuale resta
+    server.STATE["project"] = p
+    assert len(server.eq_curve("master")["prima"]) == len(autotune.GRID)

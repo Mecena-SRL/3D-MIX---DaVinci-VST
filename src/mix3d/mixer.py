@@ -35,20 +35,20 @@ def active(tracks: list[dict]) -> list[dict]:
 
 
 def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[np.ndarray, dict]:
-    """Blocco stereo [n, 2] dalla posizione t0 (s di timeline) e livelli per traccia (dBFS)."""
+    """Blocco stereo [n, 2] dalla posizione t0 (s di timeline) e livelli per traccia (dBFS).
+    Si lavora con PAD_S di pre-roll fino all'EQ del master, poi si scarta."""
     sr = project.get("sr", 48000)
-    n = int(round(dur * sr))
-    out = np.zeros((n, 2), np.float32)
+    n, m = int(round(dur * sr)), int(round(PAD_S * sr))
+    out = np.zeros((n + m, 2), np.float32)
     levels = {}
     for t in active(project["tracks"]):
         off = t["offset_s"] - t.get("drift_ppm", 0) * 1e-6 * (t0 - t.get("sync_t0", 0))
-        x = media.read(t["wav"], t["channels"], t0 - off - PAD_S, dur + PAD_S, sr)
+        x = media.read(t["wav"], t["channels"], t0 - off - m / sr, (n + m) / sr, sr)[: n + m]
         mic = t.get("microfono")
         if mic and project.get("correzione", True) and not bypass:
             x = oaconvolve(x, correction_fir(mic, sr)[:, None], axes=0)[FIR_TAPS // 2:][: len(x)]
         if t.get("eq") and not bypass:
             x = eq.process(x, t["eq"], sr)
-        x = x[-n:]
         g = 10 ** (t.get("gain_db", 0) / 20)
         if x.shape[1] == 1:
             x = np.repeat(x, 2, axis=1)
@@ -58,10 +58,12 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
             g *= (project.get("dist_ref_m", 5.0) / dist) ** project.get("attenuazione", 0.5)
             th = (pan + 1) * np.pi / 4  # pan a potenza costante
             x = x * np.array([np.cos(th), np.sin(th)]) * np.sqrt(2)
-        x = x[:n] * g
+        x = x * g
         out[: len(x)] += x
-        levels[t["id"]] = round(float(20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-10)), 1)
-    out *= 10 ** (project.get("master_db", 0) / 20)
+        levels[t["id"]] = round(float(20 * np.log10(np.sqrt(np.mean(x[m:] ** 2)) + 1e-10)), 1)
+    if project.get("eq_master") and not bypass:
+        out = eq.process(out, project["eq_master"], sr)
+    out = out[m:] * 10 ** (project.get("master_db", 0) / 20)
     levels["master"] = round(float(20 * np.log10(np.abs(out).max(initial=0) + 1e-10)), 1)
     return out, levels
 

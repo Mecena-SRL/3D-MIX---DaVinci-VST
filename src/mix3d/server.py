@@ -124,13 +124,17 @@ def job_analyze(job):
 
 def job_eq_auto(job, ids):
     p = STATE["project"]
+    if ids == ["master"]:
+        return {"master": autotune.run_master(p, progress=lambda f: job.update(progress=f))}
     rt60 = spazi.get(p["spazio"]).get("rt60") if p.get("spazio") else None
     return autotune.run(p, rt60, ids, progress=lambda f: job.update(progress=f))
 
 
 def eq_curve(tid: str) -> dict:
     """Curva dell'EQ (a riposo e con le dinamiche al massimo) e spettro prima/dopo."""
-    t = next(t for t in STATE["project"]["tracks"] if t["id"] == tid)
+    p = STATE["project"]
+    t = ({"eq": p.get("eq_master"), "eq_analisi": p.get("eq_master_analisi")} if tid == "master"
+         else next(t for t in p["tracks"] if t["id"] == tid))
     a = t.get("eq_analisi")
     f = np.array(a["f"]) if a else autotune.GRID
     r = {"f": np.round(f, 1).tolist(),
