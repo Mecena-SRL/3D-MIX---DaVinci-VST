@@ -43,7 +43,7 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     for t in active(project["tracks"]):
         off = t["offset_s"] - t.get("drift_ppm", 0) * 1e-6 * (t0 - t.get("sync_t0", 0))
         x = media.read(t["wav"], t["channels"], t0 - off - PAD_S, dur + PAD_S, sr)
-        mic = devices.profile(t["profile"])["microfono"] if t.get("profile") else None
+        mic = t.get("microfono")
         if mic and project.get("correzione", True) and not bypass:
             x = oaconvolve(x, correction_fir(mic, sr)[:, None], axes=0)[FIR_TAPS // 2:][: len(x)]
         x = x[-n:]

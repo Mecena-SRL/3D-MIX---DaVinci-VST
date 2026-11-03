@@ -38,7 +38,7 @@ LOCK = threading.Lock()
 
 def apply_profile(t: dict, pid: str):
     p = devices.profile(pid)
-    t.update(profile=pid, registratore=p["registratore"], posizione_tipica=p["posizione"],
+    t.update(profile=pid, registratore=p["registratore"], microfono=p["microfono"], posizione_tipica=p["posizione"],
              ruolo=p["ruolo"], mute=p["gain_db"] is None, gain_db=p["gain_db"] or 0.0)
 
 
@@ -271,6 +271,8 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.send_json({"path": path})
                 elif u.path == "/api/load":
                     STATE["project"] = json.loads(Path(os.path.expanduser(b["path"])).read_text())
+                    for t in STATE["project"]["tracks"]:  # progetti precedenti senza catena
+                        t.setdefault("microfono", devices.profile(t["profile"])["microfono"])
                 elif u.path == "/api/new":
                     STATE["project"] = new_project()
                 else:

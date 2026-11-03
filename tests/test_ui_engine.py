@@ -47,6 +47,14 @@ def test_database_coerente():
         assert np.all(np.abs(c) <= 6.0)
 
 
+def test_rischi_catena():
+    # DJI Mic 2 nella FX6: clock della camera (niente drift wireless) ma limiter del trasmettitore
+    r = devices.chain_risks("fx6", "dji_mic2_tx")
+    db = devices.load()["rischi"]
+    assert db["limiter"] in r and db["agc"] in r and db["wireless_drift"] not in r
+    assert db["wireless_drift"] in devices.chain_risks("dji_mic2", "dji_mic2_tx")
+
+
 def test_suggerimento_32bit_tascam():
     s = devices.suggest({"name": "tascam_0001.wav", "codec": "pcm_f32le", "bits": 32, "sr": 48000, "ch_index": 1})
     assert s[0]["id"].startswith("x8_")
@@ -91,7 +99,9 @@ def test_api_http(concert):
     assert len(st["tracks"]) == 1 and st["tracks"][0]["suggeriti"]
     tid = st["tracks"][0]["id"]
     st = post("/api/state", {"tracks": [{"id": tid, "profile": "x8_416", "confermato": True}]})
-    assert st["tracks"][0]["profile"] == "x8_416"
+    assert st["tracks"][0]["profile"] == "x8_416" and st["tracks"][0]["microfono"] == "mkh416"
+    st = post("/api/state", {"tracks": [{"id": tid, "registratore": "fx6", "microfono": "dji_mic2_tx"}]})
+    assert (st["tracks"][0]["registratore"], st["tracks"][0]["microfono"]) == ("fx6", "dji_mic2_tx")
     r = urllib.request.urlopen(base + "/api/render?t0=5&dur=0.5")
     assert r.headers["Content-Type"] == "audio/wav" and "master" in json.loads(r.headers["X-Levels"])
     assert "curve" in json.loads(urllib.request.urlopen(base + "/api/devices").read())
