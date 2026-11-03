@@ -40,7 +40,7 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     sr = project.get("sr", 48000)
     n, m = int(round(dur * sr)), int(round(PAD_S * sr))
     out = np.zeros((n + m, 2), np.float32)
-    levels = {}
+    levels, env = {}, {}
     for t in active(project["tracks"]):
         off = t["offset_s"] - t.get("drift_ppm", 0) * 1e-6 * (t0 - t.get("sync_t0", 0))
         x = media.read(t["wav"], t["channels"], t0 - off - m / sr, (n + m) / sr, sr)[: n + m]
@@ -50,6 +50,7 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
         if t.get("eq") and not bypass:
             x = eq.process(x, t["eq"], sr)
         g = 10 ** (t.get("gain_db", 0) / 20)
+        env[t["id"]] = envelope_db(x[m:] * g)
         if x.shape[1] == 1:
             x = np.repeat(x, 2, axis=1)
         if not bypass:
@@ -65,7 +66,14 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
         out = eq.process(out, project["eq_master"], sr)
     out = out[m:] * 10 ** (project.get("master_db", 0) / 20)
     levels["master"] = round(float(20 * np.log10(np.abs(out).max(initial=0) + 1e-10)), 1)
+    levels["env"] = env
     return out, levels
+
+
+def envelope_db(x: np.ndarray, frames: int = 10) -> list[float]:
+    """RMS in dBFS su `frames` finestre uguali (prima della spazializzazione): anima le onde in ascolto."""
+    parts = np.array_split(x.mean(axis=1), frames)
+    return [round(float(20 * np.log10(np.sqrt(np.mean(p ** 2)) + 1e-10)), 1) if len(p) else -100.0 for p in parts]
 
 
 def span(project: dict) -> tuple[float, float]:

@@ -1,6 +1,7 @@
 // MIX3D pannello guidato: 6 passi, scena 3D con spazi, dispositivi, lobi polari e sorgenti.
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
+import { createField, drLabel } from "./field.js";
 
 const $ = (id) => document.getElementById(id);
 const COLORS = ["#4fb3ff", "#f5b942", "#3ccf8e", "#ff7aa8", "#b38cff", "#ff8c42", "#5ee0e0", "#d4e157", "#ff5d5d", "#9aa5b1"];
@@ -382,9 +383,9 @@ const scene = (() => {
       const { w, d } = s.sala, p = e.profondita;
       for (let i = 0; i < e.ordini; i++) {
         const y = 1.8 + i * e.altezza;
-        boxAt(p, 0.25, d - 2, -w / 2 + p / 2, y, d / 2 + 1, 0x6a2a35, 0.8);
-        boxAt(p, 0.25, d - 2, w / 2 - p / 2, y, d / 2 + 1, 0x6a2a35, 0.8);
-        boxAt(w, 0.25, p, 0, y, d - p / 2, 0x6a2a35, 0.8);
+        boxAt(p, 0.25, d - 2, -w / 2 + p / 2, y, d / 2 + 1, 0x6a2a35, 0.35);
+        boxAt(p, 0.25, d - 2, w / 2 - p / 2, y, d / 2 + 1, 0x6a2a35, 0.35);
+        boxAt(w, 0.25, p, 0, y, d - p / 2, 0x6a2a35, 0.35);
       }
     },
     colonne: (e) => {
@@ -497,6 +498,8 @@ const scene = (() => {
       label(s.id, "src").textContent = s.stimata ? `${s.nome} ±${s.errore_m} m` : s.nome;
     }
     if (drag?.obj !== listener) listener.position.set(...S.listener);
+    field.set(fieldContext());
+    showPresence();
     highlight();
   }
   function highlight() { for (const [id, d] of devs) d.scale.setScalar(id === sel ? 1.5 : 1); }
@@ -541,7 +544,7 @@ const scene = (() => {
     const o = drag.obj, pos = o.position.toArray().map((v) => +v.toFixed(2)), k = o.userData.kind;
     const t = S.tracks.find((x) => x.id === o.userData.id);
     if (drag.rotate) pushTrack(t, { orient: t.orient });
-    else if (k === "listener") { S.listener = pos; push({ listener: pos }); }
+    else if (k === "listener") { S.listener = pos; push({ listener: pos }); showPresence(); }
     else if (k === "src") { S.sorgenti.find((s) => s.id === o.userData.id).pos = pos; push({ sorgenti: S.sorgenti }, false); }
     else pushTrack(t, { pos, pos_mode: "manuale" });
     drag = null; ctl.enabled = true;
@@ -552,9 +555,39 @@ const scene = (() => {
     cam.position.set(R * 0.55, R * 0.6, zc + R * 0.85); ctl.target.set(0, 0, zc); ctl.update();
   }
   function top() { const { w, d } = S.sala, pd = S.palco?.d || 4, zc = (d - pd) / 2; cam.position.set(0, Math.max(w, d + pd) * 1.25, zc + 0.01); ctl.target.set(0, 0, zc); ctl.update(); }
+  const field = createField(sc), clock = new THREE.Clock();
+  // sorgenti del campo: quelle in scena, altrimenti il centro del palco
+  function fieldSources() {
+    const pal = S.palco || { d: 4, h: 0.6 };
+    const src = S.sorgenti?.length ? S.sorgenti : [{ id: "palco", pos: [0, pal.h + 1.2, -pal.d / 2] }];
+    return src.map((s) => ({ id: s.id, pos: s.pos, color: s.stimata ? 0xb38cff : 0xffc857 }));
+  }
+  function fieldContext() {
+    const sp = space(), { w, d, h } = S.sala, pal = S.palco || { d: 4 }, rt = sp?.rt60?.["500"] ?? 1.2;
+    const dc = sp?.distanza_critica ?? 0.057 * Math.sqrt((w * (d + pal.d) * h) / rt);
+    return { sources: fieldSources(), room: { w, d, z0: -pal.d }, dc, reach: Math.min(Math.max(w, d) * 0.9, 6 + 7 * rt),
+      showWaves: $("showWaves").checked, showMap: $("showMap").checked };
+  }
+  function showPresence() {
+    const dr = field.dr(S.listener[0], S.listener[2]);
+    $("presence").innerHTML = dr == null ? "" : `Ascolto: <b>${dr > 0 ? "+" : ""}${dr.toFixed(1)} dB</b> diretto/riverbero · ${drLabel(dr)}`;
+  }
+  // livelli in ascolto: ogni sorgente prende il mic che la "sente" di più (livello + guadagno polare)
+  function levels(env, k) {
+    if (!env) return field.silence();
+    const srcs = fieldSources();
+    field.levels(srcs.map((s) => Math.max(-100, ...S.tracks.filter((t) => env[t.id]).map((t) => env[t.id][k] + polarGainDb(t, s.pos)))));
+  }
+  function suggest() {
+    const p = field.suggest();
+    if (!p) return;
+    S.listener = p; push({ listener: p }); sync();
+    toast(`Ascoltatore a x ${p[0]} m, ${p[2]} m dal palco: ${drLabel(field.dr(p[0], p[2]))}`);
+  }
   function loop() {
     requestAnimationFrame(loop);
     if (!box.offsetParent) return;
+    field.update(Math.min(clock.getDelta(), 0.1));
     ctl.update(); rend.render(sc, cam);
     const r = box.getBoundingClientRect();
     const place = (key, obj, dy) => {
@@ -567,7 +600,7 @@ const scene = (() => {
   }
   new ResizeObserver(resize).observe(box);
   loop();
-  return { sync, highlight, top, home };
+  return { sync, highlight, top, home, levels, suggest };
 })();
 
 // --- ascolto in tempo reale: blocchi renderizzati dal server, buffer in anticipo ------------
@@ -614,7 +647,8 @@ const player = (() => {
     $("bufBar").style.width = playing ? `${((nextT - t) / (e - s || 1)) * 100}%` : "0";
     const cur = [...queue].reverse().find((q) => q.when <= ctx?.currentTime);
     if (cur) {
-      for (const [id, db] of Object.entries(cur.lv)) document.querySelectorAll(`[data-meter="${id}"]`).forEach((m) => (m.style.width = `${Math.max(0, (db + 60) / 60) * 100}%`));
+      scene.levels(cur.lv.env, Math.min(9, Math.floor((ctx.currentTime - cur.when) / CHUNK * 10)));
+      for (const [id, db] of Object.entries(cur.lv)) if (id !== "env") document.querySelectorAll(`[data-meter="${id}"]`).forEach((m) => (m.style.width = `${Math.max(0, (db + 60) / 60) * 100}%`));
       $("lufsLive").textContent = `picco ${cur.lv.master} dBFS`;
       $("lufsLive").style.color = cur.lv.master > -1 ? css("--bad") : "";
     }
@@ -632,7 +666,7 @@ const player = (() => {
     ctx.resume(); gen++; inflight = false; playing = true; pos = at ?? pos; nextT = pos; nextWhen = ctx.currentTime + 0.1; queue = [];
     $("bPlay").textContent = "❚❚"; clearInterval(timer); timer = setInterval(tick, 100); fill();
   }
-  function stop() { pos = now(); gen++; playing = false; queue.forEach((q) => q.src.stop()); queue = []; $("bPlay").textContent = "▶"; }
+  function stop() { scene.levels(null); pos = now(); gen++; playing = false; queue.forEach((q) => q.src.stop()); queue = []; $("bPlay").textContent = "▶"; }
   function flush() {
     if (!playing) return;
     gen++;
@@ -677,6 +711,9 @@ slider("master", "master_db"); slider("width", "larghezza"); slider("atten", "at
 $("corr").onchange = (e) => push({ correzione: e.target.checked });
 $("showLobes").onchange = () => scene.sync();
 $("showSources").onchange = () => scene.sync();
+$("showWaves").onchange = () => scene.sync();
+$("showMap").onchange = () => scene.sync();
+$("bSuggest").onclick = () => scene.suggest();
 $("srcType").onchange = (e) => {
   const nome = e.target.value; e.target.value = "";
   if (!nome) return;

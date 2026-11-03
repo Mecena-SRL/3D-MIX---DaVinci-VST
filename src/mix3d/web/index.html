@@ -149,6 +149,10 @@
         <label>H <input type="number" id="roomH" step="0.5" min="2"> m</label>
         <label class="check"><input type="checkbox" id="showLobes" checked> Lobi polari</label>
         <label class="check"><input type="checkbox" id="showSources" checked> Sorgenti</label>
+        <label class="check" title="Fronti d'onda dalle sorgenti mentre ascolti"><input type="checkbox" id="showWaves" checked> Onde</label>
+        <label class="check" title="Rapporto suono diretto / riverbero sul pavimento"><input type="checkbox" id="showMap" checked> Presenza</label>
+        <button id="bSuggest" class="ghost small" title="Sposta l'ascoltatore dove la presenza è piena ma non troppo vicina">Suggerisci ascolto</button>
+        <span id="presence" class="presence"></span>
         <select id="srcType" title="Aggiungi una sorgente sonora"><option value="">+ Sorgente…</option><option>Voce</option><option>Pianoforte</option><option>Batteria</option><option>Chitarra</option><option>Basso</option><option>Archi</option><option>Fiati</option><option>Coro</option><option>Cassa PA</option></select>
         <button id="bAuto" class="ghost small">Posizioni automatiche</button>
         <button id="bTop" class="ghost small">Dall'alto</button>

@@ -110,9 +110,10 @@ main { display: grid; grid-template-columns: 330px 1fr; min-height: 0; }
 .space .tag.priv { background: #2d2147; color: var(--accent2); }
 .space-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .space-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.scene-slot { min-height: 420px; display: flex; flex-direction: column; }
+.scene-slot { min-width: 0; min-height: 420px; display: flex; flex-direction: column; }
 .scene-wrap { display: flex; flex-direction: column; flex: 1; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #0b0d11; }
-.scene { flex: 1; position: relative; min-height: 380px; overflow: hidden; }
+.scene { flex: 1; position: relative; min-height: 380px; overflow: hidden; min-width: 0; }
+.scene canvas { display: block; max-width: 100%; }
 .scene .lbl { position: absolute; font-size: 11px; padding: 1px 6px; background: #000b; border-radius: 5px; pointer-events: none; transform: translate(-50%, -160%); white-space: nowrap; }
 .scene .lbl.src { background: #2d2147cc; color: #d9d0ff; }
 .scene-tools { display: flex; gap: 10px; align-items: center; padding: 8px 10px; flex-wrap: wrap; border-top: 1px solid var(--line); background: var(--panel); }
@@ -128,7 +129,7 @@ main { display: grid; grid-template-columns: 330px 1fr; min-height: 0; }
 .tile b { display: block; font-size: 17px; } .tile span { color: var(--muted); font-size: 11px; }
 
 /* mix */
-.mix-layout { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
+.mix-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; }
 .mix-side { display: flex; flex-direction: column; gap: 12px; }
 .slider { display: grid; grid-template-columns: 74px 1fr 52px; align-items: center; gap: 8px; margin: 6px 0; color: var(--muted); }
 .slider output { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); font-size: 12px; }
@@ -169,3 +170,9 @@ dialog label { display: block; margin: 8px 0; } dialog label input:not([type=che
 .eq-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; }
 .eq-row.focus { border-color: var(--accent); } .eq-row .hint { flex-basis: 100%; }
 .eq-row input[type=number] { padding: 3px 5px; }
+
+/* campo sonoro */
+.presence { font-size: 11px; padding: 2px 8px; border-radius: 8px; background: var(--panel2); color: var(--muted); }
+.presence b { color: var(--text); }
+.legend-dr { display: flex; height: 6px; border-radius: 3px; overflow: hidden; width: 120px;
+  background: linear-gradient(90deg, rgb(70,110,255), rgb(50,190,230), rgb(70,235,140), rgb(170,240,90), rgb(255,180,60), rgb(255,80,90)); }
