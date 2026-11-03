@@ -192,3 +192,12 @@ def test_localizzazione_tdoa():
     d = np.linalg.norm(mics - src, axis=1)
     pos, err = geometry.locate(mics, (d - d[0]) / geometry.C, (-6, 6, -4, 2))
     assert np.allclose(pos, src, atol=0.11) and err < 0.1
+
+
+def test_inviluppo_per_le_onde(concert):
+    server.STATE["project"] = server.new_project()
+    p = server.STATE["project"]
+    p["tracks"] = server.tracks_from_file(str(concert / "tascam_0001.wav"))
+    _, lv = mixer.render(p, 10.0, 1.0)
+    env = lv["env"][p["tracks"][0]["id"]]
+    assert len(env) == 10 and all(-60 < v < 0 for v in env)
