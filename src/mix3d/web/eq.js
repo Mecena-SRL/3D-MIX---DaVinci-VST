@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const TIPI = { campana: "Campana", shelf_basso: "Shelf basso", shelf_alto: "Shelf alto", passa_alto: "Passa-alto", passa_basso: "Passa-basso" };
 const F0 = 20, F1 = 20000, GMAX = 18;
-let tracks = [], tid = null, bands = [], curve = null, focus = null, drag = null, saveT = null;
+let tracks = [], master = [], tid = null, bands = [], curve = null, focus = null, drag = null, saveT = null;
 
 const api = async (path, body) => {
   const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
@@ -26,7 +26,7 @@ function mount() {
     <h4>EQ dinamico</h4>
     <div class="eq-bar"><select id="eqTrack"></select>
       <button id="eqAuto" class="small primary" title="Analizza la traccia e propone le bande">Auto-tara</button>
-      <button id="eqAutoAll" class="small" title="Tutte le tracce, con il mascheramento fra loro">Tutte</button></div>
+      <button id="eqAutoAll" class="small" title="Tutte le tracce (con il mascheramento fra loro), poi il master">Tutte</button></div>
     <canvas id="eqCv" class="chart" height="200"></canvas>
     <p class="hint">Trascina i punti · rotella = Q · doppio clic = aggiungi/togli · linea tratteggiata = dinamiche al massimo</p>
     <div id="eqList" class="eq-list"></div></div>`);
@@ -44,15 +44,17 @@ function mount() {
 }
 
 async function load() {
-  tracks = (await api("/api/state")).tracks;
-  if (!tracks.some((t) => t.id === tid)) tid = tracks[0]?.id ?? null;
-  $("eqTrack").innerHTML = tracks.map((t) => `<option value="${t.id}" ${t.id === tid ? "selected" : ""}>${t.nome}</option>`).join("");
+  const st = await api("/api/state");
+  tracks = st.tracks; master = st.eq_master || [];
+  if (tid !== "master" && !tracks.some((t) => t.id === tid)) tid = tracks[0]?.id ?? null;
+  $("eqTrack").innerHTML = [...tracks, { id: "master", nome: "Master (tutto il mix)" }]
+    .map((t) => `<option value="${t.id}" ${t.id === tid ? "selected" : ""}>${t.nome}</option>`).join("");
   if (tid) select(tid);
 }
 
 async function select(id) {
   tid = id;
-  bands = structuredClone(tracks.find((t) => t.id === id)?.eq || []);
+  bands = structuredClone((id === "master" ? master : tracks.find((t) => t.id === id)?.eq) || []);
   focus = null;
   await refresh();
 }
@@ -65,8 +67,8 @@ async function refresh() {
 function save() { // invio al server, curva aggiornata, ascolto rifatto
   clearTimeout(saveT);
   saveT = setTimeout(async () => {
-    await api("/api/state", { tracks: [{ id: tid, eq: bands }] });
-    tracks.find((t) => t.id === tid).eq = structuredClone(bands);
+    if (tid === "master") { await api("/api/state", { eq_master: bands }); master = structuredClone(bands); }
+    else { await api("/api/state", { tracks: [{ id: tid, eq: bands }] }); tracks.find((t) => t.id === tid).eq = structuredClone(bands); }
     dispatchEvent(new Event("mix3d:eq"));
     await refresh();
   }, 90);
@@ -75,11 +77,13 @@ function save() { // invio al server, curva aggiornata, ascolto rifatto
 async function auto(ids) {
   const btn = ids ? $("eqAuto") : $("eqAutoAll");
   btn.disabled = true; btn.textContent = "Analisi…";
-  try {
-    const { job } = await api("/api/eq/auto", { tracks: ids });
-    let j;
-    do { await new Promise((r) => setTimeout(r, 400)); j = await api(`/api/jobs/${job}`); btn.textContent = `${Math.round(j.progress * 100)}%`; } while (!j.done);
-    if (j.error) throw new Error(j.error);
+  try { // "Tutte": prima le tracce, poi il master che ascolta il mix già equalizzato
+    for (const t of ids ? [ids] : [null, ["master"]]) {
+      const { job } = await api("/api/eq/auto", { tracks: t });
+      let j;
+      do { await new Promise((r) => setTimeout(r, 400)); j = await api(`/api/jobs/${job}`); btn.textContent = `${Math.round(j.progress * 100)}%`; } while (!j.done);
+      if (j.error) throw new Error(j.error);
+    }
     await load();
     dispatchEvent(new Event("mix3d:eq"));
   } catch (e) { alert(e.message); }
