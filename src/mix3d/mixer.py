@@ -1,7 +1,7 @@
 """Mix stereo a blocchi: stesso codice per l'ascolto in tempo reale e per la stampa.
 
 Per ogni traccia: lettura allineata (offset + drift), correzione del colore
-del microfono (FIR dal database), guadagno, distanza e pan rispetto
+del microfono (FIR dal database), EQ della traccia (eq.py), guadagno, distanza e pan rispetto
 all'ascoltatore virtuale. In modalità B (bypass) solo somma con i guadagni.
 """
 from __future__ import annotations
@@ -13,12 +13,12 @@ import numpy as np
 import soundfile as sf
 from scipy.signal import firwin2, oaconvolve
 
-from . import devices, media
+from . import devices, eq, media
 from .analysis import Loudness
 from .geometry import spatial_params
 
 FIR_TAPS = 1023
-PAD_S = FIR_TAPS / 48000
+PAD_S = 0.25  # pre-roll: assesta FIR, filtri IIR e inviluppi dell'EQ fra un blocco e l'altro
 
 
 @lru_cache(maxsize=64)
@@ -46,6 +46,8 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
         mic = t.get("microfono")
         if mic and project.get("correzione", True) and not bypass:
             x = oaconvolve(x, correction_fir(mic, sr)[:, None], axes=0)[FIR_TAPS // 2:][: len(x)]
+        if t.get("eq") and not bypass:
+            x = eq.process(x, t["eq"], sr)
         x = x[-n:]
         g = 10 ** (t.get("gain_db", 0) / 20)
         if x.shape[1] == 1:

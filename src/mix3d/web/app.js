@@ -772,3 +772,5 @@ $("prOk").onclick = safe(async () => {
 await refresh();
 let saved = 0; try { saved = +(localStorage.getItem("mix3d.step") || 0); } catch {}
 go(S.tracks.length ? saved : 0);
+
+addEventListener("mix3d:eq", () => player.flush()); // l'EQ (eq.js) è cambiato: rifai l'ascolto

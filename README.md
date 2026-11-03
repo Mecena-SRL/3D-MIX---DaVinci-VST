@@ -29,6 +29,10 @@ Interfaccia guidata in 6 passi, con riepilogo (tracce, dispositivi, spazio, sync
 3. **Spazio**: 12 tipologie italiane incluse (teatro all'italiana, lirico, black box, chiesa, basilica, chiostro, auditorium shoebox e a vigna, cavea, piazza, salone storico, club) o **Importa da file** uno spazio privato. RT60 per banda, distanza critica, consigli. Scena 3D con icone dei dispositivi, **lobi polari 3D** (attivabili), **sorgenti sonore** (+ Sorgente…) e tabella del guadagno polare mic → sorgente. Alt-trascina ruota un microfono.
 4. **Analisi**: tabella di salute di tutte le tracce, grafici della selezionata, sync GCC-PHAT + drift, stima della posizione delle sorgenti (TDOA) con ≥3 mic sullo stesso clock.
 5. **Ascolto e mix**: play/spazio, A = mix spaziale, B = somma. Buffer ~3 s, rifatto a ogni modifica.
+   **EQ dinamico** per traccia: bande illimitate (campana, shelf, passa-alto/basso), ognuna statica o dinamica.
+   *Auto-tara* propone le bande da spettro, curva del microfono, risonanze persistenti (tagli dinamici),
+   target per sorgente (`voce`, `strumento`, `ambiente`, `generico`), RT60 dello spazio e mascheramento fra tracce.
+   Ogni banda dice perché c'è; se la tocchi diventa manuale e l'auto-taratura non la cambia più.
 6. **Stampa**: WAV 24 bit normalizzato (picco -1 dBTP) su file, traccia MIX3D, nuova traccia o regione (marker MIX3D / In-Out).
 
 Spazi privati: schema in [`docs/spazi.md`](docs/spazi.md). Restano in `~/.mix3d/spazi/` sul Mac e non vanno nel repository.

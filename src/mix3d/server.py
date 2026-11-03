@@ -17,7 +17,7 @@ from urllib.parse import parse_qs, urlparse
 import numpy as np
 import soundfile as sf
 
-from . import analysis, devices, geometry, media, mixer, spazi
+from . import analysis, autotune, devices, eq, geometry, media, mixer, spazi
 
 WEB = Path(__file__).parent / "web"
 AUDIO_EXT = {".wav", ".bwf", ".mp4", ".mov", ".mxf", ".m4a", ".aac", ".mp3", ".flac", ".aif", ".aiff"}
@@ -120,6 +120,25 @@ def job_analyze(job):
     p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
     job["progress"] = 1.0
     return {"tracce": len(ts)}
+
+
+def job_eq_auto(job, ids):
+    p = STATE["project"]
+    rt60 = spazi.get(p["spazio"]).get("rt60") if p.get("spazio") else None
+    return autotune.run(p, rt60, ids, progress=lambda f: job.update(progress=f))
+
+
+def eq_curve(tid: str) -> dict:
+    """Curva dell'EQ (a riposo e con le dinamiche al massimo) e spettro prima/dopo."""
+    t = next(t for t in STATE["project"]["tracks"] if t["id"] == tid)
+    a = t.get("eq_analisi")
+    f = np.array(a["f"]) if a else autotune.GRID
+    r = {"f": np.round(f, 1).tolist(),
+         "statica": np.round(eq.response_db(t.get("eq") or [], f), 2).tolist(),
+         "dinamica": np.round(eq.response_db(t.get("eq") or [], f, dynamic=True), 2).tolist()}
+    if a:
+        r.update(prima=a["db"], dopo=np.round(np.array(a["db"]) + r["statica"], 1).tolist(), sorgente=a["sorgente"])
+    return r
 
 
 def job_print(job, opts):
@@ -255,6 +274,8 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json([{**s, "distanza_critica": spazi.critical_distance(s)} for s in spazi.all_spaces()])
             if u.path.startswith("/api/jobs/"):
                 return self.send_json(STATE["jobs"][u.path.rsplit("/", 1)[1]])
+            if u.path == "/api/eq/curve":
+                return self.send_json(eq_curve(q["track"]))
             if u.path == "/api/render":
                 p = STATE["project"]
                 x, lv = mixer.render(p, float(q["t0"]), float(q.get("dur", 2)), q.get("b") == "1")
@@ -304,6 +325,8 @@ class Handler(SimpleHTTPRequestHandler):
                     p["tracks"] = [t for t in p["tracks"] if t["id"] != b["id"]]
                 elif u.path == "/api/analyze":
                     return self.send_json({"job": start_job("analisi", job_analyze)})
+                elif u.path == "/api/eq/auto":
+                    return self.send_json({"job": start_job("eq", lambda j: job_eq_auto(j, b.get("tracks")))})
                 elif u.path == "/api/print":
                     return self.send_json({"job": start_job("stampa", lambda j: job_print(j, b))})
                 elif u.path == "/api/save":
