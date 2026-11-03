@@ -47,6 +47,14 @@ def test_database_coerente():
         assert np.all(np.abs(c) <= 6.0)
 
 
+def test_rischi_catena():
+    # DJI Mic 2 nella FX6: clock della camera (niente drift wireless) ma limiter del trasmettitore
+    r = devices.chain_risks("fx6", "dji_mic2_tx")
+    db = devices.load()["rischi"]
+    assert db["limiter"] in r and db["agc"] in r and db["wireless_drift"] not in r
+    assert db["wireless_drift"] in devices.chain_risks("dji_mic2", "dji_mic2_tx")
+
+
 def test_suggerimento_32bit_tascam():
     s = devices.suggest({"name": "tascam_0001.wav", "codec": "pcm_f32le", "bits": 32, "sr": 48000, "ch_index": 1})
     assert s[0]["id"].startswith("x8_")
@@ -91,7 +99,9 @@ def test_api_http(concert):
     assert len(st["tracks"]) == 1 and st["tracks"][0]["suggeriti"]
     tid = st["tracks"][0]["id"]
     st = post("/api/state", {"tracks": [{"id": tid, "profile": "x8_416", "confermato": True}]})
-    assert st["tracks"][0]["profile"] == "x8_416"
+    assert st["tracks"][0]["profile"] == "x8_416" and st["tracks"][0]["microfono"] == "mkh416"
+    st = post("/api/state", {"tracks": [{"id": tid, "registratore": "fx6", "microfono": "dji_mic2_tx"}]})
+    assert (st["tracks"][0]["registratore"], st["tracks"][0]["microfono"]) == ("fx6", "dji_mic2_tx")
     r = urllib.request.urlopen(base + "/api/render?t0=5&dur=0.5")
     assert r.headers["Content-Type"] == "audio/wav" and "master" in json.loads(r.headers["X-Levels"])
     assert "curve" in json.loads(urllib.request.urlopen(base + "/api/devices").read())
@@ -107,3 +117,19 @@ def test_file_video_aac(concert):
     t = server.tracks_from_file(str(mp4))[0]
     assert t["info"]["codec"] == "aac" and t["wav"].endswith(".wav")
     assert t["profile"] == "osmo_action"
+
+
+@pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg assente")
+def test_mxf_canali_in_stream_separati(concert):
+    # MXF da camera: video + 4 stream audio mono -> una traccia per coppia di canali, ordine preservato
+    mxf = concert / "camera.mxf"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=160x120:rate=25", "-f", "lavfi",
+                    "-i", "sine=f=440", "-f", "lavfi", "-i", "sine=f=880", "-t", "3", "-filter_complex",
+                    "[1:a]asplit[a][c];[2:a]asplit[b][d]", "-map", "0:v", "-map", "[a]", "-map", "[b]", "-map", "[c]",
+                    "-map", "[d]", "-c:v", "mpeg2video", "-c:a", "pcm_s24le", "-ar", "48000", str(mxf)], check=True)
+    ts = server.tracks_from_file(str(mxf))
+    assert [t["channels"] for t in ts] == [[1, 2], [3, 4]] and ts[0]["info"]["bits"] == 24
+    from mix3d import media
+    x = media.read(ts[0]["wav"], [1, 2], 1.0, 1.0, FS)
+    f = np.fft.rfftfreq(FS, 1 / FS)
+    assert [f[np.argmax(np.abs(np.fft.rfft(x[:, c])))] for c in (0, 1)] == [440, 880]

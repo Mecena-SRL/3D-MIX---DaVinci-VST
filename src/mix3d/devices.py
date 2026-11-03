@@ -35,8 +35,15 @@ def profile(pid: str) -> dict:
         raise KeyError(pid)
     rec = db["registratori"][p["registratore"]]
     return {**p, "rec": rec, "mic": db["microfoni"][p["microfono"]],
-            "rischi_testo": [db["rischi"][r] for r in rec.get("rischi", [])],
+            "rischi_testo": chain_risks(p["registratore"], p["microfono"]),
             "gain_db": ROLE_GAIN_DB.get(p["ruolo"], -6.0)}
+
+
+def chain_risks(rec_id: str, mic_id: str) -> list[str]:
+    """Avvisi della catena: rischi del registratore + rischi del microfono."""
+    db = load()
+    keys = db["registratori"][rec_id].get("rischi", []) + db["microfoni"][mic_id].get("rischi", [])
+    return [db["rischi"][k] for k in dict.fromkeys(keys)]
 
 
 def response_db(mic: dict, freqs: np.ndarray) -> np.ndarray:

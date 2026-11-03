@@ -1,6 +1,6 @@
 // MIX3D pannello: stato dal server, tracce, scena 3D, analisi, ascolto e stampa.
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { OrbitControls } from "./vendor/OrbitControls.js";
 
 const $ = (id) => document.getElementById(id);
 const COLORS = ["#4fb3ff", "#f5b942", "#3ccf8e", "#ff7aa8", "#b38cff", "#ff8c42", "#5ee0e0", "#d4e157", "#ff5d5d", "#9aa5b1"];
@@ -46,13 +46,21 @@ function renderTracks() {
     el.innerHTML = `
       <div class="top"><span class="name" title="${t.file}">${t.nome}</span>${syncBadge}
         <button class="ms m ${t.mute ? "on" : ""}" title="Muto">M</button><button class="ms s ${t.solo ? "on" : ""}" title="Solo">S</button></div>
-      <select title="Tipo di dispositivo">${opts}</select>
+      <select class="prof" title="Combinazione pronta">${opts}</select>
+      <div class="chain"><select class="rec" title="Registratore">${Object.entries(DB.registratori).map(([k, r]) => `<option value="${k}">${r.nome}</option>`).join("")}</select>
+        <select class="mic" title="Microfono">${Object.entries(DB.microfoni).map(([k, m]) => `<option value="${k}">${m.nome}</option>`).join("")}</select></div>
       ${t.confermato ? "" : `<button class="confirm" title="${t.suggeriti[0].motivi.join(", ") || "nessun indizio"}">Conferma dispositivo</button>`}
       <canvas></canvas>
       <div class="meter"><i data-meter="${t.id}"></i></div>
       <div class="ctl"><span class="muted small">Gain</span><input type="range" min="-30" max="12" step="0.5" value="${t.gain_db}"><span class="small gv">${t.gain_db.toFixed(1)} dB</span></div>`;
-    const s = el.querySelector("select");
+    const s = el.querySelector(".prof");
     s.value = t.profile;
+    for (const k of ["rec", "mic"]) {
+      const c = el.querySelector(`.${k}`), field = k === "rec" ? "registratore" : "microfono";
+      c.value = t[field];
+      c.onclick = (e) => e.stopPropagation();
+      c.onchange = () => { pushTrack(t, { [field]: c.value, confermato: true }); setTimeout(refresh, 300); };
+    }
     s.onchange = () => { pushTrack(t, { profile: s.value, confermato: true }); setTimeout(refresh, 300); };
     s.onclick = (e) => e.stopPropagation();
     el.querySelector(".confirm")?.addEventListener("click", (e) => { e.stopPropagation(); pushTrack(t, { confermato: true }); el.classList.remove("todo"); e.target.remove(); });
@@ -132,8 +140,7 @@ function renderAnalysis() {
     ["Campioni saturi", a.clip_campioni], ["Offset", `${t.offset_s.toFixed(4)} s`],
     ["Drift", sy ? `${sy.drift_ppm} ppm` : "-"], ["Fiducia sync", sy ? `${Math.round(sy.fiducia * 100)}%` : t.id === S.riferimento ? "riferimento" : "-"]];
   $("anaTiles").innerHTML = tiles.map(([k, v]) => `<div class="tile"><span>${k}</span><b>${v}</b></div>`).join("");
-  const risks = DB.registratori[DB.profili.find((p) => p.id === t.profile).registratore].rischi.map((r) => DB.rischi[r]);
-  $("anaWarn").innerHTML = [...a.avvisi, ...risks].map((w) => `<span class="chip">${w}</span>`).join("");
+  $("anaWarn").innerHTML = [...a.avvisi, ...chainRisks(t)].map((w) => `<span class="chip">${w}</span>`).join("");
   // forma d'onda con indicatori di clipping
   const cv = $("cWave"), ctx = fit(cv), W = cv.width, H = cv.height, n = a.overview.max.length;
   ctx.fillStyle = color(t);
@@ -144,7 +151,7 @@ function renderAnalysis() {
   }
   // spettro + risposta stimata del microfono (allineata a 0 dB sul livello a 1 kHz)
   if (a.spettro) {
-    const mic = DB.curve[DB.profili.find((p) => p.id === t.profile).microfono];
+    const mic = DB.curve[t.microfono];
     const i1k = a.spettro.f.findIndex((f) => f >= 1000), base = a.spettro.db[i1k] ?? -60;
     const ys = a.spettro.db.filter((v) => v != null);
     lineChart($("cSpec"), [
@@ -157,6 +164,15 @@ function renderAnalysis() {
     { ymin: Math.max(-60, Math.min(...lc) - 3), ymax: Math.max(...lc) + 3, xlabel: (v) => fmt(v).split(".")[0], ylabel: (v) => `${v}` });
 }
 
+// avvisi della catena registratore + microfono, più il controllo sul formato reale del file
+function chainRisks(t) {
+  const rec = DB.registratori[t.registratore], mic = DB.microfoni[t.microfono];
+  const out = [...new Set([...(rec.rischi || []), ...(mic.rischi || [])])].map((r) => DB.rischi[r]);
+  const bits = t.info.bits;
+  if (bits && rec.bit.length && !rec.bit.includes(bits)) out.unshift(`Il file è a ${bits === 32 ? "32 bit float" : bits + " bit"}: ${rec.nome} non registra così, controlla il registratore`);
+  return out;
+}
+
 // --- dispositivo --------------------------------------------------------------------
 function specRows(obj, keys) {
   const fid = obj.fiducia || {};
@@ -167,8 +183,8 @@ function renderDevice() {
   const t = selected();
   $("devEmpty").hidden = !!t; $("dev").hidden = !t;
   if (!t) return;
-  const p = DB.profili.find((x) => x.id === t.profile), mic = DB.microfoni[p.microfono], rec = DB.registratori[p.registratore];
-  $("devTitle").textContent = `${t.nome} → ${p.nome}`;
+  const p = DB.profili.find((x) => x.id === t.profile), mic = DB.microfoni[t.microfono], rec = DB.registratori[t.registratore];
+  $("devTitle").textContent = `${t.nome} → ${mic.nome} in ${rec.nome}`;
   $("devRole").textContent = `Ruolo nel mix: ${p.ruolo} · posizione tipica: ${p.posizione || "-"}${mic.note ? " · " + mic.note : ""}`;
   $("devMic").innerHTML = `<tr><td>Modello</td><td>${mic.nome}</td></tr>` + specRows(mic, [
     ["capsula", "Capsula"], ["diagramma", "Diagramma"], ["banda", "Banda", (b) => `${b[0]} Hz – ${b[1] / 1000} kHz`],
@@ -177,8 +193,8 @@ function renderDevice() {
     ["formato", "Formato"], ["ein_dbu", "EIN preamp", (v) => `${v} dBu`], ["max_in_dbu_mic", "Max ingresso mic", (v) => `${v} dBu`],
     ["gamma_dinamica_db", "Gamma dinamica", (v) => `${v} dB`], ["clock_ppm", "Stabilità clock", (v) => `±${v} ppm`], ["timecode", "Timecode"], ["note", "Note"]]);
   const range = mic.spl_max && mic.rumore_dba ? `Gamma utile del microfono: ${mic.spl_max - mic.rumore_dba} dB (da ${mic.rumore_dba} a ${mic.spl_max} dB SPL)` : null;
-  $("devRisks").innerHTML = [range, ...rec.rischi.map((r) => DB.rischi[r])].filter(Boolean).map((w) => `<span class="chip">${w}</span>`).join("");
-  const c = DB.curve[p.microfono];
+  $("devRisks").innerHTML = [range, ...chainRisks(t)].filter(Boolean).map((w) => `<span class="chip">${w}</span>`).join("");
+  const c = DB.curve[t.microfono];
   lineChart($("cEq"), [{ x: DB.f, y: c.risposta, color: css("--a") }, { x: DB.f, y: c.correzione, color: css("--b") }],
     { xlog: true, ymin: -18, ymax: 9, xlabel: kHz, ylabel: (v) => `${v} dB` });
   drawPolar($("cPolar"), c.polare);
@@ -401,6 +417,7 @@ $("bAnalyze").onclick = safe(async () => {
 });
 $("bResolve").onclick = safe(async () => { S = await api("/api/resolve/import", {}); await refresh(); toast("Timeline di Resolve letta"); });
 $("bSave").onclick = safe(async () => { const r = await api("/api/save", {}); toast(`Salvato in ${r.path}`); });
+$("bQuit").onclick = async () => { if (!confirm("Chiudere MIX3D? Salva prima il progetto.")) return; player.stop(); await fetch("/api/quit", { method: "POST" }).catch(() => {}); document.body.innerHTML = "<p style='padding:40px'>MIX3D chiuso.</p>"; };
 $("bOpen").onclick = () => $("dlgOpen").showModal();
 $("opCancel").onclick = () => $("dlgOpen").close();
 $("opOk").onclick = safe(async () => { await api("/api/load", { path: $("opPath").value }); $("dlgOpen").close(); await refresh(); });

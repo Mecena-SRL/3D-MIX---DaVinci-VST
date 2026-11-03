@@ -1,0 +1,42 @@
+name: Release macOS
+
+on:
+  push:
+    tags: ["v*"]
+  pull_request:  # prova la build quando cambia il packaging
+    paths: ["packaging/**", ".github/workflows/release.yml", "pyproject.toml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dmg:
+    strategy:
+      matrix:
+        os: [macos-14, macos-13]  # Apple Silicon e Intel
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test
+        run: |
+          python -m pip install -q ".[dev]"
+          python -m pytest -q
+      - name: Build app e dmg
+        run: packaging/build_macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dmg-${{ matrix.os }}
+          path: dist/*.dmg
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.dmg
+          body: |
+            MIX3D ${{ github.ref_name }}: pannello di mix multi-sorgente per Resolve.
+            Scegli il dmg per il tuo Mac (arm64 = Apple Silicon, x86_64 = Intel), trascina MIX3D in Applicazioni.
+            App non firmata: al primo avvio tasto destro su MIX3D > Apri > Apri.

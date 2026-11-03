@@ -1,8 +1,8 @@
-"""Lettura dei file: probe con ffprobe, decodifica in cache, lettura a blocchi."""
+"""Lettura dei file: formato e decodifica con ffmpeg (cache), lettura a blocchi."""
 from __future__ import annotations
 
 import hashlib
-import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -14,32 +14,41 @@ from scipy.signal import resample_poly
 CACHE = Path.home() / ".mix3d" / "cache"
 
 
+def ffmpeg() -> str:
+    """ffmpeg di sistema, altrimenti quello incluso (imageio-ffmpeg, anche nell'app)."""
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    import imageio_ffmpeg
+    return imageio_ffmpeg.get_ffmpeg_exe()
+
+
 def probe(path: str) -> dict:
-    """Formato del primo stream audio: nome, codec, sr, canali, bit, durata."""
-    name = Path(path).name
-    if shutil.which("ffprobe"):
-        r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries",
-                            "stream=codec_name,sample_rate,channels,bits_per_raw_sample,bits_per_sample"
-                            ":format=duration", "-of", "json", path],
-                           capture_output=True, text=True, check=True)
-        j = json.loads(r.stdout)
-        s = j["streams"][0]
-        codec = s["codec_name"]
-        bits = int(s.get("bits_per_raw_sample") or s.get("bits_per_sample") or 0) or None
-        if codec.startswith("pcm_f32"):
-            bits = 32
-        return {"name": name, "codec": codec, "sr": int(s["sample_rate"]),
-                "channels": int(s["channels"]), "bits": bits,
-                "duration": float(j["format"]["duration"])}
-    i = sf.info(path)
-    bits = {"FLOAT": 32, "PCM_24": 24, "PCM_16": 16, "PCM_32": 32}.get(i.subtype)
-    codec = "pcm_f32le" if i.subtype == "FLOAT" else f"pcm_s{bits}le"
-    return {"name": name, "codec": codec, "sr": i.samplerate, "channels": i.channels,
+    """Formato del primo stream audio: nome, codec, sr, canali, bit, durata.
+
+    Legge sempre il WAV decodificato (sr, canali, durata esatti); codec e bit
+    vengono dall'originale, dal banner di ffmpeg.
+    """
+    m = re.search(r"Audio: (\w+)", banner(path))
+    codec = m.group(1) if m else "sconosciuto"
+    i = sf.info(decoded(path))
+    bits = 32 if "f32" in codec else int(b.group(1)) if (b := re.match(r"pcm_[su](\d+)", codec)) else None
+    return {"name": Path(path).name, "codec": codec, "sr": i.samplerate, "channels": i.channels,
             "bits": bits, "duration": i.duration}
 
 
+def banner(path: str) -> str:
+    """Descrizione degli stream secondo ffmpeg (stderr di `ffmpeg -i`)."""
+    return subprocess.run([ffmpeg(), "-hide_banner", "-i", path], capture_output=True, text=True).stderr
+
+
 def decoded(path: str) -> str:
-    """WAV leggibile da soundfile: l'originale se possibile, altrimenti copia in cache."""
+    """WAV leggibile da soundfile: l'originale se possibile, altrimenti copia in cache.
+
+    Video di camera (MP4, MOV, MXF): si estrae solo l'audio. Se i canali sono in
+    stream separati (tipico dell'MXF: un mono per canale) si uniscono in ordine
+    in un unico WAV multicanale, così ch1..chN corrispondono a quelli della camera.
+    """
     try:
         sf.info(path)
         return path
@@ -50,7 +59,9 @@ def decoded(path: str) -> str:
     out = CACHE / f"{key}.wav"
     if not out.exists():
         tmp = out.with_suffix(".tmp.wav")
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", path, "-vn", "-c:a", "pcm_f32le",
+        n = len(re.findall(r"Stream #\S+.*: Audio:", banner(path)))
+        merge = ["-filter_complex", "".join(f"[0:a:{i}]" for i in range(n)) + f"amerge=inputs={n}"] if n > 1 else []
+        subprocess.run([ffmpeg(), "-v", "error", "-y", "-i", path, "-vn", *merge, "-c:a", "pcm_f32le",
                         str(tmp)], check=True)
         tmp.rename(out)
     return str(out)

@@ -1,8 +1,8 @@
 {
   "pyproject.toml": {
-    "mtime": 1793741641.0150268,
-    "seen": 1793742073.1658235,
-    "ast_hash": "3a90b700e5fed2a61dbe4513181a52a4",
+    "mtime": 1793742691.251051,
+    "seen": 1793742876.6420724,
+    "ast_hash": "eeee21ab46e330d43c054eba6b5a47ef",
     "semantic_hash": ""
   },
   "src/mix3d/__init__.py": {
@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793742094.3831003,
-    "seen": 1793742123.0602982,
-    "ast_hash": "54b6e61c429dde65ab54b35318e2e955",
+    "mtime": 1793742872.66387,
+    "seen": 1793742876.6421058,
+    "ast_hash": "c627c20936135b15276ecc7b32973a86",
     "semantic_hash": ""
   },
   "docs/F0_verifiche.md": {
@@ -66,15 +66,15 @@
     "semantic_hash": ""
   },
   "src/mix3d/data/devices.json": {
-    "mtime": 1793741248.8876202,
-    "seen": 1793742073.1658359,
-    "ast_hash": "dbe76f4c8194f68e1ab7fa08d461d328",
+    "mtime": 1793742359.2641964,
+    "seen": 1793742526.6855035,
+    "ast_hash": "a81a360fd81e0e5e182dab4cd84b3968",
     "semantic_hash": ""
   },
   "src/mix3d/devices.py": {
-    "mtime": 1793741264.9890542,
-    "seen": 1793742073.1658368,
-    "ast_hash": "80e80c4598f74eed189301b253d53603",
+    "mtime": 1793742359.2650626,
+    "seen": 1793742526.6855047,
+    "ast_hash": "64a0e6fc46183d88f142c6f44841a3be",
     "semantic_hash": ""
   },
   "src/mix3d/geometry.py": {
@@ -84,45 +84,75 @@
     "semantic_hash": ""
   },
   "src/mix3d/media.py": {
-    "mtime": 1793741306.4050524,
-    "seen": 1793742073.1658382,
-    "ast_hash": "6307d1495c51c3855580286e0efb2b51",
+    "mtime": 1793743010.1485808,
+    "seen": 1793743058.236758,
+    "ast_hash": "887bafbf36fae95baa328d191dcae085",
     "semantic_hash": ""
   },
   "src/mix3d/mixer.py": {
-    "mtime": 1793741748.1712072,
-    "seen": 1793742073.1658392,
-    "ast_hash": "b801b7072598af80d0483b9afc8b1620",
+    "mtime": 1793742359.265682,
+    "seen": 1793742526.6855085,
+    "ast_hash": "73d61bdc7581aa1d1fd8dc25aab74f58",
     "semantic_hash": ""
   },
   "src/mix3d/server.py": {
-    "mtime": 1793741982.5974708,
-    "seen": 1793742073.165841,
-    "ast_hash": "20dc53a3bf519ff0966cdd65c35c30e7",
+    "mtime": 1793743010.1488774,
+    "seen": 1793743058.2367618,
+    "ast_hash": "953c2568456d52d778d7c039eba29940",
     "semantic_hash": ""
   },
   "src/mix3d/web/app.js": {
-    "mtime": 1793741982.597096,
-    "seen": 1793742073.1658437,
-    "ast_hash": "baa0082d796ca8aa49616b7e9c8fe0f9",
+    "mtime": 1793742691.2500446,
+    "seen": 1793742876.6420941,
+    "ast_hash": "f37e6d7cb8646221748ce66da13cc063",
     "semantic_hash": ""
   },
   "tests/test_ui_engine.py": {
-    "mtime": 1793741672.0268266,
-    "seen": 1793742073.165847,
-    "ast_hash": "7bdcd1cff7c9927340e6aa27227ae599",
+    "mtime": 1793743019.1969755,
+    "seen": 1793743058.2367704,
+    "ast_hash": "146049a9e171b537eec5114efd720e70",
     "semantic_hash": ""
   },
   "src/mix3d/web/index.html": {
-    "mtime": 1793741982.5976906,
-    "seen": 1793742073.1658502,
-    "ast_hash": "d4169833bde4bef39d43ce032e86629e",
+    "mtime": 1793742691.2496233,
+    "seen": 1793742876.6421099,
+    "ast_hash": "7cb6f204d7c4fbab322033071f62e3d0",
     "semantic_hash": ""
   },
   "docs/database_dispositivi.md": {
     "mtime": 1793742094.3862858,
     "seen": 1793742123.060301,
     "ast_hash": "16b18147a7082006c0ba2b5aa8245004",
+    "semantic_hash": ""
+  },
+  ".github/workflows/release.yml": {
+    "mtime": 1793742929.6352093,
+    "seen": 1793743058.2367346,
+    "ast_hash": "e0ff48653e32cda121e448468679e429",
+    "semantic_hash": ""
+  },
+  "packaging/build_macos.sh": {
+    "mtime": 1793742705.3514447,
+    "seen": 1793742876.6420665,
+    "ast_hash": "afde8cfd917de8ac955dd7234791c6aa",
+    "semantic_hash": ""
+  },
+  "packaging/launcher.py": {
+    "mtime": 1793742705.3502088,
+    "seen": 1793742876.6420693,
+    "ast_hash": "2955b961db06d21379a535094d569990",
+    "semantic_hash": ""
+  },
+  "src/mix3d/web/vendor/OrbitControls.js": {
+    "mtime": 1793742669.3165743,
+    "seen": 1793742876.6420953,
+    "ast_hash": "fb493b163eb8218d0fa0f27d0e9ac50e",
+    "semantic_hash": ""
+  },
+  "src/mix3d/web/vendor/three.module.min.js": {
+    "mtime": 1793742669.3138287,
+    "seen": 1793742876.6421006,
+    "ast_hash": "4d8e72afd9639e074547992bce6a3de3",
     "semantic_hash": ""
   }
 }

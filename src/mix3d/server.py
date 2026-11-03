@@ -38,7 +38,7 @@ LOCK = threading.Lock()
 
 def apply_profile(t: dict, pid: str):
     p = devices.profile(pid)
-    t.update(profile=pid, registratore=p["registratore"], posizione_tipica=p["posizione"],
+    t.update(profile=pid, registratore=p["registratore"], microfono=p["microfono"], posizione_tipica=p["posizione"],
              ruolo=p["ruolo"], mute=p["gain_db"] is None, gain_db=p["gain_db"] or 0.0)
 
 
@@ -141,10 +141,14 @@ def import_resolve() -> int:
     p = STATE["project"]
     fps = float(info["fps"])
     p["resolve"] = {"start_frame": info["start_frame"], "fps": fps, "timeline": info["timeline"]}
-    added = 0
+    added, seen = 0, set()
     for c in info["clips"]:
-        if not c["file_path"]:
+        # una clip video compare su più tracce audio (es. FX6 ch1-2 su A1, ch3-4 su A2):
+        # il file si importa una volta sola, con tutti i suoi canali
+        key = (c["file_path"], c["start_frame"] - c["left_offset"])
+        if not c["file_path"] or key in seen:
             continue
+        seen.add(key)
         off = (c["start_frame"] - c["left_offset"] - info["start_frame"]) / fps
         for t in tracks_from_file(c["file_path"], off, f"A{c['track']} {c['name']}"):
             p["tracks"].append({**t, "da_resolve": True})
@@ -271,6 +275,11 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.send_json({"path": path})
                 elif u.path == "/api/load":
                     STATE["project"] = json.loads(Path(os.path.expanduser(b["path"])).read_text())
+                    for t in STATE["project"]["tracks"]:  # progetti precedenti senza catena
+                        t.setdefault("microfono", devices.profile(t["profile"])["microfono"])
+                elif u.path == "/api/quit":
+                    threading.Timer(0.3, os._exit, (0,)).start()
+                    return self.send_json({"ok": True})
                 elif u.path == "/api/new":
                     STATE["project"] = new_project()
                 else:
@@ -281,7 +290,12 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def serve(port: int = 8730, open_browser: bool = True):
-    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    try:
+        srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    except OSError:  # già aperto (es. doppio clic sull'app): riapri solo il browser
+        import webbrowser
+        webbrowser.open(f"http://127.0.0.1:{port}")
+        return
     url = f"http://127.0.0.1:{port}"
     print(f"MIX3D pannello: {url}  (Ctrl+C per uscire)")
     if open_browser:
