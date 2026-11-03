@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BlackmagicDesign>
+    <Plugin>
+        <Id>it.mecena.mix3d</Id>
+        <Name>MIX3D</Name>
+        <Version>0.0.2</Version>
+        <Description>Mix multi-sorgente e spaziale per concerti: apre il pannello MIX3D dentro Resolve.</Description>
+        <FilePath>main.js</FilePath>
+    </Plugin>
+</BlackmagicDesign>

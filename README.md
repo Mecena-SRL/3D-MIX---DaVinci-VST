@@ -37,6 +37,14 @@ Scarica il `.dmg` dalle [Release](https://github.com/Mecena-SRL/3D-MIX---DaVinci
 L'app non è firmata: al primo avvio tasto destro su MIX3D > Apri > Apri. Si apre il pannello nel browser; **Esci** la chiude.
 ffmpeg e Three.js sono inclusi, nessuna installazione extra. Build locale: `packaging/build_macos.sh`; release: Actions > Release macOS > Run workflow con *release* attivo (usa la versione di `pyproject.toml`), oppure push di un tag `vX.Y.Z`.
 
+## Da DaVinci Resolve
+
+Nel pannello: **In Resolve…** › *Installa pannello e script* (oppure `mix3d install-resolve`), poi riavvia Resolve.
+- **Workspace › Workflow Integrations › MIX3D**: il pannello in una finestra di Resolve (Studio).
+- **Workspace › Scripts › MIX3D**: apre l'app.
+
+*Adjustment clip audio*: in Edit o Fairlight metti un **marker chiamato MIX3D con durata** sulla regione (o usa In/Out), poi Stampa › *Solo la regione*: il mix di quella regione va sulla traccia MIX3D allo stesso punto e sostituisce la stampa precedente.
+
 ## Installazione da sorgente (macOS)
 
 ```bash

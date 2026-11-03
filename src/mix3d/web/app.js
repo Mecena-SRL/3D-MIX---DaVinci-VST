@@ -445,13 +445,27 @@ $("fsOk").onclick = safe(async () => {
   toast("Controlla i dispositivi suggeriti (bordo giallo) e avvia l'analisi");
 });
 
+// integrazione in Resolve: stato e installazione
+async function integr() {
+  const st = await api("/api/resolve/integration");
+  $("itStatus").innerHTML = !st.macos ? "Disponibile solo su macOS." :
+    `Pannello: <b>${st.pannello ? "installato ✓" : "non installato"}</b> · Script: <b>${st.script ? "installato ✓" : "non installato"}</b>`;
+  return st;
+}
+$("bIntegr").onclick = safe(async () => { await integr(); $("dlgIntegr").showModal(); });
+$("itClose").onclick = () => $("dlgIntegr").close();
+const installIt = (pannello) => safe(async () => { await api("/api/resolve/install", { pannello }); await integr(); toast("Installato: riavvia Resolve"); });
+$("itOk").onclick = installIt(true);
+$("itScript").onclick = installIt(false);
+
 $("bPrint").onclick = () => $("dlgPrint").showModal();
 $("prCancel").onclick = () => $("dlgPrint").close();
 $("prOk").onclick = safe(async () => {
   $("dlgPrint").close();
-  const tr = $("prTrack").value, lufs = $("prLufs").value;
-  const r = await runJob("/api/print", { path: $("prPath").value, target: tr ? +tr : $("prTarget").value, lufs: lufs === "" ? null : +lufs }, "Stampa");
-  toast(`Stampato ${r.path}: ${r.lufs} LUFS, picco ${r.picco_dbfs} dBFS${r.traccia ? `, traccia A${r.traccia} in Resolve` : ""}`);
+  const tr = $("prTrack").value, lufs = $("prLufs").value, regione = $("prRegion").checked;
+  const target = tr ? +tr : regione && $("prTarget").value === "file" ? "mix3d" : $("prTarget").value;
+  const r = await runJob("/api/print", { path: $("prPath").value, target, regione, lufs: lufs === "" ? null : +lufs }, "Stampa");
+  toast(`Stampato ${r.path}: ${r.lufs} LUFS, picco ${r.picco_dbfs} dBFS${r.traccia ? `, traccia A${r.traccia} in Resolve` : ""}${r.sostituite ? ` (${r.sostituite} versione/i precedente/i tolta/e)` : ""}`);
 });
 
 DB = await api("/api/devices");
