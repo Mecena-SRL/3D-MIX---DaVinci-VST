@@ -17,7 +17,7 @@ from urllib.parse import parse_qs, urlparse
 import numpy as np
 import soundfile as sf
 
-from . import analysis, autotune, devices, eq, geometry, media, mixer, spazi
+from . import analysis, autotune, devices, eq, geometry, look, media, mixer, spazi
 
 WEB = Path(__file__).parent / "web"
 AUDIO_EXT = {".wav", ".bwf", ".mp4", ".mov", ".mxf", ".m4a", ".aac", ".mp3", ".flac", ".aif", ".aiff"}
@@ -140,8 +140,10 @@ def eq_curve(tid: str) -> dict:
     r = {"f": np.round(f, 1).tolist(),
          "statica": np.round(eq.response_db(t.get("eq") or [], f), 2).tolist(),
          "dinamica": np.round(eq.response_db(t.get("eq") or [], f, dynamic=True), 2).tolist()}
+    if tid == "master":
+        r["look"] = np.round(look.curve(p, f), 2).tolist()
     if a:
-        r.update(prima=a["db"], dopo=np.round(np.array(a["db"]) + r["statica"], 1).tolist(), sorgente=a["sorgente"])
+        r.update(prima=a["db"], dopo=np.round(np.array(a["db"]) + r["statica"] + np.array(r.get("look", 0)), 1).tolist(), sorgente=a["sorgente"])
     return r
 
 
@@ -278,6 +280,8 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json([{**s, "distanza_critica": spazi.critical_distance(s)} for s in spazi.all_spaces()])
             if u.path.startswith("/api/jobs/"):
                 return self.send_json(STATE["jobs"][u.path.rsplit("/", 1)[1]])
+            if u.path == "/api/look":
+                return self.send_json(look.catalog())
             if u.path == "/api/eq/curve":
                 return self.send_json(eq_curve(q["track"]))
             if u.path == "/api/render":

@@ -13,7 +13,7 @@ import numpy as np
 import soundfile as sf
 from scipy.signal import firwin2, oaconvolve
 
-from . import devices, eq, media
+from . import devices, eq, look, media
 from .analysis import Loudness
 from .geometry import spatial_params
 
@@ -64,6 +64,8 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
         levels[t["id"]] = round(float(20 * np.log10(np.sqrt(np.mean(x[m:] ** 2)) + 1e-10)), 1)
     if project.get("eq_master") and not bypass:
         out = eq.process(out, project["eq_master"], sr)
+    if project.get("look") and not bypass:  # uscita della pipeline: carattere, EQ, colla
+        out = look.apply(out, project, sr)
     out = out[m:] * 10 ** (project.get("master_db", 0) / 20)
     levels["master"] = round(float(20 * np.log10(np.abs(out).max(initial=0) + 1e-10)), 1)
     levels["env"] = env

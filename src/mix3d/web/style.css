@@ -170,6 +170,9 @@ dialog label { display: block; margin: 8px 0; } dialog label input:not([type=che
 .eq-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; }
 .eq-row.focus { border-color: var(--accent); } .eq-row .hint { flex-basis: 100%; }
 .eq-row input[type=number] { padding: 3px 5px; }
+.look { display: grid; gap: 6px; margin-bottom: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; }
+.look label:not(.slider) { display: grid; grid-template-columns: 70px 1fr; align-items: center; gap: 6px; font-size: 12px; }
+.look select { min-width: 0; }
 
 /* campo sonoro */
 .presence { font-size: 11px; padding: 2px 8px; border-radius: 8px; background: var(--panel2); color: var(--muted); }
