@@ -16,13 +16,15 @@ import numpy as np
 from scipy.signal import find_peaks, welch
 
 from . import devices, eq, media
+from . import mixer
 from .mixer import correction_fir
 
 GRID = 20 * 2 ** (np.arange(0, 10 * 24) / 24)  # 20 Hz-20 kHz, 1/24 di ottava
 SEG_S, N_SEG = 8.0, 8
 
 # tipo di sorgente: pendenza del target (dB/ottava), passa-alto (Hz), priorità
-TIPI = {"voce": (-3.5, 90, 3), "strumento": (-4.5, 40, 2), "generico": (-4.5, 30, 1), "ambiente": (-5.0, 30, 0)}
+TIPI = {"voce": (-3.5, 90, 3), "strumento": (-4.5, 40, 2), "generico": (-4.5, 30, 1), "ambiente": (-5.0, 30, 0),
+        "mix": (-4.5, 25, -1)}
 DA_RUOLO = {"spot": "strumento", "ambiente": "ambiente", "base": "generico"}
 
 
@@ -88,7 +90,7 @@ def _threshold(segs, b, sr, pct) -> float:
     return round(float(np.percentile(lv[lv > -100], pct)), 1) if np.any(lv > -100) else -40.0
 
 
-def balance(broad: np.ndarray, kind: str, hp_hz: float, n=3) -> list[dict]:
+def balance(broad: np.ndarray, kind: str, hp_hz: float, n=3, amount=0.7) -> list[dict]:
     slope = TIPI[kind][0]
     tgt = slope * np.log2(GRID / 1000)
     mid = (GRID > 200) & (GRID < 5000)
@@ -103,7 +105,7 @@ def balance(broad: np.ndarray, kind: str, hp_hz: float, n=3) -> list[dict]:
         fc = float(GRID[i])
         ty = "shelf_basso" if fc < 150 else "shelf_alto" if fc > 7000 else "campana"
         # si alza poco e mai sotto 250 Hz: si alzerebbero anche rumore e rimbombo della sala
-        g = round(float(np.clip(-0.7 * dev[i], -6, 3 if fc > 250 else 0)), 1)
+        g = round(float(np.clip(-amount * dev[i], -6, 3 if fc > 250 else 0)), 1)
         if not g:
             continue
         b = _band(f"{'troppo' if dev[i] > 0 else 'poco'} {_zona(fc)} rispetto al target '{kind}' "
@@ -179,3 +181,26 @@ def run(project: dict, rt60: dict | None = None, ids: list[str] | None = None, p
         if t["id"] in props:
             t["eq"] = [b for b in t.get("eq") or [] if not b.get("auto")] + props[t["id"]]
     return {tid: len(b) for tid, b in props.items()}
+
+
+def run_master(project: dict, progress=lambda f: None) -> int:
+    """EQ del master: ascolta il mix (senza EQ master) e corregge il bilanciamento a metà,
+    perché i problemi delle singole tracce si risolvono meglio sulle tracce."""
+    sr = project.get("sr", 48000)
+    start, end = mixer.span(project)
+    p = {**project, "eq_master": None}
+    segs = []
+    for k, s in enumerate(np.linspace(start, max(end - SEG_S, start), N_SEG)):
+        x = mixer.render(p, float(s), min(SEG_S, end - start))[0].mean(axis=1)
+        if np.sqrt(np.mean(x ** 2)) > 1e-4:
+            segs.append(x)
+        progress((k + 1) / N_SEG)
+    if not segs:
+        return 0
+    fine, _ = spectrum(segs, sr)
+    bands = [_band("passa-alto di sicurezza: sotto 25 Hz solo infrasuoni che rubano headroom",
+                   tipo="passa_alto", f=25, pendenza=12)]
+    bands += balance(_smooth(fine, 1 / 3), "mix", 25, amount=0.5)
+    project["eq_master"] = [b for b in project.get("eq_master") or [] if not b.get("auto")] + bands
+    project["eq_master_analisi"] = {"f": np.round(GRID, 1).tolist(), "db": np.round(fine, 1).tolist(), "sorgente": "mix"}
+    return len(bands)
