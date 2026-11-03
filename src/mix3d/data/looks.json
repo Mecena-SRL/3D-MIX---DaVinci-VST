@@ -1,0 +1,28 @@
+{
+ "_info": "Look del master (output transform): carattere + EQ + compressore. I caratteri sono tipologie approssimate (curve medie della categoria), non misure di un modello preciso. Per un mic preciso usa 'mic:<id>' con una curva nel database dispositivi.",
+ "caratteri": {
+  "diaframma_largo": {"nome": "Condensatore a diaframma largo", "nota": "aria e presenza 5-10 kHz, bassi pieni", "curva": [[20, -2], [60, 0], [200, 0.5], [1000, 0], [3000, 0.5], [6000, 2], [10000, 2.5], [14000, 1], [20000, -2]]},
+  "ribbon": {"nome": "Microfono a nastro (ribbon)", "nota": "alti morbidi, medio-bassi caldi", "curva": [[20, -1], [60, 1], [150, 1.5], [1000, 0], [4000, -1], [8000, -3], [12000, -5], [20000, -8]]},
+  "dinamico_palco": {"nome": "Dinamico da palco", "nota": "presenza 4-5 kHz, bassi asciutti, alti chiusi", "curva": [[20, -10], [60, -5], [150, -1], [1000, 0], [3000, 2], [5000, 4], [8000, 1], [12000, -4], [20000, -10]]}
+ },
+ "look": [
+  {"id": "neutro", "nome": "Neutro / documentario", "progetto": "qualsiasi", "descrizione": "Resta nello spazio neutro: solo protezione dei sub e un filo di colla.", "carattere": null,
+   "eq": [{"tipo": "passa_alto", "f": 25, "pendenza": 12}],
+   "comp": {"soglia_db": -18, "rapporto": 1.5, "attacco_ms": 30, "rilascio_ms": 300, "makeup_db": 1}},
+  {"id": "concerto_classico", "nome": "Concerto classico / corale", "progetto": "concerto", "descrizione": "Aperto e arioso, dinamica quasi intatta.", "carattere": "tipo:diaframma_largo",
+   "eq": [{"tipo": "passa_alto", "f": 25, "pendenza": 12}, {"tipo": "campana", "f": 250, "g": -1, "q": 0.8}, {"tipo": "shelf_alto", "f": 10000, "g": 1}],
+   "comp": {"soglia_db": -24, "rapporto": 1.3, "attacco_ms": 50, "rilascio_ms": 500, "makeup_db": 0.5}},
+  {"id": "concerto_live", "nome": "Concerto live (pop, rock)", "progetto": "concerto", "descrizione": "Impatto e presenza, mix compatto.", "carattere": "tipo:diaframma_largo",
+   "eq": [{"tipo": "passa_alto", "f": 30, "pendenza": 24}, {"tipo": "shelf_basso", "f": 90, "g": 1.5}, {"tipo": "campana", "f": 350, "g": -1.5, "q": 1}, {"tipo": "campana", "f": 3000, "g": 1.5, "q": 0.8}],
+   "comp": {"soglia_db": -20, "rapporto": 2.5, "attacco_ms": 20, "rilascio_ms": 150, "makeup_db": 2}},
+  {"id": "jazz_club", "nome": "Jazz / acustico intimo", "progetto": "concerto", "descrizione": "Caldo e morbido, alti vellutati.", "carattere": "tipo:ribbon",
+   "eq": [{"tipo": "passa_alto", "f": 30, "pendenza": 12}],
+   "comp": {"soglia_db": -22, "rapporto": 1.5, "attacco_ms": 40, "rilascio_ms": 400, "makeup_db": 1}},
+  {"id": "teatro_prosa", "nome": "Teatro di prosa", "progetto": "teatro", "descrizione": "Voci chiare e intelligibili, sala sotto controllo.", "carattere": "tipo:diaframma_largo",
+   "eq": [{"tipo": "passa_alto", "f": 80, "pendenza": 24}, {"tipo": "campana", "f": 300, "g": -2, "q": 0.9}, {"tipo": "campana", "f": 3000, "g": 2, "q": 1}, {"tipo": "shelf_alto", "f": 12000, "g": -1}],
+   "comp": {"soglia_db": -24, "rapporto": 2, "attacco_ms": 10, "rilascio_ms": 120, "makeup_db": 2}},
+  {"id": "conferenza", "nome": "Conferenza / parlato", "progetto": "conferenza", "descrizione": "Parlato in primo piano, livello costante.", "carattere": "tipo:dinamico_palco",
+   "eq": [{"tipo": "passa_alto", "f": 100, "pendenza": 24}, {"tipo": "passa_basso", "f": 12000, "pendenza": 12}, {"tipo": "campana", "f": 250, "g": -3, "q": 0.9}, {"tipo": "campana", "f": 2500, "g": 3, "q": 1}],
+   "comp": {"soglia_db": -26, "rapporto": 3, "attacco_ms": 5, "rilascio_ms": 100, "makeup_db": 3}}
+ ]
+}
