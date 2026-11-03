@@ -141,10 +141,14 @@ def import_resolve() -> int:
     p = STATE["project"]
     fps = float(info["fps"])
     p["resolve"] = {"start_frame": info["start_frame"], "fps": fps, "timeline": info["timeline"]}
-    added = 0
+    added, seen = 0, set()
     for c in info["clips"]:
-        if not c["file_path"]:
+        # una clip video compare su più tracce audio (es. FX6 ch1-2 su A1, ch3-4 su A2):
+        # il file si importa una volta sola, con tutti i suoi canali
+        key = (c["file_path"], c["start_frame"] - c["left_offset"])
+        if not c["file_path"] or key in seen:
             continue
+        seen.add(key)
         off = (c["start_frame"] - c["left_offset"] - info["start_frame"]) / fps
         for t in tracks_from_file(c["file_path"], off, f"A{c['track']} {c['name']}"):
             p["tracks"].append({**t, "da_resolve": True})

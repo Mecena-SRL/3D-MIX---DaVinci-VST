@@ -29,8 +29,7 @@ def probe(path: str) -> dict:
     Legge sempre il WAV decodificato (sr, canali, durata esatti); codec e bit
     vengono dall'originale, dal banner di ffmpeg.
     """
-    r = subprocess.run([ffmpeg(), "-hide_banner", "-i", path], capture_output=True, text=True)
-    m = re.search(r"Audio: (\w+)", r.stderr)
+    m = re.search(r"Audio: (\w+)", banner(path))
     codec = m.group(1) if m else "sconosciuto"
     i = sf.info(decoded(path))
     bits = 32 if "f32" in codec else int(b.group(1)) if (b := re.match(r"pcm_[su](\d+)", codec)) else None
@@ -38,8 +37,18 @@ def probe(path: str) -> dict:
             "bits": bits, "duration": i.duration}
 
 
+def banner(path: str) -> str:
+    """Descrizione degli stream secondo ffmpeg (stderr di `ffmpeg -i`)."""
+    return subprocess.run([ffmpeg(), "-hide_banner", "-i", path], capture_output=True, text=True).stderr
+
+
 def decoded(path: str) -> str:
-    """WAV leggibile da soundfile: l'originale se possibile, altrimenti copia in cache."""
+    """WAV leggibile da soundfile: l'originale se possibile, altrimenti copia in cache.
+
+    Video di camera (MP4, MOV, MXF): si estrae solo l'audio. Se i canali sono in
+    stream separati (tipico dell'MXF: un mono per canale) si uniscono in ordine
+    in un unico WAV multicanale, così ch1..chN corrispondono a quelli della camera.
+    """
     try:
         sf.info(path)
         return path
@@ -50,7 +59,9 @@ def decoded(path: str) -> str:
     out = CACHE / f"{key}.wav"
     if not out.exists():
         tmp = out.with_suffix(".tmp.wav")
-        subprocess.run([ffmpeg(), "-v", "error", "-y", "-i", path, "-vn", "-c:a", "pcm_f32le",
+        n = len(re.findall(r"Stream #\S+.*: Audio:", banner(path)))
+        merge = ["-filter_complex", "".join(f"[0:a:{i}]" for i in range(n)) + f"amerge=inputs={n}"] if n > 1 else []
+        subprocess.run([ffmpeg(), "-v", "error", "-y", "-i", path, "-vn", *merge, "-c:a", "pcm_f32le",
                         str(tmp)], check=True)
         tmp.rename(out)
     return str(out)

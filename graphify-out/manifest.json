@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/media.py": {
-    "mtime": 1793742705.3473186,
-    "seen": 1793742876.6420875,
-    "ast_hash": "309f101a1dcbe323464c59c10389bd8d",
+    "mtime": 1793743010.1485808,
+    "seen": 1793743058.236758,
+    "ast_hash": "887bafbf36fae95baa328d191dcae085",
     "semantic_hash": ""
   },
   "src/mix3d/mixer.py": {
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/server.py": {
-    "mtime": 1793742691.2505264,
-    "seen": 1793742876.6420915,
-    "ast_hash": "f2196223eaaa49b1b2cb7006a7a2c76e",
+    "mtime": 1793743010.1488774,
+    "seen": 1793743058.2367618,
+    "ast_hash": "953c2568456d52d778d7c039eba29940",
     "semantic_hash": ""
   },
   "src/mix3d/web/app.js": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "tests/test_ui_engine.py": {
-    "mtime": 1793742385.3924055,
-    "seen": 1793742526.6855164,
-    "ast_hash": "f2e2c6850f1103b1717c16d93c0924c7",
+    "mtime": 1793743019.1969755,
+    "seen": 1793743058.2367704,
+    "ast_hash": "146049a9e171b537eec5114efd720e70",
     "semantic_hash": ""
   },
   "src/mix3d/web/index.html": {
@@ -126,9 +126,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
-    "mtime": 1793742705.3544405,
-    "seen": 1793742876.6420586,
-    "ast_hash": "180d86468c8055f5c233b65e4e6d7445",
+    "mtime": 1793742929.6352093,
+    "seen": 1793743058.2367346,
+    "ast_hash": "e0ff48653e32cda121e448468679e429",
     "semantic_hash": ""
   },
   "packaging/build_macos.sh": {

@@ -117,3 +117,19 @@ def test_file_video_aac(concert):
     t = server.tracks_from_file(str(mp4))[0]
     assert t["info"]["codec"] == "aac" and t["wav"].endswith(".wav")
     assert t["profile"] == "osmo_action"
+
+
+@pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg assente")
+def test_mxf_canali_in_stream_separati(concert):
+    # MXF da camera: video + 4 stream audio mono -> una traccia per coppia di canali, ordine preservato
+    mxf = concert / "camera.mxf"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=160x120:rate=25", "-f", "lavfi",
+                    "-i", "sine=f=440", "-f", "lavfi", "-i", "sine=f=880", "-t", "3", "-filter_complex",
+                    "[1:a]asplit[a][c];[2:a]asplit[b][d]", "-map", "0:v", "-map", "[a]", "-map", "[b]", "-map", "[c]",
+                    "-map", "[d]", "-c:v", "mpeg2video", "-c:a", "pcm_s24le", "-ar", "48000", str(mxf)], check=True)
+    ts = server.tracks_from_file(str(mxf))
+    assert [t["channels"] for t in ts] == [[1, 2], [3, 4]] and ts[0]["info"]["bits"] == 24
+    from mix3d import media
+    x = media.read(ts[0]["wav"], [1, 2], 1.0, 1.0, FS)
+    f = np.fft.rfftfreq(FS, 1 / FS)
+    assert [f[np.argmax(np.abs(np.fft.rfft(x[:, c])))] for c in (0, 1)] == [440, 880]
