@@ -85,3 +85,25 @@ def test_master_continuo_e_auto(tmp_path):
     assert p["eq_master"][0]["tipo"] == "passa_alto" and p["eq_master"][0].get("auto") is None  # manuale resta
     server.STATE["project"] = p
     assert len(server.eq_curve("master")["prima"]) == len(autotune.GRID)
+
+
+def test_look_master(tmp_path):
+    from mix3d import look
+    rng = np.random.default_rng(2)
+    x = 0.1 * rng.standard_normal(20 * FS)
+    p = server.new_project()
+    p["tracks"] = [_track(tmp_path / "a.wav", x, "base", "a")]
+    neutro, _ = mixer.render(p, 5.0, 1.0)
+    for lk in look.load()["look"]:  # ogni preset suona e cambia il mix
+        p.update(look=lk["id"], look_intensita=1.0)
+        y, _ = mixer.render(p, 5.0, 1.0)
+        assert np.isfinite(y).all() and not np.allclose(y, neutro)
+    p["look_intensita"] = 0.0  # intensità 0: solo la colla a rapporto 1 = neutro
+    assert np.allclose(mixer.render(p, 5.0, 1.0)[0], neutro, atol=1e-4)
+    p.update(look="conferenza", look_intensita=1.0, look_carattere="mic:mkh416")
+    c = look.curve(p, autotune.GRID)
+    assert c[autotune.GRID < 60].max() < -10  # passa-alto 100 Hz + bassi del 416
+    assert "mic:mkh416" in look.characters()
+    one, _ = mixer.render(p, 5.0, 2.0)
+    two = np.concatenate([mixer.render(p, 5.0, 1.0)[0], mixer.render(p, 6.0, 1.0)[0]])
+    assert np.abs(one - two).max() < 1e-2 * np.abs(one).max()  # compressore: salto fra blocchi < 0,1 dB

@@ -34,6 +34,9 @@ Interfaccia guidata in 6 passi, con riepilogo (tracce, dispositivi, spazio, sync
    target per sorgente (`voce`, `strumento`, `ambiente`, `generico`), RT60 dello spazio e mascheramento fra tracce.
    Ogni banda dice perché c'è; se la tocchi diventa manuale e l'auto-taratura non la cambia più.
    Nel menu c'è anche **Master**: EQ sul mix intero (auto: bilanciamento a metà + passa-alto 25 Hz). *Tutte* tara prima le tracce, poi il master.
+   **Pipeline gestita (come ACES)**: ogni mic entra raddrizzato a neutro con la sua curva (correzione mic), si mixa in neutro,
+   e il master esce con un **look** per tipo di progetto (`data/looks.json`): carattere (tipologia di mic o un mic del database con curva),
+   EQ e compressore "colla", con intensità 0-100%. Si sceglie nel pannello EQ alla voce Master.
 6. **Stampa**: WAV 24 bit normalizzato (picco -1 dBTP) su file, traccia MIX3D, nuova traccia o regione (marker MIX3D / In-Out).
 
 Spazi privati: schema in [`docs/spazi.md`](docs/spazi.md). Restano in `~/.mix3d/spazi/` sul Mac e non vanno nel repository.

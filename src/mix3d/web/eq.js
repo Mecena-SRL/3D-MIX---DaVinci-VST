@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const TIPI = { campana: "Campana", shelf_basso: "Shelf basso", shelf_alto: "Shelf alto", passa_alto: "Passa-alto", passa_basso: "Passa-basso" };
 const F0 = 20, F1 = 20000, GMAX = 18;
-let tracks = [], master = [], tid = null, bands = [], curve = null, focus = null, drag = null, saveT = null;
+let tracks = [], master = [], st = {}, LOOKS = null, tid = null, bands = [], curve = null, focus = null, drag = null, saveT = null;
 
 const api = async (path, body) => {
   const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
@@ -27,12 +27,20 @@ function mount() {
     <div class="eq-bar"><select id="eqTrack"></select>
       <button id="eqAuto" class="small primary" title="Analizza la traccia e propone le bande">Auto-tara</button>
       <button id="eqAutoAll" class="small" title="Tutte le tracce (con il mascheramento fra loro), poi il master">Tutte</button></div>
+    <div id="lookBox" class="look" hidden>
+      <label>Look <select id="lookSel"></select></label>
+      <label>Carattere <select id="lookCar"></select></label>
+      <label class="slider">Intensità <input type="range" id="lookAmt" min="0" max="1" step="0.05"><output id="oLookAmt"></output></label>
+      <p id="lookDesc" class="hint"></p></div>
     <canvas id="eqCv" class="chart" height="200"></canvas>
-    <p class="hint">Trascina i punti · rotella = Q · doppio clic = aggiungi/togli · linea tratteggiata = dinamiche al massimo</p>
+    <p class="hint">Trascina i punti · rotella = Q · doppio clic = aggiungi/togli · viola tratteggiata = dinamiche al massimo · verde = look</p>
     <div id="eqList" class="eq-list"></div></div>`);
   $("eqTrack").onchange = (e) => select(e.target.value);
   $("eqAuto").onclick = () => auto([tid]);
   $("eqAutoAll").onclick = () => auto(null);
+  $("lookSel").onchange = (e) => { const lk = LOOKS.look.find((l) => l.id === e.target.value); setLook({ look: lk?.id ?? null, look_carattere: lk?.carattere ?? "" }); };
+  $("lookCar").onchange = (e) => setLook({ look_carattere: e.target.value });
+  $("lookAmt").oninput = (e) => { $("oLookAmt").textContent = `${Math.round(e.target.value * 100)}%`; setLook({ look_intensita: +e.target.value }); };
   const cv = $("eqCv");
   cv.addEventListener("pointerdown", down);
   cv.addEventListener("pointermove", (e) => drag && move(e));
@@ -44,7 +52,8 @@ function mount() {
 }
 
 async function load() {
-  const st = await api("/api/state");
+  st = await api("/api/state");
+  LOOKS ??= await api("/api/look");
   tracks = st.tracks; master = st.eq_master || [];
   if (tid !== "master" && !tracks.some((t) => t.id === tid)) tid = tracks[0]?.id ?? null;
   $("eqTrack").innerHTML = [...tracks, { id: "master", nome: "Master (tutto il mix)" }]
@@ -56,7 +65,26 @@ async function select(id) {
   tid = id;
   bands = structuredClone((id === "master" ? master : tracks.find((t) => t.id === id)?.eq) || []);
   focus = null;
+  lookBox();
   await refresh();
+}
+
+function lookBox() { // uscita della pipeline: solo sul master
+  $("lookBox").hidden = tid !== "master";
+  const opt = (k, n, cur) => `<option value="${k}" ${k === cur ? "selected" : ""}>${n}</option>`;
+  $("lookSel").innerHTML = opt("", "Nessun look (resta neutro)", st.look ?? "") + LOOKS.look.map((l) => opt(l.id, `${l.nome} · ${l.progetto}`, st.look)).join("");
+  const car = st.look_carattere ?? LOOKS.look.find((l) => l.id === st.look)?.carattere ?? "";
+  $("lookCar").innerHTML = opt("", "Nessuno", car) + Object.entries(LOOKS.caratteri).map(([k, n]) => opt(k, n, car)).join("");
+  $("lookCar").disabled = !st.look;
+  $("lookAmt").value = st.look_intensita ?? 1; $("oLookAmt").textContent = `${Math.round((st.look_intensita ?? 1) * 100)}%`;
+  $("lookDesc").textContent = LOOKS.look.find((l) => l.id === st.look)?.descrizione ?? "Ogni mic entra raddrizzato a neutro; il look dà l'identità sonora al master.";
+}
+
+function setLook(patch) {
+  Object.assign(st, patch);
+  lookBox();
+  clearTimeout(saveT);
+  saveT = setTimeout(async () => { await api("/api/state", patch); dispatchEvent(new Event("mix3d:eq")); await refresh(); }, 90);
 }
 
 async function refresh() {
@@ -108,6 +136,7 @@ function draw() {
     path(curve.dopo, sy); ctx.strokeStyle = css("--b"); ctx.globalAlpha = 0.6; ctx.stroke(); ctx.globalAlpha = 1;
   }
   ctx.setLineDash([4 * d, 4 * d]); path(curve.dinamica, (g) => gy(g, H)); ctx.strokeStyle = css("--accent2"); ctx.stroke(); ctx.setLineDash([]);
+  if (curve.look) { ctx.setLineDash([2 * d, 3 * d]); path(curve.look, (g) => gy(g, H)); ctx.strokeStyle = css("--ok"); ctx.lineWidth = 1.5 * d; ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = d; }
   path(curve.statica, (g) => gy(g, H)); ctx.strokeStyle = css("--a"); ctx.lineWidth = 2 * d; ctx.stroke();
   bands.forEach((b, i) => {
     const x = fx(b.f, W), y = gy(cut(b) ? 0 : b.g || 0, H);
