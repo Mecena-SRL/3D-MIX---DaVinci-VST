@@ -1,37 +1,38 @@
 # Graph Report - 3D-MIX---DaVinci-VST  (2026-11-04)
 
 ## Corpus Check
-- 50 files · ~80,504 words
+- 54 files · ~84,390 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: .plist 4, (none) 1, .xib 1)
 
 ## Summary
-- 2839 nodes · 5100 edges · 174 communities (74 shown, 100 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 206 edges (avg confidence: 0.85)
+- 2894 nodes · 5219 edges · 173 communities (82 shown, 91 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 207 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6997c437`
+- Built from commit: `6846b276`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - test_resolve_bridge.py
 - media.py
-- server.py
-- devices.py
+- sync.py
+- metadata.py
 - cli.py
 - test_ui_engine.py
 - app.js
 - MIX3D.cpp
-- metadata.py
+- devices.py
 - three.module.min.js
+- server.py
 - mix3d
 - ti
 - .constructor
 - Yp
 - ei
-- jl
+- ta
 - Ui
 - cs
 - Ii
@@ -62,12 +63,12 @@
 - la
 - Nh
 - tr
-- vl
+- .constructor
 - bt
-- .isEmpty
+- vl
 - mixer.py
 - jr
-- ta
+- fuse
 - ts
 - main.js
 - cp
@@ -76,103 +77,93 @@
 - jc
 - Kn
 - .setValues
-- xr
-- .copy
-- xh
-- Fc
 - MIX3D
-- pm
-- wi
-- ld
-- gh
+- .copy
 - hh
+- Fc
+- renderTracks
+- pm
+- renderMonitor
+- ld
+- lm
+- analysis.py
 - bl
 - nm
 - ua
 - eq.js
 - .constructor
-- iu
+- json
 - .updateMatrix
 - Hn
 - ml
 - numpy
 - look.py
 - Sc
-- na
+- resolve_install.py
 - qs
-- spazi.py
 - od
-- yr
-- ap
+- renderDevice
+- up
 - nl
 - .parse
 - s
 - tu
-- resolve_bridge.py
+- README.md
 - package.json
-- up
-- test_eq.py
+- mu
+- localize.py
 - Zh
 - .constructor
-- em
+- .bind
 - om
 - Dh
 - eq.py
 - $h
-- .parseObject
+- jd
 - im
 - .setHSL
-- mu
+- iu
 - zp
-- _TL
+- gh
 - es
 - wh
-- .constructor
-- analysis.py
-- t
+- numpy
+- createField
 - MIX3D
 - xs
-- jn
-- geometry.py
-- .constructor
+- EMsgTags
+- EParams
 - Hu
-- .parseObject
-- README.md
+- $l
+- .do_GET
 - Ci
 - dp
 - Ph
-- lm
-- yh
+- t
+- .constructor
 - Rh
-- _Item
-- _Project
+- scene
+- .constructor
 - Zc
 - Qp
-- _FakeTimeline
-- jh
+- xh
+- na
 - Xu
 - build_macos.sh
 - build_plugin.sh
-- hl
-- rp
+- geometry.py
+- ap
 - Fh
 - Ih
 - Lh
-- il
+- OrbitControls.js
 - Oh
 - Uh
 - zl
-- rm
-- Li
+- su
+- em
 - hp
-- EMsgTags
-- mp
-- qh
-- EParams
-- hd
-- vc
-- kh
-- yi
+- .constructor
 
 ## God Nodes (most connected - your core abstractions)
 1. `Ui` - 109 edges
@@ -195,81 +186,89 @@
   README.md → plugin/MIX3D/MIX3D.h
 - `Compatibilità` --references--> `compat()`  [INFERRED]
   docs/database_dispositivi.md → src/mix3d/devices.py
-- `Compatibilità` --references--> `da()`  [INFERRED]
-  docs/database_dispositivi.md → src/mix3d/web/vendor/three.module.min.js
+- `Stato: F0 (fondamenta)` --references--> `sync()`  [INFERRED]
+  README.md → src/mix3d/server.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (174 total, 100 thin omitted)
+## Communities (173 total, 91 thin omitted)
 
 ### Community 0 - "test_resolve_bridge.py"
-Cohesion: 0.13
-Nodes (8): reimport_wav(), _Resolve, test_clip_raggruppate_per_canale_di_resolve(), test_posizione_del_plugin_in_fairlight(), test_read_audio_clips(), test_reimport_adds_new_track_only(), test_sync_a_catena_parte_da_resolve(), test_timeline_from_resolve_script_replaces_previous()
+Cohesion: 0.05
+Nodes (13): _Item, _MPI, _PM, _Pool, _Project, _Resolve, test_clip_raggruppate_per_canale_di_resolve(), test_posizione_del_plugin_in_fairlight() (+5 more)
 
 ### Community 1 - "media.py"
+Cohesion: 0.15
+Nodes (11): audio_streams(), banner(), blocks(), ffmpeg(), _ffmpeg_read(), _graph(), native(), NoAudio (+3 more)
+
+### Community 2 - "sync.py"
+Cohesion: 0.16
+Nodes (11): align(), DriftModel, estimate_drift(), fit_drift(), gcc_phat(), windowed_delays(), _frac_delay(), _music_like() (+3 more)
+
+### Community 3 - "metadata.py"
 Cohesion: 0.11
-Nodes (14): audio_streams(), banner(), blocks(), ffmpeg(), _ffmpeg_read(), _graph(), native(), NoAudio (+6 more)
-
-### Community 2 - "server.py"
-Cohesion: 0.07
-Nodes (21): auto_positions(), apply_profile(), auto_place(), browse(), eq_curve(), estimate_space(), Handler, host_time() (+13 more)
-
-### Community 3 - "devices.py"
-Cohesion: 0.22
-Nodes (7): chain_risks(), compat(), compat_matrix(), load(), _powered(), profile(), suggest()
+Nodes (13): _bcd_tc(), detect(), qt_strings(), read(), sony_xml(), tags(), _txt(), wav() (+5 more)
 
 ### Community 4 - "cli.py"
-Cohesion: 0.21
-Nodes (9): cmd_info(), cmd_install_resolve(), cmd_reimport(), cmd_sync(), cmd_ui(), _load_mono(), main(), connect() (+1 more)
+Cohesion: 0.10
+Nodes (18): cmd_info(), cmd_install_resolve(), cmd_reimport(), cmd_sync(), cmd_ui(), _load_mono(), main(), AudioClip (+10 more)
 
 ### Community 5 - "test_ui_engine.py"
-Cohesion: 0.10
-Nodes (4): concert(), _music(), test_file_video_aac(), test_mxf_canali_in_stream_separati()
+Cohesion: 0.08
+Nodes (6): concert(), _FakeTimeline, _music(), test_file_video_aac(), test_mxf_canali_in_stream_separati(), test_regione_da_marker_o_inout()
 
 ### Community 6 - "app.js"
-Cohesion: 0.05
-Nodes (95): api(), audible(), barChart(), browse(), CAMERAS, chainRisks(), checkUpdate(), color() (+87 more)
+Cohesion: 0.14
+Nodes (26): api(), browse(), CAMERAS, checkUpdate(), COLORS, FX, grouped(), installIt() (+18 more)
 
 ### Community 7 - "MIX3D.cpp"
 Cohesion: 0.12
 Nodes (7): Clock, HttpGet(), MIX3D::MIX3D(), MIX3D::ProcessBlock(), Num(), ParseWav(), Run()
 
-### Community 8 - "metadata.py"
-Cohesion: 0.08
-Nodes (20): Come i dati diventano utili, Compatibilità, Cose emerse dalla ricerca, Da completare, Database dispositivi, Il kit di Ivan, Riconoscimento dai metadati, _bcd_tc() (+12 more)
+### Community 8 - "devices.py"
+Cohesion: 0.14
+Nodes (12): ruolo(), chain_risks(), compat(), compat_matrix(), correction_db(), load(), polar_gain(), _powered() (+4 more)
 
 ### Community 9 - "three.module.min.js"
 Cohesion: 0.01
-Nodes (163): _a, aa, ac, ah, ao, ar, bh, Bi (+155 more)
+Nodes (159): _a, aa, ac, ah, ao, ar, bh, Bi (+151 more)
+
+### Community 10 - "server.py"
+Cohesion: 0.10
+Nodes (17): is_line(), apply_profile(), auto_place(), estimate_space(), fuse_scene(), import_resolve(), job_analyze(), job_eq_auto() (+9 more)
 
 ### Community 13 - ".constructor"
 Cohesion: 0.09
 Nodes (39): OrbitControls, addPointer(), dollyIn(), dollyOut(), getSecondPointerPosition(), getZoomScale(), handleKeyDown(), handleMouseDownDolly() (+31 more)
 
-### Community 14 - "Yp"
-Cohesion: 0.08
-Nodes (3): constructor(), setValue(), Yp
-
 ### Community 18 - "cs"
 Cohesion: 0.07
 Nodes (9): bc, cs, ds, fs, gs, hs, ms, ps (+1 more)
 
+### Community 19 - "Ii"
+Cohesion: 0.05
+Nodes (5): Ii, il, A(), ol(), xr
+
 ### Community 20 - "vs"
 Cohesion: 0.07
-Nodes (9): Ku, ma, nu, pu, ru, td, $u, vs (+1 more)
+Nodes (9): Ku, ma, nu, pu, qu, ru, td, $u (+1 more)
 
 ### Community 21 - "updater.py"
-Cohesion: 0.21
-Nodes (6): app_bundle(), arch(), check(), download(), install(), parse()
+Cohesion: 0.16
+Nodes (8): browse(), app_bundle(), arch(), check(), download(), _fetch_json(), install(), parse()
+
+### Community 25 - "Kr"
+Cohesion: 0.08
+Nodes (3): fi(), gi(), Kr
 
 ### Community 26 - "Nr"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (4): gm, np, Nr, uc
 
 ### Community 28 - "bd"
-Cohesion: 0.08
-Nodes (8): bd, ed(), md(), Md, pd(), rd, xd, yd
+Cohesion: 0.06
+Nodes (10): ad, bd, ed(), md(), Md, pd(), rd, sd (+2 more)
 
 ### Community 32 - "steps"
 Cohesion: 0.06
@@ -280,8 +279,8 @@ Cohesion: 0.13
 Nodes (7): Ai, Ha(), Oa, qa(), Ri, Va(), za()
 
 ### Community 35 - "e"
-Cohesion: 0.12
-Nodes (7): e, a(), Vd, c(), wd, xp, zd
+Cohesion: 0.10
+Nodes (8): e, hd, a(), Vd, c(), wd, xp, zd
 
 ### Community 36 - "fp"
 Cohesion: 0.22
@@ -297,67 +296,87 @@ Nodes (22): Ao(), bo(), co(), Do(), fo(), go(), ho(), jo() (+14 more)
 
 ### Community 41 - "bi"
 Cohesion: 0.11
-Nodes (11): ai(), bi, ci(), fi(), ia, nc, oi(), ph (+3 more)
+Nodes (10): ai(), bi, ci(), ia, nc, oi(), ph, rh (+2 more)
 
 ### Community 42 - "$n"
 Cohesion: 0.13
 Nodes (3): $n(), rs(), _s
 
-### Community 45 - "Nh"
-Cohesion: 0.17
-Nodes (4): dh, _h, Nh, zh
+### Community 43 - "lr"
+Cohesion: 0.06
+Nodes (6): am(), lr, rm, sm(), Tl(), yr
 
-### Community 47 - "vl"
-Cohesion: 0.23
-Nodes (20): vl(), b(), D(), E(), f(), g(), I(), L() (+12 more)
+### Community 45 - "Nh"
+Cohesion: 0.06
+Nodes (10): dh, _h, jh, kh, Nh, qh, Wh(), Xh() (+2 more)
+
+### Community 47 - ".constructor"
+Cohesion: 0.07
+Nodes (14): hl(), j(), K(), q(), W(), jl, Ft(), Jt() (+6 more)
 
 ### Community 48 - "bt"
 Cohesion: 0.10
 Nodes (14): ba(), Ga(), ii(), ja(), bt(), Rt(), ka(), kl() (+6 more)
 
+### Community 49 - "vl"
+Cohesion: 0.23
+Nodes (20): vl(), b(), D(), E(), f(), g(), I(), L() (+12 more)
+
 ### Community 50 - "mixer.py"
-Cohesion: 0.09
-Nodes (16): asciuga(), compress(), impulse(), Reverb, reverb(), ruolo(), settings(), spatial_params() (+8 more)
+Cohesion: 0.10
+Nodes (13): asciuga(), compress(), impulse(), Reverb, reverb(), settings(), spatial_params(), active() (+5 more)
+
+### Community 52 - "fuse"
+Cohesion: 0.17
+Nodes (9): fuse(), dist(), residuals(), unpack(), _wrap(), _imgs(), _start(), test_same_clock_recovers_scene() (+1 more)
 
 ### Community 53 - "ts"
-Cohesion: 0.15
-Nodes (3): fl, mh, ts
+Cohesion: 0.12
+Nodes (4): fl, mh, rc, ts
 
 ### Community 54 - "main.js"
 Cohesion: 0.27
 Nodes (7): { app, BrowserWindow }, createWindow(), { execFile }, http, isUp(), load(), page()
 
+### Community 56 - "ec"
+Cohesion: 0.12
+Nodes (4): ec, Mi(), Xn(), yi
+
 ### Community 57 - "kd"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (3): Gd, o(), kd
 
 ### Community 60 - ".setValues"
-Cohesion: 0.13
-Nodes (4): dd, id, Mh, rc
+Cohesion: 0.15
+Nodes (3): Fl, id, Mh
 
-### Community 63 - "xh"
-Cohesion: 0.18
-Nodes (4): bm, fm, wm, xh
-
-### Community 65 - "MIX3D"
+### Community 61 - "MIX3D"
 Cohesion: 0.14
 Nodes (11): MIX3D, kRing, mBase, mEnd, mFeed, mPlay, mPos, mReady (+3 more)
 
-### Community 67 - "wi"
+### Community 62 - ".copy"
+Cohesion: 0.12
+Nodes (4): cd, ud, vc, xc()
+
+### Community 63 - "hh"
 Cohesion: 0.13
-Nodes (9): Ea(), Fa(), li, pi, ra, ri, wi, Ys() (+1 more)
+Nodes (5): Am, dd, hh, wm, ym()
+
+### Community 65 - "renderTracks"
+Cohesion: 0.18
+Nodes (17): chainRisks(), fmt(), go(), health(), pct(), player, quality(), rec() (+9 more)
+
+### Community 67 - "renderMonitor"
+Cohesion: 0.19
+Nodes (15): audible(), lane(), laneName(), lanes(), members(), push(), pushFx(), pushGroup() (+7 more)
 
 ### Community 68 - "ld"
-Cohesion: 0.21
-Nodes (3): fd(), gd(), ld
+Cohesion: 0.14
+Nodes (5): _d(), fd(), gd(), Id(), ld
 
-### Community 69 - "gh"
+### Community 70 - "analysis.py"
 Cohesion: 0.12
-Nodes (4): au, gh, Gm, su
-
-### Community 70 - "hh"
-Cohesion: 0.13
-Nodes (5): Am, Bm, hh, ym(), zm
+Nodes (9): analyze(), _coarse(), db(), k_weighting(), Loudness, rt60_from_decays(), sync_pair(), warnings() (+1 more)
 
 ### Community 72 - "nm"
 Cohesion: 0.24
@@ -368,8 +387,12 @@ Cohesion: 0.17
 Nodes (30): api(), auto(), bands, css(), cut(), dbl(), down(), draw() (+22 more)
 
 ### Community 75 - ".constructor"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (5): Gu, lu, ou, a(), o()
+
+### Community 76 - "json"
+Cohesion: 0.33
+Nodes (6): all_spaces(), builtin(), get(), import_file(), local(), normalize()
 
 ### Community 78 - "Hn"
 Cohesion: 0.18
@@ -380,144 +403,144 @@ Cohesion: 0.20
 Nodes (10): cl(), dl(), gl(), ll(), ml(), rl(), ul(), yl() (+2 more)
 
 ### Community 80 - "numpy"
-Cohesion: 0.11
-Nodes (24): balance(), _band(), masking(), resonances(), room(), run(), run_master(), segments() (+16 more)
+Cohesion: 0.22
+Nodes (13): balance(), _band(), masking(), resonances(), room(), run(), run_master(), segments() (+5 more)
 
 ### Community 81 - "look.py"
 Cohesion: 0.24
 Nodes (11): apply(), _car(), catalog(), character_db(), character_fir(), characters(), compress(), curve() (+3 more)
 
-### Community 85 - "qs"
-Cohesion: 0.12
-Nodes (12): v(), qs, p(), xa(), g(), ya(), d(), f() (+4 more)
+### Community 84 - "resolve_install.py"
+Cohesion: 0.33
+Nodes (4): install(), install_fairlight(), refresh_script(), status()
 
-### Community 86 - "spazi.py"
-Cohesion: 0.23
-Nodes (8): all_spaces(), builtin(), critical_distance(), get(), import_file(), local(), normalize(), _fetch_json()
+### Community 88 - "renderDevice"
+Cohesion: 0.24
+Nodes (15): barChart(), color(), css(), drawMiniWave(), drawPolar(), fit(), fmtTc(), kHz() (+7 more)
 
 ### Community 91 - "nl"
 Cohesion: 0.22
 Nodes (5): el(), Ko, nl(), $o, Qo
 
 ### Community 92 - ".parse"
-Cohesion: 0.25
-Nodes (5): s(), r(), i(), pp, si()
+Cohesion: 0.17
+Nodes (6): s(), r(), mp, i(), pp, si()
 
 ### Community 93 - "s"
 Cohesion: 0.36
 Nodes (7): s(), B(), H(), O(), P(), V(), z()
 
-### Community 95 - "resolve_bridge.py"
-Cohesion: 0.20
-Nodes (6): AudioClip, clear_range(), current_timeline(), _fusionscript(), mix3d_track(), read_audio_clips()
+### Community 95 - "README.md"
+Cohesion: 0.17
+Nodes (8): Come i dati diventano utili, Da completare, Database dispositivi, Riconoscimento dai metadati, F0: verifiche su Resolve reale [V], Preset inclusi, Spazi 3D, Spazi privati (file)
 
 ### Community 96 - "package.json"
 Cohesion: 0.50
 Nodes (3): main, name, version
 
-### Community 98 - "test_eq.py"
+### Community 97 - "mu"
+Cohesion: 0.15
+Nodes (7): Compatibilità, Cose emerse dalla ricerca, Il kit di Ivan, da(), r(), mu, n
+
+### Community 98 - "localize.py"
+Cohesion: 0.15
+Nodes (10): clock_key(), cluster_sources(), distance_from_ir(), excerpt(), frame_gcc(), images(), impulse_response(), read_aligned() (+2 more)
+
+### Community 101 - ".bind"
 Cohesion: 0.33
-Nodes (7): _bp(), test_auto_taratura(), test_banda_dinamica_agisce_solo_sopra_soglia(), test_curva_uguale_al_filtro(), test_look_master(), test_master_continuo_e_auto(), _track()
+Nodes (3): bind(), getValue(), setValue()
 
 ### Community 105 - "eq.py"
 Cohesion: 0.24
 Nodes (8): _ap1(), _ap2(), component(), dyn_gain_db(), level_db(), process(), response_db(), _sos_cut()
 
-### Community 107 - ".parseObject"
-Cohesion: 0.12
-Nodes (4): jd, lp, op, qd
+### Community 107 - "jd"
+Cohesion: 0.07
+Nodes (7): ip, jd, lp, op, qd, rp, tc
 
 ### Community 109 - ".setHSL"
 Cohesion: 0.33
 Nodes (3): Jr(), qn(), Yn()
 
-### Community 110 - "mu"
-Cohesion: 0.18
-Nodes (4): da(), r(), mu, n
-
 ### Community 113 - "es"
-Cohesion: 0.22
-Nodes (3): es, Mm, Zu
+Cohesion: 0.15
+Nodes (4): es, Mm, zm, Zu
 
-### Community 115 - ".constructor"
-Cohesion: 0.16
-Nodes (6): Ft(), Jt(), kt(), Qt(), Yt(), zt()
+### Community 117 - "numpy"
+Cohesion: 0.13
+Nodes (19): test_asciuga_riduce_la_coda(), test_riverbero_a_blocchi_uguale_al_continuo(), _bp(), test_auto_taratura(), test_banda_dinamica_agisce_solo_sopra_soglia(), test_curva_uguale_al_filtro(), test_look_master(), test_master_continuo_e_auto() (+11 more)
 
-### Community 117 - "analysis.py"
-Cohesion: 0.07
-Nodes (21): Stato: F0 (fondamenta), analyze(), _coarse(), db(), k_weighting(), Loudness, rt60_from_decays(), sync_pair() (+13 more)
-
-### Community 118 - "t"
-Cohesion: 0.27
-Nodes (6): t(), n(), c(), l(), o(), r()
+### Community 118 - "createField"
+Cohesion: 0.23
+Nodes (9): createField(), drAt(), drawMap(), weights(), drColor(), drLabel(), forward(), frontGeometry() (+1 more)
 
 ### Community 119 - "MIX3D"
-Cohesion: 0.25
-Nodes (8): App per Mac (.dmg), Da DaVinci Resolve, Ingressi: linea, mono, stereo, Installazione da sorgente (macOS), MIX3D, Pannello (`mix3d ui`), Plugin in Fairlight e aggiornamenti, Uso
+Cohesion: 0.20
+Nodes (10): App per Mac (.dmg), Da DaVinci Resolve, Ingressi: linea, mono, stereo, Installazione da sorgente (macOS), MIX3D, Pannello (`mix3d ui`), Plugin in Fairlight e aggiornamenti, Stato: F0 (fondamenta) (+2 more)
 
-### Community 122 - "geometry.py"
-Cohesion: 0.25
-Nodes (3): estimate_sources(), locate(), same_clock_distances()
+### Community 121 - "EMsgTags"
+Cohesion: 0.67
+Nodes (3): EMsgTags, kMsgLaunch, kMsgOpenBrowser
 
-### Community 123 - ".constructor"
-Cohesion: 0.22
-Nodes (5): Gl, Ka, A(), C(), R()
+### Community 123 - "EParams"
+Cohesion: 0.67
+Nodes (3): EParams, kListen, kNumParams
 
-### Community 126 - "README.md"
-Cohesion: 0.25
-Nodes (4): F0: verifiche su Resolve reale [V], Preset inclusi, Spazi 3D, Spazi privati (file)
+### Community 126 - ".do_GET"
+Cohesion: 0.12
+Nodes (6): eq_curve(), Handler, host_time(), wav_bytes(), critical_distance(), test_api_http()
 
 ### Community 129 - "Ph"
 Cohesion: 0.50
 Nodes (3): ih, lh(), Ph
 
-### Community 138 - "_FakeTimeline"
-Cohesion: 0.25
-Nodes (3): region(), _FakeTimeline, test_regione_da_marker_o_inout()
+### Community 130 - "t"
+Cohesion: 0.24
+Nodes (6): t(), n(), c(), l(), o(), r()
 
-### Community 143 - "hl"
+### Community 131 - ".constructor"
+Cohesion: 0.22
+Nodes (5): Gl, Ka, A(), C(), R()
+
+### Community 133 - "scene"
+Cohesion: 0.33
+Nodes (10): isLine(), mic(), micDir(), polarGainDb(), polarMatrix(), polarR(), renderIO(), renderSpaceInfo() (+2 more)
+
+### Community 138 - "xh"
+Cohesion: 0.27
+Nodes (3): bm, fm, xh
+
+### Community 143 - "geometry.py"
+Cohesion: 0.22
+Nodes (3): auto_positions(), locate(), same_clock_distances()
+
+### Community 150 - "OrbitControls.js"
 Cohesion: 0.29
-Nodes (6): hl(), j(), K(), q(), W(), Ma()
-
-### Community 150 - "il"
-Cohesion: 0.25
-Nodes (3): il, A(), ol()
+Nodes (6): _changeEvent, _endEvent, _plane, _ray, _startEvent, TILT_LIMIT
 
 ### Community 153 - "zl"
-Cohesion: 0.22
-Nodes (6): Fl, zl(), b(), E(), S(), T()
-
-### Community 156 - "rm"
-Cohesion: 0.32
-Nodes (3): am(), rm, sm()
-
-### Community 161 - "EMsgTags"
-Cohesion: 0.67
-Nodes (3): EMsgTags, kMsgLaunch, kMsgOpenBrowser
-
-### Community 164 - "EParams"
-Cohesion: 0.67
-Nodes (3): EParams, kListen, kNumParams
+Cohesion: 0.07
+Nodes (26): v(), Ea(), Fa(), li, Ma(), pi, p(), ra (+18 more)
 
 ## Knowledge Gaps
 - **15 isolated node(s):** `mix3d`, `kMsgLaunch`, `kMsgOpenBrowser`, `kListen`, `kNumParams` (+10 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1203 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **100 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1223 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **91 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Compatibilità` connect `metadata.py` to `devices.py`, `mu`?**
-  _High betweenness centrality (0.292) - this node is a cross-community bridge._
+- **Why does `da()` connect `mu` to `three.module.min.js`, `.constructor`, `.constructor`?**
+  _High betweenness centrality (0.332) - this node is a cross-community bridge._
 - **What connects `mix3d`, `kMsgLaunch`, `kMsgOpenBrowser` to the rest of the system?**
   _15 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `test_resolve_bridge.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.1323529411764706 - nodes in this community are weakly interconnected._
-- **Why does `da()` connect `mu` to `metadata.py`, `three.module.min.js`, `.constructor`, `.constructor`?**
-  _High betweenness centrality (0.292) - this node is a cross-community bridge._
+  _Cohesion score 0.051207729468599035 - nodes in this community are weakly interconnected._
+- **Why does `Compatibilità` connect `mu` to `devices.py`, `README.md`?**
+  _High betweenness centrality (0.332) - this node is a cross-community bridge._
 - **Should `media.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.10960960960960961 - nodes in this community are weakly interconnected._
-- **Why does `compat()` connect `devices.py` to `metadata.py`?**
-  _High betweenness centrality (0.233) - this node is a cross-community bridge._
-- **Should `server.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.0666049953746531 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1452991452991453 - nodes in this community are weakly interconnected._
+- **Why does `compat()` connect `devices.py` to `mu`?**
+  _High betweenness centrality (0.305) - this node is a cross-community bridge._
+- **Should `metadata.py` be split into smaller, more focused modules?**
+  _Cohesion score 0.11182795698924732 - nodes in this community are weakly interconnected._

@@ -83,26 +83,3 @@ def locate(mics: np.ndarray, tdoa: np.ndarray, area: tuple, y: float = 1.5, step
     i = np.unravel_index(np.argmin(err), err.shape)
     return [round(float(xs[i[1]]), 2), y, round(float(zs[i[0]]), 2)], round(float(err[i]), 2)
 
-
-def estimate_sources(tracks: list[dict], room: dict, stage_d: float, seconds: float = 30.0,
-                     fs: int = 48000) -> list[dict]:
-    """Stima la sorgente dominante per ogni gruppo di almeno 3 mic con lo stesso
-    clock (stesso registratore, stessa durata) in posizioni diverse."""
-    from . import media
-    from .sync import gcc_phat
-
-    groups: dict[tuple, list[dict]] = {}
-    for t in tracks:
-        groups.setdefault((t.get("registratore"), round(t["info"]["duration"], 1)), []).append(t)
-    out = []
-    for (rec, _), g in groups.items():
-        pos = np.array([t["pos"] for t in g], float)
-        if len(g) < 3 or len({tuple(p) for p in pos.round(1)}) < 3:
-            continue
-        sig = [media.read(t["wav"], t["channels"], 30.0, seconds, fs).mean(axis=1).astype(float) for t in g]
-        tdoa = np.array([gcc_phat(sig[0], s, fs, max_tau=0.1)[0] for s in sig])
-        area = (-room["w"] / 2, room["w"] / 2, -stage_d, 2.0)
-        p, err = locate(pos, tdoa, area)
-        out.append({"id": f"stima_{rec}", "nome": f"Sorgente stimata ({rec})", "pos": p,
-                    "stimata": True, "errore_m": err})
-    return out

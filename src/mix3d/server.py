@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, urlparse
 import numpy as np
 import soundfile as sf
 
-from . import ambiente, analysis, autotune, devices, eq, geometry, look, media, mixer, spazi
+from . import ambiente, analysis, autotune, devices, eq, fusion, geometry, localize, look, media, mixer, spazi
 
 WEB = Path(__file__).parent / "web"
 AUDIO_EXT = {".wav", ".bwf", ".mp4", ".mov", ".mxf", ".m4a", ".aac", ".mp3", ".flac", ".aif", ".aiff"}
@@ -130,6 +130,7 @@ def auto_place(p: dict):
             t["extra_dist_m"] = extra.get(t["id"], 0.0)
     for tid, pos in geometry.auto_positions(auto, p["sala"]).items():
         next(t for t in auto if t["id"] == tid)["pos"] = pos
+    fuse_scene(p)  # con le immagini dell'analisi le posizioni tipiche sono solo il punto di partenza
 
 
 # --- lavori in background ---------------------------------------------------
@@ -168,13 +169,9 @@ def job_analyze(job):
         p["riferimento"] = ref["id"]
     sync_chain(ref, [t for t in ts if ref and t is not ref], job)
     job["msg"] = "posizionamento e stima delle sorgenti"
-    auto_place(p)
-    try:
-        est = geometry.estimate_sources(ts, p["sala"], p.get("palco", {}).get("d", 4))
-    except Exception:  # stima facoltativa: se i file non bastano si va avanti senza
-        est = []
-    p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
     p["spazio_stimato"] = estimate_space(ts)
+    p["immagini"] = sound_images(p, ref)
+    auto_place(p)
     job["progress"] = 1.0
     return {"tracce": len(ts)}
 
@@ -225,6 +222,45 @@ def sync_chain(ref: dict, others: list[dict], job: dict) -> None:
             anchors += [t for t in ex.map(sync, pairs) if not t["sync"].get("errore")]
     for t in pending:
         t["sync"] = {"errore": "nessuna parte in comune con le tracce allineate: resta la posizione di Resolve", "fiducia": 0}
+
+
+def fuse_scene(p: dict):
+    """Allinea le immagini dei mic in un'unica scena: posizioni dei mic in automatico e sorgenti
+    stimate. I mic posizionati a mano restano fermi e fanno da ancora. Veloce: niente audio."""
+    imgs, sc = p.get("immagini") or {}, None
+    if imgs.get("tracce"):
+        mics = {t["id"]: t for t in p["tracks"] if t["id"] in imgs["tracce"] or t["id"] == imgs["riferimento"]}
+        mics = {i: t for i, t in mics.items() if not mixer.is_line(t)}
+        try:
+            sc = fusion.fuse(imgs, {i: t["pos"] for i, t in mics.items()},
+                             {i for i, t in mics.items() if t["pos_mode"] != "auto"}, p.get("palco", {"w": 12, "d": 4}))
+        except Exception as e:  # dati insufficienti: resta il posizionamento tipico
+            sc = {"errore": str(e)[:160]}
+    p["scena"] = sc
+    est = []
+    if sc and "mic" in sc:
+        for i, m in sc["mic"].items():
+            t = next(t for t in p["tracks"] if t["id"] == i)
+            if t["pos_mode"] == "auto":
+                t["pos"] = m["pos"]
+        est = [{"id": f"stima_{s['k']}", "nome": f"Sorgente {s['k'] + 1}", "pos": s["pos"], "stimata": True,
+                "errore_m": s["incertezza_m"]} for s in sc["sorgenti"]]
+    p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
+
+
+def sound_images(p: dict, ref: dict | None) -> dict | None:
+    """Cosa sente ogni mic (sorgenti, ritardi, direzione, distanza) rispetto alla linea del mixer,
+    o al riferimento se non c'è linea. Facoltativo: se le tracce non bastano si va avanti senza."""
+    ts = p["tracks"]  # anche le tracce mute: la linea del mixer spesso è muta nel mix ma è il miglior riferimento
+    line = next((t for t in ts if mixer.is_line(t)), None)
+    ref = line or ref
+    if not ref or len(ts) < 2:
+        return None
+    rt60 = (p.get("spazio_stimato") or {}).get("rt60") or 1.5
+    try:
+        return localize.images(ts, ref, p["sala"], rt60, devices.load()["microfoni"], line=bool(line))
+    except Exception as e:
+        return {"errore": str(e)[:160]}
 
 
 def estimate_space(ts: list[dict]) -> dict | None:
@@ -483,7 +519,8 @@ class Handler(SimpleHTTPRequestHandler):
                         if "profile" in patch and patch["profile"] != t["profile"]:
                             apply_profile(t, patch["profile"])
                         t.update({k: v for k, v in patch.items() if k != "profile"})
-                    if "sala" in b or any(x.get("pos_mode") == "auto" for x in b.get("tracks", [])):
+                    # un mic spostato a mano diventa un'ancora: la scena si riallinea attorno
+                    if "sala" in b or "palco" in b or any("pos" in x or x.get("pos_mode") == "auto" for x in b.get("tracks", [])):
                         auto_place(p)
                 elif u.path == "/api/spazio":
                     sp = spazi.get(b["id"])
@@ -494,6 +531,8 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.send_json(spazi.import_file(b["path"]))
                 elif u.path == "/api/remove":
                     p["tracks"] = [t for t in p["tracks"] if t["id"] != b["id"]]
+                elif u.path == "/api/fondi":  # ricalcola la scena dopo una correzione a mano
+                    auto_place(p)
                 elif u.path == "/api/analyze":
                     return self.send_json({"job": start_job("analisi", job_analyze)})
                 elif u.path == "/api/eq/auto":
