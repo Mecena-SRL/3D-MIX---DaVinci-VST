@@ -74,6 +74,18 @@ def cluster_sources(tau: np.ndarray, w: np.ndarray, tol: float = 0.3e-3, min_w: 
     return out
 
 
+BANDS = 125 * 2.0 ** np.arange(7)  # ottave 125 Hz .. 8 kHz
+
+
+def band_db(x: np.ndarray, frames: np.ndarray, n: int, fs: float = FS) -> list[float]:
+    """Energia per ottava (dBFS) della traccia mono `x` nei fotogrammi `frames` lunghi `n`."""
+    seg = x[: (frames.max() + 1) * n].reshape(-1, n)[frames]
+    p = (np.abs(np.fft.rfft(seg * np.hanning(n), axis=1)) ** 2).mean(0)
+    f = np.fft.rfftfreq(n, 1 / fs)
+    e = [p[(f >= c / np.sqrt(2)) & (f < c * np.sqrt(2))].sum() for c in BANDS]
+    return [round(float(10 * np.log10(v / (n * n) + 1e-20)), 1) for v in e]
+
+
 def stereo_direction(lr: np.ndarray, kind: str, fs: float = FS) -> tuple[float, float]:
     """Azimut (gradi, + = destra rispetto all'asse del mic) e fiducia 0..1 da un blocco [n, 2]."""
     l, r = lr[:, 0], lr[:, 1]
@@ -190,6 +202,7 @@ def images(tracks: list[dict], ref: dict, room: dict, rt60: float, mics: dict,
                 continue
             e = {"k": s["k"], "ritardo_ms": s["ritardi_ms"][t["id"]],
                  "livello_db": round(float(np.median(db[fr] - ref_db[fr])), 1),
+                 "bande_db": band_db(x.mean(1), fr[heard], n),
                  "fiducia": round(min(1.0, float(heard.mean() * np.median(w[fr, j]) * 3)), 2)}
             if kind:
                 blk = np.concatenate([x[f * n:(f + 1) * n] for f in fr[heard]])

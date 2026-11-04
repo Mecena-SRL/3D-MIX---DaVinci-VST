@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, urlparse
 import numpy as np
 import soundfile as sf
 
-from . import analysis, autotune, devices, eq, fusion, geometry, localize, look, media, mixer, spazi
+from . import analysis, autotune, devices, eq, fusion, geometry, localize, look, media, mixer, spazi, splat
 
 WEB = Path(__file__).parent / "web"
 AUDIO_EXT = {".wav", ".bwf", ".mp4", ".mov", ".mxf", ".m4a", ".aac", ".mp3", ".flac", ".aif", ".aiff"}
@@ -210,6 +210,25 @@ def fuse_scene(p: dict):
         est = [{"id": f"stima_{s['k']}", "nome": f"Sorgente {s['k'] + 1}", "pos": s["pos"], "stimata": True,
                 "errore_m": s["incertezza_m"]} for s in sc["sorgenti"]]
     p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
+    p["campo"] = sound_field(p)
+
+
+def sound_field(p: dict) -> dict | None:
+    """Gaussian splatting sonoro: sorgenti come gaussiane (raggio, energia per ottava) + diffuso della sala,
+    ottimizzate perché ogni mic senta quello che ha registrato. Parte dalla scena fusa."""
+    imgs, sc = p.get("immagini") or {}, p.get("scena") or {}
+    if not sc.get("sorgenti"):
+        return None
+    tracks = {t["id"]: t for t in p["tracks"]}
+    db = devices.load()["microfoni"]
+    mics = {i: {"pos": m["pos"], "a": splat.PATTERN.get(db.get(tracks[i].get("microfono") or "", {}).get("diagramma"), 1.0)}
+            for i, m in sc["mic"].items() if i in tracks}
+    obs = [(i, e["k"], e["bande_db"]) for i, g in imgs.get("tracce", {}).items() if i in mics
+           for e in g["sorgenti"] if e.get("bande_db")]
+    try:
+        return splat.fit(obs, mics, sc["sorgenti"], p.get("palco", {"w": 12, "d": 4}))
+    except Exception as e:
+        return {"errore": str(e)[:160]}
 
 
 def sound_images(p: dict, ref: dict | None) -> dict | None:
