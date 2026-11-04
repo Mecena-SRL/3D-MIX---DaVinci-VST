@@ -58,3 +58,13 @@ def test_firme_distinte():
     assert metadata.detect({"modello": "ILME-FX30"})["id"] == "fx30"
     assert metadata.detect({"modello": "ILME-FX3"})["id"] == "fx3"
     assert metadata.detect({"encoder": "Lavf"}) is None
+
+
+def test_panasonic():
+    d = metadata.detect
+    assert d({"model": "DC-S1H"})["id"] == "lumix_s1h" and d({"model": "DC-S1"})["id"] == "lumix_s1"
+    assert d({"model": "DC-GH5S"})["id"] == "lumix_gh5" and d({"model": "DC-GH5M2"})["id"] == "lumix_gh5ii"
+    c = devices.compat
+    assert c("lumix_s1h", "videomic_go")["via"].startswith("3.5 mm")
+    assert "DMW-XLR1" in c("lumix_s1h", "mkh416")["via"] and "DMW-XLR2" in c("lumix_gh7", "mkh416")["via"]
+    assert c("lumix_s9", "mkh416")["ok"] is False

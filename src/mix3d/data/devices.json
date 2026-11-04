@@ -15,7 +15,8 @@
       "sony_uwp": "radio Sony UWP-D UHF",
       "sennheiser_wireless": "radio Sennheiser (EW-D, Profile)",
       "zoom_capsula": "capsula Zoom intercambiabile",
-      "integrato": "microfono integrato nel registratore/camera"
+      "integrato": "microfono integrato nel registratore/camera",
+      "lumix_shoe": "slitta Panasonic Lumix con interfaccia audio digitale (DMW-XLR1/XLR2)"
     },
     "alimentazione": {
       "phantom": "phantom 48 V",
@@ -1134,6 +1135,19 @@
       "fiducia": {
         "curva": "ipotizzato"
       },
+      "fonti": []
+    },
+    "lumix_interno": {
+      "nome": "Panasonic Lumix mic interno",
+      "marca": "Panasonic",
+      "tipo": "integrato",
+      "capsula": "electret stereo",
+      "diagramma": "omni",
+      "banda": [100, 16000],
+      "note": "Stereo nel corpo: rumori di maneggio e stabilizzatore. Solo sync.",
+      "connettore": ["integrato"],
+      "alimentazione": [],
+      "fiducia": {},
       "fonti": []
     }
   },
@@ -2512,6 +2526,377 @@
       "rischi": [],
       "fiducia": {},
       "fonti": []
+    },
+    "lumix_s1h": {
+      "nome": "Panasonic Lumix S1H",
+      "metadati": ["DC-S1H"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "in/out (via cavo flash sync/BNC)",
+      "rischi": ["agc"],
+      "fiducia": {
+        "formato": "datasheet",
+        "ingressi": "datasheet",
+        "timecode": "datasheet"
+      },
+      "fonti": ["https://www.imaging-resource.com/PRODS/panasonic-s1h/panasonic-s1hDAT.HTM", "https://www.castlecameras.co.uk/panasonic-dmw-xlr1-microphone-adaptor-for-dc-gh5-s1/p7666"],
+      "note": "24 bit LPCM e 96 kHz solo con DMW-XLR1; senza adattatore LPCM 16 bit 48 kHz (MOV) o AAC (MP4)."
+    },
+    "lumix_s1": {
+      "nome": "Panasonic Lumix S1",
+      "metadati": [
+        "DC-S1(?![HR0-9M])"
+      ],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "in/out",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "lumix_s1r": {
+      "nome": "Panasonic Lumix S1R",
+      "metadati": ["DC-S1R(?!M)"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "lumix_s1ii": {
+      "nome": "Panasonic Lumix S1II / S1RII / S1IIE",
+      "metadati": ["DC-S1M2", "DC-S1RM2"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24, 32],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "pcm_f32le", "pcm_f32be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "in/out",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html", "https://panasonic.com/uk/consumer/cameras-camcorders/camera-accessories/others/dmw-xlr2.html"],
+      "note": "32 bit float e 4 canali con DMW-XLR2."
+    },
+    "lumix_s5": {
+      "nome": "Panasonic Lumix S5",
+      "metadati": [
+        "DC-S5(?![0-9M])"
+      ],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": []
+    },
+    "lumix_s5ii": {
+      "nome": "Panasonic Lumix S5II / S5IIX",
+      "metadati": ["DC-S5M2"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"],
+      "note": "Con DMW-XLR2: 4 canali, ma niente 32 bit float (da verificare)."
+    },
+    "lumix_s9": {
+      "nome": "Panasonic Lumix S9",
+      "metadati": ["DC-S9"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"],
+      "note": "Nessuna slitta audio: solo jack 3.5 mm."
+    },
+    "lumix_gh5": {
+      "nome": "Panasonic Lumix GH5 / GH5S",
+      "metadati": ["DC-GH5(?!M2)", "DC-GH5S"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "GH5S: in/out",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": ["https://www.castlecameras.co.uk/panasonic-dmw-xlr1-microphone-adaptor-for-dc-gh5-s1/p7666"]
+    },
+    "lumix_gh5ii": {
+      "nome": "Panasonic Lumix GH5 II",
+      "metadati": ["DC-GH5M2"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"],
+      "note": "Compatibile DMW-XLR1, non XLR2."
+    },
+    "lumix_gh6": {
+      "nome": "Panasonic Lumix GH6",
+      "metadati": ["DC-GH6"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24, 32],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "pcm_f32le", "pcm_f32be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "in/out",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"]
+    },
+    "lumix_gh7": {
+      "nome": "Panasonic Lumix GH7",
+      "metadati": ["DC-GH7"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24, 32],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "pcm_f32le", "pcm_f32be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "in/out",
+      "rischi": ["agc"],
+      "fiducia": {
+        "bit": "datasheet"
+      },
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html", "https://panasonic.com/uk/consumer/cameras-camcorders/camera-accessories/others/dmw-xlr2.html"],
+      "note": "32 bit float interno e 4 canali con DMW-XLR2."
+    },
+    "lumix_g9ii": {
+      "nome": "Panasonic Lumix G9II",
+      "metadati": ["DC-G9M2"],
+      "marca": "Panasonic",
+      "tipo": "mirrorless",
+      "formato": "MOV LPCM 48/96 kHz (24 bit con adattatore XLR), MP4 AAC",
+      "canali": 4,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        },
+        {
+          "tipo": "lumix_shoe",
+          "n": 1,
+          "nome": "slitta Lumix (audio digitale)"
+        }
+      ],
+      "mic_interno": ["lumix_interno", "camera_interno"],
+      "bit": [16, 24, 32],
+      "sr": [48000, 96000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "pcm_f32le", "pcm_f32be", "aac"],
+      "clock_ppm": 10,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "fiducia": {},
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"]
     }
   },
   "rischi": {
@@ -2829,6 +3214,54 @@
       "file": ["^REC\\d+", "rode"]
     },
     {
+      "id": "s1h_videomic_go",
+      "nome": "Lumix S1H + VideoMic GO (3.5 mm)",
+      "registratore": "lumix_s1h",
+      "microfono": "videomic_go",
+      "ruolo": "spot",
+      "posizione": "laterale",
+      "canali": [1, 2],
+      "file": [
+        "^P\\d{7}\\.(MOV|MP4)$"
+      ]
+    },
+    {
+      "id": "s1h_xlr1_416",
+      "nome": "Lumix S1H + DMW-XLR1 + MKH 416",
+      "registratore": "lumix_s1h",
+      "microfono": "mkh416",
+      "ruolo": "base",
+      "posizione": "sotto palco centro",
+      "canali": [1, 2],
+      "file": [
+        "^P\\d{7}\\.(MOV|MP4)$"
+      ]
+    },
+    {
+      "id": "s1h_dji_mic2",
+      "nome": "DJI Mic 2 via ricevitore nella Lumix S1H",
+      "registratore": "lumix_s1h",
+      "microfono": "dji_mic2_tx",
+      "ruolo": "spot",
+      "posizione": "su strumento",
+      "canali": [1, 2],
+      "file": [
+        "^P\\d{7}\\.(MOV|MP4)$"
+      ]
+    },
+    {
+      "id": "lumix_interno",
+      "nome": "Lumix mic interno",
+      "registratore": "lumix_s1h",
+      "microfono": "lumix_interno",
+      "ruolo": "sync",
+      "posizione": "laterale",
+      "canali": [1, 2],
+      "file": [
+        "^P\\d{7}\\.(MOV|MP4)$"
+      ]
+    },
+    {
       "id": "generico",
       "nome": "Altro / sconosciuto",
       "registratore": "mixer",
@@ -2946,6 +3379,33 @@
       "nome": "ricevitore Sennheiser Profile (USB-C)",
       "da": "sennheiser_wireless",
       "a": "usb_c"
+    },
+    {
+      "nome": "Panasonic DMW-XLR1",
+      "da": "xlr3",
+      "a": "lumix_shoe",
+      "phantom": true,
+      "solo": ["lumix_s1h", "lumix_s1", "lumix_s1r", "lumix_s5", "lumix_gh5", "lumix_gh5ii", "lumix_gh6", "lumix_s5ii", "lumix_g9ii"],
+      "note": "2 XLR, 24 bit 48/96 kHz digitali sulla slitta; gain ±20 dB, low-cut 160 Hz.",
+      "fonti": ["https://www.castlecameras.co.uk/panasonic-dmw-xlr1-microphone-adaptor-for-dc-gh5-s1/p7666"]
+    },
+    {
+      "nome": "Panasonic DMW-XLR2",
+      "da": "xlr3",
+      "a": "lumix_shoe",
+      "phantom": true,
+      "solo": ["lumix_gh7", "lumix_gh6", "lumix_s1ii", "lumix_g9ii", "lumix_s5ii"],
+      "note": "2 XLR 48 V, 32 bit float (GH7, GH6, S1II, G9II), fino a 4 canali a 48 kHz.",
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"]
+    },
+    {
+      "nome": "Panasonic DMW-XLR2 (ingresso 3.5 mm)",
+      "da": "mini_jack",
+      "a": "lumix_shoe",
+      "plug_in_power": true,
+      "solo": ["lumix_gh7", "lumix_gh6", "lumix_s1ii", "lumix_g9ii", "lumix_s5ii"],
+      "note": "Plug-in power 2.5 V.",
+      "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"]
     }
   ]
 }
