@@ -9,6 +9,7 @@ import io
 import json
 import os
 import threading
+import time
 import uuid
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -31,7 +32,9 @@ def new_project() -> dict:
             "sorgenti": [], "lobi": True, "tracks": []}
 
 
-STATE = {"project": new_project(), "jobs": {}}
+STATE = {"project": new_project(), "jobs": {}, "rev": 0, "poll": 0.0}
+# timeline mandata dallo script MIX3D dentro Resolve (Workspace > Scripts > MIX3D)
+SESSION = Path.home() / ".mix3d" / "resolve" / "sessione.json"
 LOCK = threading.Lock()
 
 
@@ -186,11 +189,14 @@ def job_print(job, opts):
     return res
 
 
-def import_resolve() -> int:
-    from .resolve_bridge import connect, read_audio_clips
-
-    info = read_audio_clips(connect())
+def import_resolve(info: dict | None = None) -> int:
+    """Clip della timeline: da `info` (script dentro Resolve) o via API esterna (Studio).
+    Le tracce lette prima da Resolve vengono sostituite, non duplicate."""
+    if info is None:
+        from .resolve_bridge import connect, read_audio_clips
+        info = read_audio_clips(connect())
     p = STATE["project"]
+    p["tracks"] = [t for t in p["tracks"] if not t.get("da_resolve")]
     fps = float(info["fps"])
     p["resolve"] = {"start_frame": info["start_frame"], "fps": fps, "timeline": info["timeline"]}
     added, seen = 0, set()
@@ -278,6 +284,9 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json(resolve_install.status())
             if u.path == "/api/browse":
                 return self.send_json(browse(q.get("dir", ""), q.get("ext")))
+            if u.path == "/api/rev":  # il pannello aperto controlla se Resolve ha mandato una timeline
+                STATE["poll"] = time.time()
+                return self.send_json({"rev": STATE["rev"]})
             if u.path == "/api/update":
                 from . import updater
                 return self.send_json(updater.check(q.get("force") == "1"))
@@ -316,6 +325,12 @@ class Handler(SimpleHTTPRequestHandler):
                 elif u.path == "/api/resolve/import":
                     import_resolve()
                     auto_place(p)
+                elif u.path == "/api/resolve/push":
+                    aperto = time.time() - STATE["poll"] < 6  # un pannello sta controllando /api/rev
+                    n = import_resolve(json.loads(SESSION.read_text()))
+                    auto_place(p)
+                    STATE["rev"] += 1
+                    return self.send_json({"clip": n, "pannello": aperto})
                 elif u.path == "/api/state":
                     for k, v in b.items():
                         if k != "tracks":
@@ -377,6 +392,17 @@ def serve(port: int = 8730, open_browser: bool = True):
             webbrowser.open(f"http://127.0.0.1:{port}")
         return
     url = f"http://127.0.0.1:{port}"
+    try:
+        from . import resolve_install
+        resolve_install.refresh_script()
+    except OSError:
+        pass
+    if SESSION.exists() and time.time() - SESSION.stat().st_mtime < 120:  # avviata dallo script in Resolve
+        try:
+            import_resolve(json.loads(SESSION.read_text()))
+            auto_place(STATE["project"])
+        except Exception as e:
+            print(f"timeline di Resolve non importata: {e}")
     print(f"MIX3D pannello: {url}  (Ctrl+C per uscire)")
     if open_browser:
         import webbrowser

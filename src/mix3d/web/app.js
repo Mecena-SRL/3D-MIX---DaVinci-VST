@@ -848,4 +848,14 @@ await refresh();
 let saved = 0; try { saved = +(localStorage.getItem("mix3d.step") || 0); } catch {}
 go(S.tracks.length ? saved : 0);
 
+// timeline mandata da Resolve (Workspace > Scripts > MIX3D): il pannello aperto si aggiorna da solo
+let rev = (await api("/api/rev")).rev;
+setInterval(async () => {
+  const r = await api("/api/rev").catch(() => null);
+  if (!r || r.rev === rev) return;
+  rev = r.rev; await refresh(); toast("Timeline ricevuta da Resolve"); go(1);
+}, 2000);
+// aperto dal pannello o dal plugin dentro Resolve: prova a leggere la timeline (serve Resolve Studio)
+if (location.hash === "#resolve" && !S.tracks.length) $("bResolve").click();
+
 addEventListener("mix3d:eq", () => player.flush()); // l'EQ (eq.js) è cambiato: rifai l'ascolto

@@ -33,7 +33,7 @@ async function start() {
   show("retry", false); show("ext", false); show("bar", true);
   if (!(await alive())) { document.getElementById("msg").textContent = "Avvio dell'app MIX3D…"; SAMFUI(0); }
   for (let i = 0; i < 60; i++) {           // fino a ~30 s: il primo avvio dell'app è lento
-    if (await alive()) { location.href = URL; return; }
+    if (await alive()) { location.href = URL + "#resolve"; return; }
     await new Promise((r) => setTimeout(r, 500));
   }
   document.getElementById("msg").textContent = "MIX3D non risponde. È installata in Applicazioni?";

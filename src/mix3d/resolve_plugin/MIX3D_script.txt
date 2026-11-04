@@ -1,4 +1,0 @@
-# MIX3D: Workspace > Scripts > MIX3D in DaVinci Resolve. Apre l'app MIX3D.
-import subprocess
-
-subprocess.Popen(["open", "-a", "MIX3D"])

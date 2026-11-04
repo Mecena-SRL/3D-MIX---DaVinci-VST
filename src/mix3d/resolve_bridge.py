@@ -21,22 +21,50 @@ _DEFAULT_PATHS = {
 }
 
 
-def connect():
-    """Ritorna l'oggetto `resolve`, o solleva RuntimeError con il motivo."""
-    plat = "linux" if sys.platform.startswith("linux") else sys.platform
-    modules, lib = _DEFAULT_PATHS.get(plat, ("", ""))
-    os.environ.setdefault("RESOLVE_SCRIPT_API", os.path.dirname(modules))
-    os.environ.setdefault("RESOLVE_SCRIPT_LIB", lib)
-    modules = os.path.join(os.environ["RESOLVE_SCRIPT_API"], "Modules")
+def _fusionscript(lib: str, modules: str):
+    """Carica fusionscript direttamente dalla libreria di Resolve.
+
+    DaVinciResolveScript.py usa il modulo `imp` (assente nell'app impacchettata e da
+    Python 3.12): qui si carica l'estensione con importlib e si usa quello solo come riserva.
+    """
+    from importlib.machinery import ExtensionFileLoader
+    from importlib.util import module_from_spec, spec_from_loader
+
+    for path in (lib, *_EXTRA_LIBS.get(_plat(), ())):
+        if path and os.path.isfile(path):
+            loader = ExtensionFileLoader("fusionscript", path)
+            mod = module_from_spec(spec_from_loader("fusionscript", loader))
+            loader.exec_module(mod)
+            return mod
     if modules not in sys.path:
         sys.path.append(modules)
     try:
-        dvr = importlib.import_module("DaVinciResolveScript")
+        return importlib.import_module("DaVinciResolveScript")
     except ImportError as e:
-        raise RuntimeError(f"modulo DaVinciResolveScript non trovato in {modules}") from e
-    resolve = dvr.scriptapp("Resolve")
+        raise RuntimeError(f"libreria di scripting di Resolve non trovata ({lib})") from e
+
+
+_EXTRA_LIBS = {"darwin": ("/Applications/DaVinci Resolve Studio/DaVinci Resolve.app/Contents/Libraries/Fusion/fusionscript.so",)}
+_plat = lambda: "linux" if sys.platform.startswith("linux") else sys.platform  # noqa: E731
+
+HINT = ("In Resolve usa Workspace > Scripts > MIX3D: manda la timeline a MIX3D e funziona sempre, "
+        "anche con Resolve gratuito. Per leggerla da qui serve Resolve Studio con "
+        "Preferenze > Sistema > Generale > Scripting esterno: Locale.")
+
+
+def connect():
+    """Ritorna l'oggetto `resolve`, o solleva RuntimeError con il motivo."""
+    modules, lib = _DEFAULT_PATHS.get(_plat(), ("", ""))
+    os.environ.setdefault("RESOLVE_SCRIPT_API", os.path.dirname(modules))
+    os.environ.setdefault("RESOLVE_SCRIPT_LIB", lib)
+    modules = os.path.join(os.environ["RESOLVE_SCRIPT_API"], "Modules")
+    try:
+        mod = _fusionscript(os.environ["RESOLVE_SCRIPT_LIB"], modules)
+        resolve = mod.scriptapp("Resolve")
+    except Exception as e:
+        raise RuntimeError(f"Resolve non raggiungibile ({e}). {HINT}") from e
     if resolve is None:
-        raise RuntimeError("Resolve non risponde: è aperto? È Studio? Scripting esterno su 'Local'?")
+        raise RuntimeError(f"Resolve non risponde. {HINT}")
     return resolve
 
 
