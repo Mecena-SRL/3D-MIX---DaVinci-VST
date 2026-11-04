@@ -62,7 +62,7 @@ function health(t) {
 const STEPS = [
   { t: "Sorgenti", h: "Porta dentro le registrazioni: dalla timeline di Resolve o da file.", done: () => S.tracks.length > 0 },
   { t: "Dispositivi", h: "Per ogni traccia scegli registratore e microfono. MIX3D suggerisce, tu confermi.", done: () => S.tracks.length > 0 && S.tracks.every((t) => t.confermato) },
-  { t: "Spazio", h: "Scegli il tipo di sala. Dimensioni, riverbero e consigli si aggiornano; i dispositivi si piazzano da soli.", done: () => !!S.spazio },
+  { t: "Spazio", h: "Il preset rappresenta la sala nella scena. Dopo l'analisi MIX3D stima il riverbero reale dalle registrazioni e suggerisce lo spazio più simile.", done: () => !!S.spazio },
   { t: "Analisi", h: "Livelli, rumore, spettro, loudness, sync al campione e stima della posizione delle sorgenti.", done: () => S.tracks.length > 0 && S.tracks.every((t) => t.analisi) },
   { t: "Ascolto e mix", h: "Premi ▶ per ascoltare il mix. Seleziona una traccia per posizionarla; M = muto, S = solo.", done: () => S.tracks.some((t) => t.analisi) },
   { t: "Stampa", h: "Render del mix su file o direttamente in una traccia di Resolve.", done: () => printed },
@@ -121,29 +121,44 @@ function syncBadge(t) {
   const c = sy.fiducia > 0.6 ? "ok" : sy.fiducia > 0.3 ? "warn" : "bad";
   return `<span class="badge ${c}" title="residuo ${sy.residuo_us} µs, fiducia ${sy.fiducia}">${t.offset_s.toFixed(3)} s</span>`;
 }
+// canali: le clip della stessa traccia di Resolve (A1, A2…) stanno in una sola carta; i file aggiunti a mano, una carta ciascuno
+const lane = (t) => t.canale || t.id;
+const members = (t) => S.tracks.filter((x) => lane(x) === lane(t));
+function lanes() {
+  const m = new Map();
+  for (const t of S.tracks) { if (!m.has(lane(t))) m.set(lane(t), []); m.get(lane(t)).push(t); }
+  return [...m.values()];
+}
+const laneName = (g) => g[0].canale || g[0].nome;
+function pushGroup(g, fields) {
+  g.forEach((t) => Object.assign(t, fields));
+  push({ tracks: g.map((t) => ({ id: t.id, ...fields })) }); renderMonitor();
+}
 function renderTracks() {
-  const box = $("tracks");
+  const box = $("tracks"), ls = lanes();
   box.innerHTML = "";
   $("emptyTracks").hidden = S.tracks.length > 0;
-  $("trkCount").textContent = S.tracks.length ? `${S.tracks.length}` : "";
-  for (const t of S.tracks) {
-    const el = document.createElement("div");
-    el.className = "trk" + (t.id === sel ? " sel" : "");
+  $("trkCount").textContent = ls.length ? `${ls.length}` : "";
+  for (const g of ls) {
+    const t = g[0], one = g.length === 1, el = document.createElement("div");
+    el.className = "trk" + (g.some((x) => x.id === sel) ? " sel" : "");
     el.style.setProperty("--c", color(t));
+    el.dataset.ids = g.map((x) => x.id).join(" ");
     el.innerHTML = `
-      <div class="top-row"><span class="dot ${t.confermato ? health(t) : "warn"}"></span><span class="name" title="${t.file}">${t.nome}</span>${syncBadge(t)}
-        <button class="ms m ${t.mute ? "on" : ""}" title="Muto">M</button><button class="ms s ${t.solo ? "on" : ""}" title="Solo">S</button></div>
-      <div class="sub">${mic(t).nome} › ${rec(t).nome}${t.confermato ? "" : " · da confermare"}</div>
+      <div class="top-row"><span class="dot ${g.every((x) => x.confermato) ? health(t) : "warn"}"></span><span class="name" title="${g.map((x) => x.file).join("\n")}">${laneName(g)}</span>${one ? syncBadge(t) : `<span class="badge">${g.length} clip</span>`}
+        <button class="ms m" title="Muto">M</button><button class="ms s" title="Solo">S</button></div>
+      <div class="sub">${t.canale ? `${one ? t.nome.replace(/^[AV]\d+ /, "") + " · " : ""}` : ""}${mic(t).nome} › ${rec(t).nome}${g.every((x) => x.confermato) ? "" : " · da confermare"}</div>
       <canvas></canvas>
-      <div class="meter"><i data-meter="${t.id}"></i></div>
-      <div class="ctl"><span class="st small"></span><span class="muted small">Gain</span><input type="range" min="-30" max="12" step="0.5" value="${t.gain_db}"><span class="small gv">${t.gain_db.toFixed(1)} dB</span></div>`;
-    el.dataset.id = t.id;
-    el.querySelector(".m").onclick = (e) => { e.stopPropagation(); pushTrack(t, { mute: !track(t.id).mute }); };
-    el.querySelector(".s").onclick = (e) => { e.stopPropagation(); pushTrack(t, { solo: !track(t.id).solo }); };
-    const g = el.querySelector("input[type=range]");
-    g.onclick = (e) => e.stopPropagation();
-    g.oninput = () => { el.querySelector(".gv").textContent = `${(+g.value).toFixed(1)} dB`; pushTrack(t, { gain_db: +g.value }); };
-    el.onclick = () => select(t.id);
+      <div class="meter"><i data-gmeter="${el.dataset.ids}"></i></div>
+      <div class="ctl"><span class="st small"></span><span class="muted small">Gain</span><input type="range" min="-30" max="12" step="0.5" value="${t.gain_db}"><span class="small gv">${t.gain_db.toFixed(1)} dB</span></div>
+      ${one ? "" : `<div class="clips">${g.map((x) => `<button class="clip ${x.id === sel ? "on" : ""}" data-id="${x.id}" title="${x.file}">${x.nome.replace(/^[AV]\d+ /, "")} <span class="muted">${fmt(x.offset_s)}</span></button>`).join("")}</div>`}`;
+    el.querySelector(".m").onclick = (e) => { e.stopPropagation(); pushGroup(g, { mute: !g.every((x) => track(x.id).mute) }); };
+    el.querySelector(".s").onclick = (e) => { e.stopPropagation(); pushGroup(g, { solo: !g.some((x) => track(x.id).solo) }); };
+    const gs = el.querySelector("input[type=range]");
+    gs.onclick = (e) => e.stopPropagation();
+    gs.oninput = () => { el.querySelector(".gv").textContent = `${(+gs.value).toFixed(1)} dB`; pushGroup(g, { gain_db: +gs.value }); };
+    el.querySelectorAll(".clip").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); select(b.dataset.id); }));
+    el.onclick = () => select(g.some((x) => x.id === sel) ? sel : t.id);
     box.appendChild(el);
     drawMiniWave(el.querySelector("canvas"), t);
   }
@@ -153,6 +168,13 @@ function renderTracks() {
 // monitor: stato di ogni traccia (carte, livelli del mix) e riepilogo nella barra di trasporto
 function renderMonitor() {
   if (!S) return;
+  document.querySelectorAll(".trk[data-ids]").forEach((el) => {
+    const g = el.dataset.ids.split(" ").map(track).filter(Boolean), on = g.some(audible), allMute = g.every((t) => t.mute);
+    el.classList.toggle("off", !on);
+    el.querySelector(".m").classList.toggle("on", allMute);
+    el.querySelector(".s").classList.toggle("on", g.some((t) => t.solo));
+    el.querySelector(".st").textContent = on ? "in ascolto" : allMute ? "muta" : "esclusa dal solo";
+  });
   for (const t of S.tracks) {
     const on = audible(t);
     document.querySelectorAll(`[data-id="${t.id}"]`).forEach((el) => {
@@ -162,10 +184,10 @@ function renderMonitor() {
       const st = el.querySelector(".st"); if (st) st.textContent = status(t);
     });
   }
-  const on = S.tracks.filter(audible), n = S.tracks.length;
+  const ls = lanes(), on = ls.filter((g) => g.some(audible)), n = ls.length;
   $("monitor").innerHTML = !n ? "Nessuna traccia" :
-    `${soloOn() ? "<b class='solo'>SOLO</b> " : ""}In ascolto <b>${on.length}/${n}</b>: ${on.map((t) => t.nome).join(", ") || "nessuna"}`;
-  $("bAll").hidden = on.length === n;
+    `${soloOn() ? "<b class='solo'>SOLO</b> " : ""}In ascolto <b>${on.length}/${n}</b>: ${on.map(laneName).join(", ") || "nessuna"}`;
+  $("bAll").hidden = S.tracks.every(audible);
 }
 function drawMiniWave(cv, t) {
   const ctx = fit(cv), W = cv.width, H = cv.height, ov = t.analisi?.overview;
@@ -180,7 +202,8 @@ function drawMiniWave(cv, t) {
 }
 function select(id) {
   sel = id;
-  document.querySelectorAll(".trk").forEach((e) => e.classList.toggle("sel", e.dataset.id === id));
+  document.querySelectorAll(".trk").forEach((e) => e.classList.toggle("sel", e.dataset.ids.split(" ").includes(id)));
+  document.querySelectorAll(".clip").forEach((e) => e.classList.toggle("on", e.dataset.id === id));
   scene.highlight(); renderStep();
 }
 
@@ -325,6 +348,11 @@ function renderSpaces() {
     <span class="tag ${s.privato ? "priv" : ""}">${s.privato ? "privato" : s.tipo}</span><b>${s.nome}</b>
     <span>${s.sala.w}×${s.sala.d}×${s.sala.h} m${s.posti ? ` · ${s.posti} posti` : ""}${s.rt60?.["500"] ? ` · RT60 ${s.rt60["500"]} s` : ""}</span></button>`).join("");
   $("spaces").querySelectorAll(".space").forEach((b) => (b.onclick = () => setSpace(b.dataset.id)));
+  const g = S.spazio_stimato;
+  $("spaceGuess").innerHTML = !g ? `<p class="hint">Lancia l'analisi (passo 4): MIX3D stimerà il riverbero della sala dalle registrazioni.</p>` :
+    `<div class="guess"><b>Dall'analisi:</b> RT60 ≈ ${g.rt60} s (${g.tracce} tracce) · più simile a <b>${g.nome}</b>
+      ${g.simile === S.spazio ? `<span class="badge ok">in uso</span>` : `<button id="bGuess" class="primary small">Usa questo</button>`}</div>`;
+  $("bGuess")?.addEventListener("click", () => setSpace(g.simile));
   renderSpaceInfo();
 }
 const setSpace = safe(async (id) => { S = await api("/api/spazio", { id }); player.flush(); await refresh(); scene.home(); toast(`Spazio: ${space().nome}`); });
@@ -424,7 +452,7 @@ function renderPlace() {
   box.hidden = !t;
   if (!t) return;
   const { w, d, h } = S.sala, pd = S.palco?.d || 4;
-  $("plName").textContent = t.nome; $("plName").style.color = color(t);
+  $("plName").textContent = t.canale ? `${t.canale}${members(t).length > 1 ? ` (${members(t).length} clip)` : ""}` : t.nome; $("plName").style.color = color(t);
   $("px").min = -w / 2; $("px").max = w / 2; $("pz").min = -pd; $("pz").max = d; $("py").max = h;
   PLACE.forEach(([id, i]) => ($(id).value = t.pos[i]));
   $("ppan").value = t.pan || 0;
@@ -436,11 +464,15 @@ function renderPlace() {
 }
 PLACE.forEach(([id, i]) => ($(id).oninput = () => {
   const t = selected(), pos = [...t.pos]; pos[i] = +$(id).value;
-  pushTrack(t, { pos, pos_mode: "manuale" }); renderPlace(); scene.sync();
+  pushGroup(members(t), { pos, pos_mode: "manuale" }); renderPlace(); scene.sync();
 }));
-$("ppan").oninput = () => { pushTrack(selected(), { pan: +$("ppan").value }); renderPlace(); };
-$("plAuto").onclick = () => { pushTrack(selected(), { pos_mode: "auto", orient: null, pan: 0 }); setTimeout(refresh, 400); };
-$("plSolo").onclick = () => { const id = sel; push({ tracks: S.tracks.map((t) => ({ id: t.id, solo: t.id === id && !track(id).solo })) }); S.tracks.forEach((t) => (t.solo = t.id === id && !t.solo)); renderMonitor(); };
+$("ppan").oninput = () => { pushGroup(members(selected()), { pan: +$("ppan").value }); renderPlace(); };
+$("plAuto").onclick = () => { pushGroup(members(selected()), { pos_mode: "auto", orient: null, pan: 0 }); setTimeout(refresh, 400); };
+$("plSolo").onclick = () => { // solo esclusivo del canale selezionato (di nuovo: lo toglie)
+  const l = lane(selected()), on = !S.tracks.every((t) => (lane(t) === l) === !!t.solo);
+  for (const t of S.tracks) t.solo = on && lane(t) === l;
+  push({ tracks: S.tracks.map((t) => ({ id: t.id, solo: t.solo })) }); renderMonitor();
+};
 
 // --- scena 3D -------------------------------------------------------------------------
 const scene = (() => {
@@ -705,7 +737,7 @@ const scene = (() => {
 
 // --- ascolto in tempo reale: blocchi renderizzati dal server, buffer in anticipo ------------
 const player = (() => {
-  const CHUNK = 1.0, AHEAD = 3;
+  const CHUNK = 1.0, AHEAD = 3, warned = new Set();
   let ctx = null, an = null, playing = false, pos = 0, nextT = 0, nextWhen = 0, queue = [], bypass = false, timer = null, inflight = false, gen = 0;
   function init() {
     ctx = new AudioContext({ sampleRate: S.sr });
@@ -725,6 +757,7 @@ const player = (() => {
       inflight = false;
       if (!r.ok) { toast((await r.json()).errore, true); stop(); return; }
       const lv = JSON.parse(r.headers.get("X-Levels") || "{}");
+      for (const [id, e] of Object.entries(lv.errori || {})) if (!warned.has(id)) { warned.add(id); toast(`${track(id)?.nome || id} non suona: ${e}`, true); }
       const buf = await ctx.decodeAudioData(await r.arrayBuffer());
       const src = ctx.createBufferSource(); src.buffer = buf; src.connect(ctx.out);
       const when = Math.max(nextWhen, ctx.currentTime + 0.05);
@@ -748,7 +781,9 @@ const player = (() => {
     const cur = [...queue].reverse().find((q) => q.when <= ctx?.currentTime);
     if (cur) {
       scene.levels(cur.lv.env, Math.min(9, Math.floor((ctx.currentTime - cur.when) / CHUNK * 10)));
-      for (const [id, db] of Object.entries(cur.lv)) if (id !== "env") document.querySelectorAll(`[data-meter="${id}"]`).forEach((m) => (m.style.width = `${Math.max(0, (db + 60) / 60) * 100}%`));
+      const w = (db) => `${Math.max(0, (db + 60) / 60) * 100}%`;
+      for (const [id, db] of Object.entries(cur.lv)) if (id !== "env") document.querySelectorAll(`[data-meter="${id}"]`).forEach((m) => (m.style.width = w(db)));
+      document.querySelectorAll("[data-gmeter]").forEach((m) => (m.style.width = w(Math.max(-100, ...m.dataset.gmeter.split(" ").map((id) => cur.lv[id] ?? -100)))));
       $("lufsLive").textContent = `picco ${cur.lv.master} dBFS`;
       $("lufsLive").style.color = cur.lv.master > -1 ? css("--bad") : "";
     }

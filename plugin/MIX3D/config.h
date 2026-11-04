@@ -1,7 +1,7 @@
 #define PLUG_NAME "MIX3D"
 #define PLUG_MFR "Mecena"
-#define PLUG_VERSION_HEX 0x00000008
-#define PLUG_VERSION_STR "0.0.8"
+#define PLUG_VERSION_HEX 0x00000009
+#define PLUG_VERSION_STR "0.0.9"
 #define PLUG_UNIQUE_ID 'Mx3d'
 #define PLUG_MFR_ID 'Mcna'
 #define PLUG_URL_STR "https://github.com/Mecena-SRL/3D-MIX---DaVinci-VST"

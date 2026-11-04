@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 import numpy as np
+from scipy.signal import resample
 
 
 def gcc_phat(x: np.ndarray, y: np.ndarray, fs: float, max_tau: float | None = None,
@@ -23,21 +24,27 @@ def gcc_phat(x: np.ndarray, y: np.ndarray, fs: float, max_tau: float | None = No
     Y = np.fft.rfft(y, nfft)
     cross = Y * np.conj(X)
     cross /= np.abs(cross) + 1e-12
-    cc = np.fft.irfft(cross, nfft * interp)
-    max_shift = nfft * interp // 2
+    # correlazione a risoluzione piena, poi sovracampionamento solo attorno al picco:
+    # stessa precisione di un irfft interp volte più lungo, a una frazione del costo (finestre da 10 s)
+    cc = np.fft.irfft(cross, nfft)
+    max_shift = nfft // 2
     if max_tau is not None:
-        max_shift = min(int(interp * fs * max_tau), max_shift)
+        max_shift = min(int(fs * max_tau), max_shift)
     cc = np.concatenate((cc[-max_shift:], cc[: max_shift + 1]))
-    i = int(np.argmax(np.abs(cc)))
-    # interpolazione parabolica del picco
+    i0 = int(np.argmax(np.abs(cc)))
+    a0 = max(i0 - 32, 0)
+    seg = cc[a0: i0 + 32]
+    up = resample(seg, len(seg) * interp) if interp > 1 and len(seg) > 4 else seg
+    i = int(np.argmax(np.abs(up)))
     shift = float(i)
-    if 0 < i < len(cc) - 1:
-        a, b, c = np.abs(cc[i - 1 : i + 2])
+    if 0 < i < len(up) - 1:  # interpolazione parabolica del picco
+        a, b, c = np.abs(up[i - 1 : i + 2])
         den = a - 2 * b + c
         if den != 0:
             shift += 0.5 * (a - c) / den
-    tau = (shift - max_shift) / (interp * fs)
-    strength = float(np.abs(cc[i]) * interp)
+    k = len(up) / len(seg)
+    tau = (a0 + shift / k - max_shift) / fs
+    strength = float(np.abs(up[i]))
     return tau, strength
 
 
@@ -134,10 +141,6 @@ def align(y: np.ndarray, fs: float, model: DriftModel, n_out: int) -> np.ndarray
     Prototipo con interpolazione cubica; in F1 va sostituita da un
     ricampionatore a rapporto variabile di qualità (soxr / sinc polifase).
     """
-    from scipy.interpolate import CubicSpline
-
     t = np.arange(n_out) / fs
     src = (t + model.delay_at(t)) * fs
-    spline = CubicSpline(np.arange(len(y)), y, extrapolate=False)
-    out = spline(src)
-    return np.nan_to_num(out)
+    return np.interp(src, np.arange(len(y)), y, left=0.0, right=0.0)  # lineare: basta per stimare il residuo

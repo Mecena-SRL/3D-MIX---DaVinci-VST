@@ -93,3 +93,32 @@ def test_connect_explains_how_to_fix(monkeypatch):
     monkeypatch.setenv("RESOLVE_SCRIPT_API", "/manca")
     with pytest.raises(RuntimeError, match="Workspace > Scripts > MIX3D"):
         rb.connect()
+
+
+def test_clip_raggruppate_per_canale_di_resolve(tmp_path):
+    """A sinistra si vedono A1, A2…: ogni traccia sa da quale canale di Resolve viene.
+    Una clip video senza audio non è un errore; un file con due stream audio a sr diversi si legge."""
+    import subprocess
+
+    import numpy as np
+    import soundfile as sf
+
+    from mix3d import media, server
+
+    a, b = tmp_path / "a.wav", tmp_path / "b.wav"
+    for f in (a, b):
+        sf.write(f, np.zeros((48000, 1), np.float32), 48000)
+    cam, muto = tmp_path / "DJI_0001.MP4", tmp_path / "muto.MP4"
+    ff = media.ffmpeg()
+    subprocess.run([ff, "-v", "error", "-f", "lavfi", "-i", "sine=f=440:sample_rate=48000", "-f", "lavfi",
+                    "-i", "sine=f=880:sample_rate=44100", "-t", "1", "-map", "0", "-map", "1", "-c:a", "aac", str(cam)], check=True)
+    subprocess.run([ff, "-v", "error", "-f", "lavfi", "-i", "color=s=64x64", "-t", "1", str(muto)], check=True)
+    clip = lambda tr, name, f, start, kind="audio": {"track": tr, "name": name, "start_frame": start, "left_offset": 0,
+                                                       "file_path": str(f), "kind": kind}
+    info = {"timeline": "T", "fps": 25, "start_frame": 0,
+            "clips": [clip(1, "a", a, 0), clip(1, "b", b, 50), clip(2, "cam", cam, 0), clip(1, "muto", muto, 0, "video")]}
+    server.STATE["project"] = server.new_project()
+    server.import_resolve(info)
+    p = server.STATE["project"]
+    assert [t["canale"] for t in p["tracks"]] == ["A1", "A1", "A2"]
+    assert p["tracks"][2]["info"]["channels"] == 2 and p["resolve"]["non_lette"] == []

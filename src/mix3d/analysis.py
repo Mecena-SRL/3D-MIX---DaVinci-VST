@@ -117,8 +117,26 @@ def analyze(wav: str, channels: list[int], duration: float, is_float: bool,
         above = f[(pdb > ref - 45) & (f > 1000)]
         out["spettro"] = {"f": np.round(THIRD_OCT, 1).tolist(), "db": [round(b, 1) if b is not None else None for b in bands]}
         out["banda_utile_hz"] = int(above.max()) if len(above) else None
+    out["rt60_stima"] = rt60_from_decays(r)
     out["avvisi"] = warnings(out)
     return out
+
+
+def rt60_from_decays(r_db: np.ndarray, frame_s: float = 0.1) -> float | None:
+    """RT60 stimato dalla musica: le discese libere più ripide (fine nota, pause) le detta la sala.
+    Tratti in discesa di almeno 0,4 s e 10 dB; RT60 = 60 dB / pendenza (mediana del 20% più ripido)."""
+    slopes, i, n = [], 0, len(r_db)
+    while i < n - 1:
+        j = i
+        while j + 1 < n and r_db[j + 1] < r_db[j]:
+            j += 1
+        if (j - i) * frame_s >= 0.4 and r_db[i] - r_db[j] >= 10 and r_db[j] > -90:
+            slopes.append((r_db[i] - r_db[j]) / ((j - i) * frame_s))
+        i = j + 1
+    if len(slopes) < 5:
+        return None
+    steep = np.sort(slopes)[-max(1, len(slopes) // 5):]
+    return round(float(np.clip(60 / np.median(steep), 0.2, 8.0)), 2)
 
 
 def warnings(a: dict) -> list[str]:

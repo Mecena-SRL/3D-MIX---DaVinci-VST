@@ -11,6 +11,7 @@ import os
 import threading
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -36,6 +37,7 @@ STATE = {"project": new_project(), "jobs": {}, "rev": 0, "poll": 0.0}
 # timeline mandata dallo script MIX3D dentro Resolve (Workspace > Scripts > MIX3D)
 SESSION = Path.home() / ".mix3d" / "resolve" / "sessione.json"
 LOCK = threading.Lock()
+WORKERS = max(1, min(4, (os.cpu_count() or 2) // 2))  # metà dei core: l'ascolto resta fluido
 
 
 # --- tracce -----------------------------------------------------------------
@@ -48,7 +50,7 @@ def apply_profile(t: dict, pid: str):
 
 def tracks_from_file(path: str, offset_s: float = 0.0, name: str | None = None) -> list[dict]:
     info = media.probe(path)
-    wav = media.decoded(path)
+    wav = path  # letto direttamente (WAV) o a pezzi con ffmpeg (video): nessuna copia decodificata
     n = info["channels"]
     groups = [[c] for c in range(1, n + 1)] if n == 1 else [[c, c + 1] if c < n else [c] for c in range(1, n + 1, 2)]
     out = []
@@ -134,23 +136,33 @@ def start_job(kind: str, fn) -> str:
 def job_analyze(job):
     p = STATE["project"]
     ts = p["tracks"]
-    for i, t in enumerate(ts):
-        job["msg"] = f"analisi {t['nome']}"
-        is_float = t["info"].get("bits") == 32
-        t["analisi"] = analysis.analyze(t["wav"], t["channels"], t["info"]["duration"], is_float,
-                                        progress=lambda f, i=i: job.update(progress=(i + f) / len(ts) * 0.6))
-    ref = next((t for t in ts if t["id"] == p["riferimento"]), ts[0] if ts else None)
+    done = {}  # avanzamento per traccia: le analisi girano in parallelo (ffmpeg decodifica in processi separati)
+
+    def one(t):
+        step = lambda f: (done.__setitem__(t["id"], f), job.update(progress=sum(done.values()) / len(ts) * 0.6,
+                                                                    msg=f"analisi {sum(v >= 1 for v in done.values())}/{len(ts)}"))
+        t["analisi"] = analysis.analyze(t["wav"], t["channels"], t["info"]["duration"], t["info"].get("bits") == 32,
+                                        progress=step)
+        step(1.0)
+    with ThreadPoolExecutor(WORKERS) as ex:
+        list(ex.map(one, ts))
+    # riferimento: quello scelto, altrimenti la registrazione più lunga (di solito il registratore principale)
+    ref = next((t for t in ts if t["id"] == p["riferimento"]), max(ts, key=lambda t: t["info"]["duration"], default=None))
     if ref:
         p["riferimento"] = ref["id"]
     others = [t for t in ts if ref and t is not ref]
-    for i, t in enumerate(others):
-        job["msg"] = f"sync {t['nome']}"
+    synced = []
+
+    def sync(t):
         try:
             s = analysis.sync_pair(ref, t)
             t.update(offset_s=s["offset_s"], drift_ppm=s["drift_ppm"], sync_t0=s["sync_t0"], sync=s)
-        except Exception as e:
+        except Exception as e:  # es. clip senza parte comune con il riferimento: resta il sync di Resolve
             t["sync"] = {"errore": str(e), "fiducia": 0}
-        job["progress"] = 0.6 + 0.3 * (i + 1) / max(len(others), 1)
+        synced.append(t)
+        job.update(msg=f"sync {len(synced)}/{len(others)}", progress=0.6 + 0.3 * len(synced) / max(len(others), 1))
+    with ThreadPoolExecutor(WORKERS) as ex:
+        list(ex.map(sync, others))
     job["msg"] = "posizionamento e stima delle sorgenti"
     auto_place(p)
     try:
@@ -158,8 +170,19 @@ def job_analyze(job):
     except Exception:  # stima facoltativa: se i file non bastano si va avanti senza
         est = []
     p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
+    p["spazio_stimato"] = estimate_space(ts)
     job["progress"] = 1.0
     return {"tracce": len(ts)}
+
+
+def estimate_space(ts: list[dict]) -> dict | None:
+    """Sala stimata dalle registrazioni (RT60 dalle discese libere) e preset più simile: solo un suggerimento."""
+    rts = [t["analisi"]["rt60_stima"] for t in ts if (t.get("analisi") or {}).get("rt60_stima")]
+    if not rts:
+        return None
+    rt = round(float(np.median(rts)), 2)
+    near = min(spazi.all_spaces(), key=lambda s: abs((s.get("rt60") or {}).get("500", 99) - rt))
+    return {"rt60": rt, "tracce": len(rts), "simile": near["id"], "nome": near["nome"]}
 
 
 def job_eq_auto(job, ids):
@@ -235,23 +258,31 @@ def import_resolve(info: dict | None = None) -> int:
     fps = float(info["fps"])
     p["resolve"] = {"start_frame": info["start_frame"], "fps": fps, "timeline": info["timeline"]}
     added, seen, errors = 0, set(), []
+    clips = sorted(info["clips"], key=lambda c: c.get("kind", "audio") != "audio")
+    key = lambda c: (c["file_path"], c["start_frame"] - c["left_offset"])
+    lane = lambda c: f"{'V' if c.get('kind') == 'video' else 'A'}{c['track']}"
+    lanes: dict = {}  # file e posizione -> tracce di Resolve dove compare (FX6: ch1-2 su A1, ch3-4 su A2)
+    for c in clips:
+        if lane(c) not in lanes.setdefault(key(c), []):
+            lanes[key(c)].append(lane(c))
     # prima le clip audio (nomi A1, A2…), poi le video: stesso file e posizione = una sola traccia
-    for c in sorted(info["clips"], key=lambda c: c.get("kind", "audio") != "audio"):
+    for c in clips:
         # una clip video compare su più tracce audio (es. FX6 ch1-2 su A1, ch3-4 su A2):
         # il file si importa una volta sola, con tutti i suoi canali
-        key = (c["file_path"], c["start_frame"] - c["left_offset"])
-        if not c["file_path"] or key in seen:
+        if not c["file_path"] or key(c) in seen:
             continue
-        seen.add(key)
+        seen.add(key(c))
         off = (c["start_frame"] - c["left_offset"] - info["start_frame"]) / fps
         label = f"{'V' if c.get('kind') == 'video' else 'A'}{c['track']} {c['name']}"
         try:
             new = tracks_from_file(c["file_path"], off, label)
-        except Exception as e:  # file mancante, offline o senza audio: le altre clip arrivano lo stesso
-            if c.get("kind") != "video":
-                errors.append(f"{c['name']}: {e}")
+        except media.NoAudio:  # clip video senza audio: niente da ascoltare, non è un errore
             continue
-        p["tracks"] += [{**t, "da_resolve": True} for t in new]
+        except Exception as e:  # file mancante, offline o illeggibile: le altre clip arrivano lo stesso
+            errors.append(f"{c['name']}: {e}")
+            continue
+        ln = lanes[key(c)]
+        p["tracks"] += [{**t, "da_resolve": True, "canale": ln[min(i, len(ln) - 1)]} for i, t in enumerate(new)]
         added += 1
     p["resolve"]["non_lette"] = errors
     return added
