@@ -175,6 +175,8 @@ main { flex: 1; display: grid; grid-template-columns: 290px 1fr; min-height: 0; 
 .play { width: 34px; height: 34px; border-radius: 50%; font-size: 13px; padding: 0; background: var(--accent); color: #04121f; border: 0; flex: none; }
 .time { min-width: 64px; color: var(--muted); }
 #time { font: 600 15px/1 ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); min-width: 92px; }
+#time.host { color: var(--accent); }
+#time.host::before { content: "RESOLVE ▶ "; font-size: 10px; letter-spacing: .06em; }
 .seek { flex: 1; height: 8px; background: var(--panel2); border-radius: 2px; position: relative; cursor: pointer; overflow: hidden; }
 .seek i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); }
 .seek b { position: absolute; top: 0; bottom: 0; background: #4aa8ff33; }

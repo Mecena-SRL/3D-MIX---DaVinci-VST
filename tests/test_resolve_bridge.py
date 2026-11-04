@@ -122,3 +122,15 @@ def test_clip_raggruppate_per_canale_di_resolve(tmp_path):
     p = server.STATE["project"]
     assert [t["canale"] for t in p["tracks"]] == ["A1", "A1", "A2"]
     assert p["tracks"][2]["info"]["channels"] == 2 and p["resolve"]["non_lette"] == []
+
+
+def test_posizione_del_plugin_in_fairlight():
+    """L'host può contare dal timecode (01:00:00:00) o da zero: entrambi finiscono sui secondi MIX3D."""
+    from mix3d import server
+    server.STATE["project"]["resolve"] = {"start_frame": 86400, "fps": 24.0, "timeline": "t"}
+    server.STATE["host_rel"] = False
+    assert server.host_time(3610.0) == 10.0  # timecode assoluto
+    assert server.host_time(5.0) == 5.0      # prima del timecode: l'host conta da zero...
+    assert server.host_time(3610.0) == 3610.0  # ...e così resta
+    server.STATE["project"].pop("resolve")
+    server.STATE["host_rel"] = False
