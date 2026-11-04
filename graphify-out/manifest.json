@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/web/app.js": {
-    "mtime": 1793809439.654048,
-    "seen": 1793809639.8925552,
-    "ast_hash": "93fdaa1f83c07b97b20b6cd658d1c414",
+    "mtime": 1793812154.1941986,
+    "seen": 1793812291.5825367,
+    "ast_hash": "7d438430dbe7c83378696b42004219d6",
     "semantic_hash": ""
   },
   "tests/test_ui_engine.py": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/web/index.html": {
-    "mtime": 1793809430.527722,
-    "seen": 1793809639.8925898,
-    "ast_hash": "b04833e8c9e0ff0eb3b01d3cdbe2333f",
+    "mtime": 1793812154.1956205,
+    "seen": 1793812291.5826094,
+    "ast_hash": "f8ac50fe14b2ae57c660ddadd2b3071e",
     "semantic_hash": ""
   },
   "docs/database_dispositivi.md": {

@@ -100,6 +100,11 @@
         <p class="muted small">Ogni mic: quante sorgenti sente, con che ritardo e livello rispetto al riferimento, la distanza (e come l'ho misurata) e la direzione se è stereo.
           Nella scena i cerchi sono l'incertezza. Trascina un mic dove sai che era: diventa un'ancora ✋ e il resto si riallinea. "Auto" lo rilascia.</p>
       </div>
+      <div id="campo" class="panel" hidden><h4>Campo sonoro (gaussiane) <span id="campoInfo" class="muted small"></span></h4>
+        <table id="campoTab" class="health"></table>
+        <p class="muted small">Ogni sorgente è una nuvola: grande = suono esteso (coro, sezione), piccola = puntiforme (voce, solista); colore = timbro, dal rosso grave all'azzurro brillante.
+          Il campo è ottimizzato perché ogni mic senta quello che ha registrato davvero. Correggi il raggio se sai che è diverso.</p>
+      </div>
       <div id="sceneSlot4" class="scene-slot"></div>
       <div id="anaEmpty" class="empty">Seleziona una traccia per i dettagli.</div>
       <div id="ana" hidden>
