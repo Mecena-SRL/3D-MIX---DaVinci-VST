@@ -225,6 +225,7 @@ function renderDevice() {
   const fromMeta = [t.info.rilevato && `${t.info.rilevato.nome} (${t.info.rilevato.indizio})`,
     tc != null && `TC ${fmtTc(tc)}`, md.originator, md.modello].filter(Boolean);
   if (fromMeta.length) $("devRole").textContent += ` · dai metadati: ${[...new Set(fromMeta)].join(" · ")}`;
+  renderIO(t);
   const why = t.suggeriti[0]?.motivi || [];
   $("devWhy").innerHTML = t.confermato ? `<b>Confermato.</b> ${m.note || ""}` : `<b>Suggerito</b> perché: ${why.join(", ") || "nessun indizio dal file"}. <button id="bConfirm" class="primary small">Conferma</button>`;
   $("bConfirm")?.addEventListener("click", () => setChain(t, { confermato: true }));
@@ -246,6 +247,25 @@ function renderDevice() {
   drawPolar($("cPolar"), c.polare);
   $("devSrc").innerHTML = [...(m.fonti || []), ...(r.fonti || [])].map((u, i) => `<a href="${u}" target="_blank" style="color:var(--accent)">[${i + 1}]</a>`).join(" ") || "nessuna (valori tipici)";
 }
+// ingresso (microfono in sala o linea dal mixer) e canali: mono, stereo, due mono uniti in stereo
+const isLine = (t) => mic(t)?.tipo === "linea";
+function renderIO(t) {
+  $("ioMic").classList.toggle("on", !isLine(t)); $("ioLine").classList.toggle("on", isLine(t));
+  const ch = t.destra ? `doppio mono → stereo (L ${t.nome.split(" + ")[0]}, R ${t.destra.nome})`
+    : t.channels.length === 2 ? `stereo (ch${t.channels.join("-")})` : `mono (ch${t.channels[0]})`;
+  $("ioCh").textContent = ch + (isLine(t) ? " · linea: nel mix niente distanza né posizione" : "");
+  $("ioSplit").hidden = t.channels.length < 2 && !t.destra;
+  const monos = S.tracks.filter((x) => x.id !== t.id && x.channels.length === 1 && !x.destra);
+  const canJoin = t.channels.length === 1 && !t.destra && monos.length;
+  $("ioJoinWith").hidden = $("ioJoin").hidden = !canJoin;
+  if (canJoin) $("ioJoinWith").innerHTML = monos.map((x) => `<option value="${x.id}">a destra: ${x.nome}</option>`).join("");
+}
+const tracksOp = (url, body) => safe(async () => { S = await api(url, body); await refresh(); player.flush(); })();
+$("ioLine").onclick = () => setChain(selected(), { microfono: "feed_mixer", confermato: true });
+$("ioMic").onclick = () => { const t = selected(); const prof = t.suggeriti.map((s) => DB.profili.find((x) => x.id === s.id)).find((x) => x && x.microfono !== "feed_mixer");
+  setChain(t, { profile: prof?.id || "generico", confermato: true }); };
+$("ioSplit").onclick = () => tracksOp("/api/tracce/dividi", { id: sel });
+$("ioJoin").onclick = () => tracksOp("/api/tracce/unisci", { sinistra: sel, destra: $("ioJoinWith").value });
 function setChain(t, fields) { pushTrack(t, fields); setTimeout(refresh, 300); }
 $("dProf").onchange = (e) => setChain(selected(), { profile: e.target.value, confermato: true });
 $("dRec").onchange = (e) => setChain(selected(), { registratore: e.target.value, confermato: true });
@@ -745,7 +765,8 @@ $("bAnalyze").onclick = safe(async () => {
   if (!S.tracks.length) return toast("Aggiungi prima delle tracce", true);
   await runJob("/api/analyze", {}, "Analisi"); await refresh(); toast("Analisi e sync completati");
 });
-$("bResolve").onclick = safe(async () => { S = await api("/api/resolve/import", {}); await refresh(); toast("Timeline di Resolve letta"); go(1); });
+const resolveToast = () => { const e = S.resolve?.non_lette || []; toast(e.length ? `Timeline letta, ${e.length} clip non lette: ${e.join("; ")}` : "Timeline di Resolve letta", !!e.length); };
+$("bResolve").onclick = safe(async () => { S = await api("/api/resolve/import", {}); await refresh(); resolveToast(); go(1); });
 $("bSave").onclick = safe(async () => { const r = await api("/api/save", {}); toast(`Salvato in ${r.path}`); });
 $("bQuit").onclick = async () => { if (!confirm("Chiudere MIX3D? Salva prima il progetto.")) return; player.stop(); await fetch("/api/quit", { method: "POST" }).catch(() => {}); document.body.innerHTML = "<p style='padding:40px'>MIX3D chiuso.</p>"; };
 $("bOpen").onclick = () => $("dlgOpen").showModal();
@@ -853,7 +874,7 @@ let rev = (await api("/api/rev")).rev;
 setInterval(async () => {
   const r = await api("/api/rev").catch(() => null);
   if (!r || r.rev === rev) return;
-  rev = r.rev; await refresh(); toast("Timeline ricevuta da Resolve"); go(1);
+  rev = r.rev; await refresh(); resolveToast(); go(1);
 }, 2000);
 // aperto dal pannello o dal plugin dentro Resolve: prova a leggere la timeline (serve Resolve Studio)
 if (location.hash === "#resolve" && !S.tracks.length) $("bResolve").click();

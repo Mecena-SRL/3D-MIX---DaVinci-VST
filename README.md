@@ -49,6 +49,13 @@ Scarica il `.dmg` dalle [Release](https://github.com/Mecena-SRL/3D-MIX---DaVinci
 L'app non è firmata: al primo avvio tasto destro su MIX3D > Apri > Apri. Si apre il pannello nel browser; **Esci** la chiude.
 ffmpeg e Three.js sono inclusi, nessuna installazione extra. Build locale: `packaging/build_macos.sh`; release: Actions > Release macOS > Run workflow con *release* attivo (usa la versione di `pyproject.toml`), oppure push di un tag `vX.Y.Z`.
 
+## Ingressi: linea, mono, stereo
+
+Nel passo Dispositivi, per ogni traccia:
+- **Ingresso › Linea dal mixer**: per il feed del mixer registrato su Tascam, FX6, Zoom… Nel mix non ha distanza né posizione e passa senza la correzione del microfono.
+- **Canali**: *Dividi in due mono* (es. FX6 ch3 microfono e ch4 linea), *Unisci in stereo* (due mono, anche da file diversi come le tracce separate del Tascam X8: la prima a sinistra, la seconda a destra).
+- Dalla timeline di Resolve arriva anche l'audio delle clip video (camera), non solo le tracce audio.
+
 ## Da DaVinci Resolve
 
 Nel pannello: **In Resolve…** › *Installa pannello e script* (oppure `mix3d install-resolve`), poi riavvia Resolve.
