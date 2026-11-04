@@ -43,7 +43,8 @@
         <button class="big-card" id="bAdd"><span class="ico">＋</span><b>Aggiungi file</b><span>WAV, BWF, MP4, MOV, MXF, M4A… Dai video si prende solo l'audio; gli originali non vengono toccati.</span></button>
       </div>
       <div class="tips"><b>Prima di iniziare</b><ul>
-        <li>In Resolve Studio: Preferenze › Sistema › Generale › <i>External scripting using: Local</i>.</li>
+        <li>Il modo più sicuro: in Resolve apri la timeline e scegli <b>Workspace › Scripts › MIX3D</b>. La timeline arriva qui da sola, anche con Resolve gratuito.</li>
+        <li>Il pulsante qui sopra e la stampa in timeline richiedono Resolve Studio con Preferenze › Sistema › Generale › <i>External scripting using: Local</i>.</li>
         <li>Basta un sync approssimativo: MIX3D lo affina al campione e corregge il drift.</li>
         <li>Ogni coppia di canali diventa una traccia: una FX6 a 4 canali dà ch1-2 e ch3-4.</li></ul></div>
     </div>
@@ -186,7 +187,7 @@
 
 <dialog id="dlgIntegr">
   <h3>MIX3D dentro DaVinci Resolve</h3>
-  <p class="muted">Pannello: <b>Workspace › Workflow Integrations › MIX3D</b> (Studio). Script: <b>Workspace › Scripts › MIX3D</b>.</p>
+  <p class="muted">Pannello: <b>Workspace › Workflow Integrations › MIX3D</b> (Studio). Script: <b>Workspace › Scripts › MIX3D</b> (manda la timeline aperta a MIX3D).</p>
   <p class="muted">Plugin: in <b>Fairlight</b> aggiungi l'effetto <b>Mecena › MIX3D</b> (VST3 o AU) a una traccia o al bus: apre il pannello dentro la sua finestra e lascia passare l'audio.</p>
   <p id="itStatus"></p>
   <p class="muted small">Il pannello va in una cartella di sistema: macOS chiederà la password. Riavvia Resolve dopo l'installazione.</p>

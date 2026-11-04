@@ -53,7 +53,8 @@ ffmpeg e Three.js sono inclusi, nessuna installazione extra. Build locale: `pack
 
 Nel pannello: **In Resolve…** › *Installa pannello e script* (oppure `mix3d install-resolve`), poi riavvia Resolve.
 - **Workspace › Workflow Integrations › MIX3D**: il pannello in una finestra di Resolve (Studio).
-- **Workspace › Scripts › MIX3D**: apre l'app.
+- **Workspace › Scripts › MIX3D**: manda la timeline aperta a MIX3D (avvia l'app se è chiusa). È uno script Lua: funziona anche in Resolve gratuito e senza Python.
+- **Leggi da DaVinci Resolve** nel pannello, la stampa in timeline e l'apertura dal pannello o dal plugin leggono Resolve da fuori: servono Resolve Studio e lo scripting esterno su *Local*.
 
 *Adjustment clip audio*: in Edit o Fairlight metti un **marker chiamato MIX3D con durata** sulla regione (o usa In/Out), poi Stampa › *Solo la regione*: il mix di quella regione va sulla traccia MIX3D allo stesso punto e sostituisce la stampa precedente.
 

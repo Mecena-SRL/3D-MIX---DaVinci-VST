@@ -12,7 +12,7 @@ const isUp = (cb) => http.get(URL, (r) => { r.resume(); cb(true); }).on("error",
 
 function load(win, tries = 60) {
   isUp((ok) => {
-    if (ok) return win.loadURL(URL);
+    if (ok) return win.loadURL(URL + "#resolve");
     if (tries) return setTimeout(() => load(win, tries - 1), 500);
     win.loadURL(page("MIX3D non risponde. È installata in Applicazioni? Aprila una volta a mano (tasto destro &gt; Apri)."));
   });

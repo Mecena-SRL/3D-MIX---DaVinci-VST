@@ -63,3 +63,33 @@ def test_reimport_adds_new_track_only():
     assert track == 2 and r.pm.saved
     assert r.pm.p.tl.names[2] == "MIX3D"
     assert r.pm.p.pool.appended[0]["trackIndex"] == 2 and r.pm.p.pool.appended[0]["mediaType"] == 2
+
+
+def test_timeline_from_resolve_script_replaces_previous(tmp_path):
+    """La timeline mandata dallo script Lua in Resolve sostituisce quella letta prima."""
+    import numpy as np
+    import soundfile as sf
+
+    from mix3d import server
+
+    wav = tmp_path / "zoom.wav"
+    sf.write(wav, np.zeros(48000), 48000)
+    info = {"timeline": "Concerto", "fps": "25", "start_frame": 86400,
+            "clips": [{"track": 1, "name": "zoom", "start_frame": 86425, "left_offset": 0, "file_path": str(wav)}]}
+    server.STATE["project"] = server.new_project()
+    for _ in range(2):
+        assert server.import_resolve(info) == 1
+    tracks = server.STATE["project"]["tracks"]
+    assert len(tracks) == 1 and tracks[0]["da_resolve"]
+    assert server.STATE["project"]["resolve"]["fps"] == 25.0
+
+
+def test_connect_explains_how_to_fix(monkeypatch):
+    import pytest
+
+    from mix3d import resolve_bridge as rb
+
+    monkeypatch.setenv("RESOLVE_SCRIPT_LIB", "/manca/fusionscript.so")
+    monkeypatch.setenv("RESOLVE_SCRIPT_API", "/manca")
+    with pytest.raises(RuntimeError, match="Workspace > Scripts > MIX3D"):
+        rb.connect()
