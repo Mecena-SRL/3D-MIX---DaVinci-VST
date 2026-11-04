@@ -134,3 +134,27 @@ def test_posizione_del_plugin_in_fairlight():
     assert server.host_time(3610.0) == 3610.0  # ...e così resta
     server.STATE["project"].pop("resolve")
     server.STATE["host_rel"] = False
+
+
+def test_sync_a_catena_parte_da_resolve(tmp_path):
+    """C non ha parti in comune con il riferimento: si allinea a B, già allineato. Le posizioni
+    di Resolve sono sbagliate di pochi ms e vengono corrette; nulla si sposta di secondi."""
+    import numpy as np
+    import soundfile as sf
+    from mix3d import server
+    sr, rng = 16000, np.random.default_rng(1)
+    src = rng.standard_normal(130 * sr).astype(np.float32) * 0.1
+    cuts = {"ref": (0, 60), "b": (30, 100), "c": (70, 130)}
+    real = {"ref": 0.0, "b": 30.0, "c": 70.0}
+    for k, (a, b) in cuts.items():
+        sf.write(tmp_path / f"{k}.wav", src[a * sr: b * sr], sr)
+    ts = {}
+    for k, err in (("ref", 0), ("b", 0.012), ("c", -0.02)):
+        t = server.tracks_from_file(str(tmp_path / f"{k}.wav"), real[k] + err)[0]
+        t["da_resolve"] = True
+        ts[k] = t
+    job = {}
+    server.sync_chain(ts["ref"], [ts["b"], ts["c"]], job)
+    assert ts["c"]["sync"]["ancora"] == ts["b"]["id"]
+    for k in ("b", "c"):
+        assert abs(ts[k]["offset_s"] - real[k]) < 1e-3, (k, ts[k]["offset_s"], ts[k]["sync"])

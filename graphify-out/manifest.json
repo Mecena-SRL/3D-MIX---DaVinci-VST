@@ -1,14 +1,14 @@
 {
   "pyproject.toml": {
-    "mtime": 1793791685.3618908,
-    "seen": 1793791708.8555,
-    "ast_hash": "e369b28712784d2282fc588a37aa6213",
+    "mtime": 1793808470.473917,
+    "seen": 1793808476.4612043,
+    "ast_hash": "08e45f986cc60b6834abb02ebd0da9f1",
     "semantic_hash": ""
   },
   "src/mix3d/__init__.py": {
-    "mtime": 1793791685.36256,
-    "seen": 1793791708.8555021,
-    "ast_hash": "8be104747f88a7c676d9fbc19237df7a",
+    "mtime": 1793808470.4744897,
+    "seen": 1793808476.4612062,
+    "ast_hash": "881c0b19020cd4076286e03dae55506a",
     "semantic_hash": ""
   },
   "src/mix3d/cli.py": {
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "tests/test_resolve_bridge.py": {
-    "mtime": 1793791585.1596003,
-    "seen": 1793791708.855551,
-    "ast_hash": "89a51daf588b1c085d36fdf0dfe528a9",
+    "mtime": 1793808104.0249512,
+    "seen": 1793808476.4612699,
+    "ast_hash": "a4657885ef4a2f74ae24b7b5c5140956",
     "semantic_hash": ""
   },
   "tests/test_sync.py": {
@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793791681.5983748,
-    "seen": 1793791708.8555553,
-    "ast_hash": "baf7d71c2263f21cf3f00d377a73310d",
+    "mtime": 1793808470.5042944,
+    "seen": 1793808476.461275,
+    "ast_hash": "97147822ee64b75983dce38631bc9af3",
     "semantic_hash": ""
   },
   "docs/F0_verifiche.md": {
@@ -60,15 +60,15 @@
     "semantic_hash": ""
   },
   "src/mix3d/analysis.py": {
-    "mtime": 1793787950.7015932,
-    "seen": 1793788623.4861388,
-    "ast_hash": "44cde5449c0af1069dc5064bb3557d5d",
+    "mtime": 1793808059.5078967,
+    "seen": 1793808476.461211,
+    "ast_hash": "4734caf143dae8eadbdd9866f2ae635f",
     "semantic_hash": ""
   },
   "src/mix3d/data/devices.json": {
-    "mtime": 1793788630.3742561,
-    "seen": 1793788659.4033487,
-    "ast_hash": "562b1fad8cee6259f1f3b6e9c19d400e",
+    "mtime": 1793807969.3099515,
+    "seen": 1793808476.4612172,
+    "ast_hash": "a6fa1616d7cca69a034b983b6f6e4af4",
     "semantic_hash": ""
   },
   "src/mix3d/devices.py": {
@@ -90,21 +90,21 @@
     "semantic_hash": ""
   },
   "src/mix3d/mixer.py": {
-    "mtime": 1793787978.8123882,
-    "seen": 1793788623.4861567,
-    "ast_hash": "6fd37d47739731131b026577545465fa",
+    "mtime": 1793808334.9895513,
+    "seen": 1793808476.4612346,
+    "ast_hash": "65bd9fa835122d6b239315bdac319a05",
     "semantic_hash": ""
   },
   "src/mix3d/server.py": {
-    "mtime": 1793791551.1631205,
-    "seen": 1793791708.8555326,
-    "ast_hash": "4e9d5eae48dff1857851be7c825b5223",
+    "mtime": 1793808381.3373382,
+    "seen": 1793808476.4612463,
+    "ast_hash": "6a6e50cca73a7ad4fdbb954553e063ac",
     "semantic_hash": ""
   },
   "src/mix3d/web/app.js": {
-    "mtime": 1793791635.540335,
-    "seen": 1793791708.8555381,
-    "ast_hash": "3e9a005d6c6a51809486422d37959cd7",
+    "mtime": 1793808229.8868763,
+    "seen": 1793808476.4612534,
+    "ast_hash": "3ca672ecfb36928ce3779a6b3eaf22ac",
     "semantic_hash": ""
   },
   "tests/test_ui_engine.py": {
@@ -114,15 +114,15 @@
     "semantic_hash": ""
   },
   "src/mix3d/web/index.html": {
-    "mtime": 1793791681.5977876,
-    "seen": 1793791708.855564,
-    "ast_hash": "ec45d1e795113c0258dea4f56224d3bb",
+    "mtime": 1793808439.9128025,
+    "seen": 1793808476.4612858,
+    "ast_hash": "f01fdacec7beef3138cf4cb61dab977d",
     "semantic_hash": ""
   },
   "docs/database_dispositivi.md": {
-    "mtime": 1793788630.3742561,
-    "seen": 1793788659.4034076,
-    "ast_hash": "d1aadb526da5eba0e24f0c1edb67d71f",
+    "mtime": 1793807969.3099515,
+    "seen": 1793808476.461279,
+    "ast_hash": "7702118b3d36a6c3b90bec305e03cf5e",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
@@ -168,9 +168,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/resolve_plugin/workflow/package.json": {
-    "mtime": 1793791685.3629825,
-    "seen": 1793791708.8555312,
-    "ast_hash": "af624c91d8f1dab8f804285280dd68cd",
+    "mtime": 1793808470.476865,
+    "seen": 1793808476.461244,
+    "ast_hash": "18ff6479da817fa8e867d2e2bdbe55a4",
     "semantic_hash": ""
   },
   "src/mix3d/data/spazi.json": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "plugin/MIX3D/config.h": {
-    "mtime": 1793791685.3658762,
-    "seen": 1793791708.8554924,
-    "ast_hash": "2eaddc5a4228bad379410dc4614f9f13",
+    "mtime": 1793808470.4808655,
+    "seen": 1793808476.461195,
+    "ast_hash": "c816c13deba12b0ef21c244e6aa03d2f",
     "semantic_hash": ""
   },
   "plugin/MIX3D/resources/resource.h": {
@@ -270,9 +270,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/metadata.py": {
-    "mtime": 1793785265.6861053,
-    "seen": 1793785887.4603715,
-    "ast_hash": "bcd9b5787e0afc7b5e2b569641808c36",
+    "mtime": 1793807969.3099515,
+    "seen": 1793808476.461233,
+    "ast_hash": "6fa1816949d88ebe20e4009660869455",
     "semantic_hash": ""
   },
   "src/mix3d/updater.py": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "tests/test_metadata.py": {
-    "mtime": 1793788630.3742561,
-    "seen": 1793788659.4033978,
-    "ast_hash": "18d6b231c6c5acde04df2f6e82aedf80",
+    "mtime": 1793807969.3123503,
+    "seen": 1793808476.461268,
+    "ast_hash": "ba560354cc81d97652ecebfd4b8b2f44",
     "semantic_hash": ""
   },
   "plugin/MIX3D/CMakeLists.txt": {
@@ -309,6 +309,18 @@
     "mtime": 1793785776.083242,
     "seen": 1793785887.460389,
     "ast_hash": "fcf67e8040838f1767ae54063dddbc1a",
+    "semantic_hash": ""
+  },
+  "src/mix3d/ambiente.py": {
+    "mtime": 1793808334.9890056,
+    "seen": 1793808476.4612086,
+    "ast_hash": "8247de8c47bda079262e8a4c891ab81f",
+    "semantic_hash": ""
+  },
+  "tests/test_ambiente.py": {
+    "mtime": 1793808203.304364,
+    "seen": 1793808476.4612627,
+    "ast_hash": "9e407617f1c686937e77571abc434a7d",
     "semantic_hash": ""
   }
 }
