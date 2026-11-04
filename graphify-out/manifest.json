@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/geometry.py": {
-    "mtime": 1793808214.1256344,
-    "seen": 1793808775.7728224,
-    "ast_hash": "9af0f6922b240b1756d473eaf8986de1",
+    "mtime": 1793809013.2150621,
+    "seen": 1793809350.947333,
+    "ast_hash": "c22b1017171aeca5cd1a0ecf1abfaf78",
     "semantic_hash": ""
   },
   "src/mix3d/media.py": {
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/server.py": {
-    "mtime": 1793808699.721129,
-    "seen": 1793808775.7728546,
-    "ast_hash": "496c061d4cf7ff9312084576bd4b626d",
+    "mtime": 1793809160.2108452,
+    "seen": 1793809350.9473643,
+    "ast_hash": "f9c05837e776ed2e2eb95f2b418e9125",
     "semantic_hash": ""
   },
   "src/mix3d/web/app.js": {
@@ -321,6 +321,18 @@
     "mtime": 1793808642.3342621,
     "seen": 1793808775.772886,
     "ast_hash": "dda6e20ebc73724c3efa7851cc664dfc",
+    "semantic_hash": ""
+  },
+  "src/mix3d/fusion.py": {
+    "mtime": 1793809210.5601392,
+    "seen": 1793809350.94733,
+    "ast_hash": "877f0987f07e8bac9d29969da90325f9",
+    "semantic_hash": ""
+  },
+  "tests/test_fusion.py": {
+    "mtime": 1793808921.6537137,
+    "seen": 1793809350.9473822,
+    "ast_hash": "b62dcbadc6fa8e86f318ea4347e9d168",
     "semantic_hash": ""
   }
 }
