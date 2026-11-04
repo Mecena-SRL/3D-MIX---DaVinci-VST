@@ -80,7 +80,7 @@ function go(i) {
   $("stepNum").textContent = `Passo ${step + 1} di ${STEPS.length}`;
   $("stepTitle").textContent = STEPS[step].t; $("stepHelp").textContent = STEPS[step].h;
   $("bPrev").disabled = step === 0; $("bNext").hidden = step === STEPS.length - 1;
-  const slot = { 2: "sceneSlot3", 4: "sceneSlot5" }[step];
+  const slot = { 2: "sceneSlot3", 3: S?.immagini ? "sceneSlot4" : null, 4: "sceneSlot5" }[step];
   $("sceneWrap").classList.toggle("in-mix", step === 4); // nel mix le misure della sala non servono
   $("sceneWrap").hidden = !slot;
   if (slot) $(slot).appendChild($("sceneWrap"));
@@ -90,7 +90,7 @@ function go(i) {
 function renderStep() {
   if (step === 1) renderDevice();
   if (step === 2) renderSpaces();
-  if (step === 3) { renderHealth(); renderAnalysis(); }
+  if (step === 3) { renderHealth(); renderUnderstood(); renderAnalysis(); }
   if (step === 4) renderMixSide();
 }
 
@@ -411,6 +411,31 @@ function renderHealth() {
       <td class="muted">${mic(t).nome}</td><td>${a.peak_dbfs ?? "–"}</td><td>${a.rumore_dbfs ?? "–"}</td><td>${a.lufs ?? "–"}</td><td>${a.clip_campioni ?? "–"}</td><td>${syncBadge(t)}</td></tr>`; }).join("");
   $("health").querySelectorAll("tr[data-id]").forEach((r) => (r.onclick = () => select(r.dataset.id)));
 }
+// cosa ha stimato il motore spaziale, per ogni mic: trasparenza prima di tutto
+const pct = (v) => `${Math.round((v || 0) * 100)}%`;
+const quality = (v) => (v >= 0.6 ? "ok" : v >= 0.3 ? "warn" : "bad");
+function renderUnderstood() {
+  const im = S.immagini, sc = S.scena || {}, box = $("capito");
+  box.hidden = !im;
+  if (!im) return;
+  if (im.errore) { $("capInfo").textContent = ""; $("capTab").innerHTML = `<tr><td class="muted">Stima non possibile: ${im.errore}</td></tr>`; return; }
+  const coh = sc.residuo == null ? "" : ` · coerenza ${sc.residuo < 1 ? "buona" : sc.residuo < 2 ? "media" : "bassa"}`;
+  $("capInfo").textContent = `· riferimento ${track(im.riferimento)?.nome ?? "?"}${im.linea ? " (linea del mixer)" : ""} · ${im.sorgenti.length} sorgenti${coh}`;
+  const srcCell = (e) => `<span class="chip info" title="ritardo e livello rispetto al riferimento">S${e.k + 1} ${e.ritardo_ms ?? "–"} ms · ${e.livello_db > 0 ? "+" : ""}${e.livello_db} dB${
+    e.azimut_deg != null ? ` · ${Math.abs(Math.round(e.azimut_deg))}° ${e.azimut_deg < 0 ? "sx" : "dx"}` : ""}</span>`;
+  const rows = Object.entries(im.tracce).map(([id, g]) => {
+    const t = track(id), m = sc.mic?.[id], clk = sc.scarti_clock_ms?.[id];
+    if (!t) return "";
+    const dist = g.distanza_m ? `${g.distanza_m} m <span class="muted small">${g.metodo}, ${pct(g.fiducia_distanza)}</span>` : "–";
+    const pos = m ? `${m.pos[0]} / ${m.pos[2]} m ±${m.incertezza_m}${m.bloccato ? " ✋" : ""}${clk != null ? ` <span class="muted small">clock ${clk} ms</span>` : ""}` : "–";
+    return `<tr data-id="${id}" class="${id === sel ? "sel" : ""}"><td><span class="dot ${quality(g.fiducia)}"></span></td><td>${t.nome}</td>
+      <td>${g.sorgenti.map(srcCell).join(" ") || '<span class="muted">nessuna chiara</span>'}</td><td>${dist}</td><td>${pos}</td></tr>`;
+  }).join("");
+  const srcRows = (sc.sorgenti || []).map((s) => `<tr><td><span class="dot ${quality(s.presenza * 2)}"></span></td><td>Sorgente ${s.k + 1}</td>
+    <td class="muted">presente nel ${pct(s.presenza)} del tratto analizzato</td><td></td><td>${s.pos[0]} / ${s.pos[2]} m ±${s.incertezza_m}</td></tr>`).join("");
+  $("capTab").innerHTML = `<tr><th></th><th>Mic / sorgente</th><th>Sorgenti sentite</th><th>Distanza</th><th>Posizione x / z</th></tr>${rows}${srcRows}`;
+  $("capTab").querySelectorAll("tr[data-id]").forEach((r) => (r.onclick = () => select(r.dataset.id)));
+}
 function renderAnalysis() {
   const t = selected(), a = t?.analisi;
   $("anaEmpty").hidden = !!a; $("ana").hidden = !a;
@@ -488,7 +513,7 @@ const scene = (() => {
   sc.add(new THREE.HemisphereLight(0xdfe8ff, 0x1a1d26, 2.0));
   const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(10, 30, 20); sc.add(sun);
   sc.fog = new THREE.Fog(0x0b0e14, 60, 260);
-  const room = new THREE.Group(), devs = new Map(), lobes = new Map(), srcs = new Map(), labels = new Map();
+  const room = new THREE.Group(), devs = new Map(), lobes = new Map(), srcs = new Map(), labels = new Map(), rings = new Map();
   sc.add(room);
   const listener = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.9, 20), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x333333 }));
   listener.rotation.x = -Math.PI / 2; listener.userData = { kind: "listener" }; sc.add(listener);
@@ -631,6 +656,15 @@ const scene = (() => {
       if (drag?.obj !== o) o.position.set(...s.pos);
       o.visible = $("showSources").checked;
       label(s.id, "src").textContent = s.stimata ? `${s.nome} ±${s.errore_m} m` : s.nome;
+    }
+    // cerchi di incertezza delle stime: grandi = il motore non è sicuro, trascina per correggere
+    const unc = [...Object.entries(S.scena?.mic || {}).filter(([, m]) => !m.bloccato).map(([id, m]) => [`r:${id}`, m.pos, m.incertezza_m, 0x4fb3ff]),
+      ...(S.sorgenti || []).filter((s) => s.stimata).map((s) => [`r:${s.id}`, s.pos, s.errore_m, 0xb38cff])];
+    prune(rings, new Set(unc.map((u) => u[0])));
+    for (const [id, pos, r, c] of unc) {
+      let o = rings.get(id);
+      if (!o) { o = new THREE.Mesh(new THREE.RingGeometry(0.94, 1, 64), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.5, side: THREE.DoubleSide })); o.rotation.x = -Math.PI / 2; sc.add(o); rings.set(id, o); }
+      o.position.set(pos[0], 0.03, pos[2]); o.scale.setScalar(Math.max(0.3, Math.min(r, Math.max(S.sala.w, S.sala.d))));
     }
     if (drag?.obj !== listener) listener.position.set(...S.listener);
     field.set(fieldContext());
@@ -881,7 +915,7 @@ $("seek").onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(), 
 addEventListener("keydown", (e) => { if (e.code === "Space" && !["INPUT", "SELECT"].includes(e.target.tagName)) { e.preventDefault(); player.toggle(); } });
 $("bAnalyze").onclick = safe(async () => {
   if (!S.tracks.length) return toast("Aggiungi prima delle tracce", true);
-  await runJob("/api/analyze", {}, "Analisi"); await refresh(); toast("Analisi e sync completati");
+  await runJob("/api/analyze", {}, "Analisi"); await refresh(); go(step); toast("Analisi e sync completati: sotto trovi cosa ho capito di ogni mic");
 });
 const resolveToast = () => { const e = S.resolve?.non_lette || []; toast(e.length ? `Timeline letta, ${e.length} clip non lette: ${e.join("; ")}` : "Timeline di Resolve letta", !!e.length); };
 $("bResolve").onclick = safe(async () => { S = await api("/api/resolve/import", {}); await refresh(); resolveToast(); go(1); });

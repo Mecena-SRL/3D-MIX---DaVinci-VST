@@ -95,6 +95,12 @@
     <div class="step" data-step="3">
       <div class="row-actions"><button id="bAnalyze" class="primary big">Analizza e sincronizza</button><span class="muted">Livelli, clipping, rumore, spettro, loudness, sync al campione e stima delle sorgenti.</span></div>
       <table id="health" class="health"></table>
+      <div id="capito" class="panel" hidden><h4>Cosa ho capito <span id="capInfo" class="muted small"></span></h4>
+        <table id="capTab" class="health"></table>
+        <p class="muted small">Ogni mic: quante sorgenti sente, con che ritardo e livello rispetto al riferimento, la distanza (e come l'ho misurata) e la direzione se è stereo.
+          Nella scena i cerchi sono l'incertezza. Trascina un mic dove sai che era: diventa un'ancora ✋ e il resto si riallinea. "Auto" lo rilascia.</p>
+      </div>
+      <div id="sceneSlot4" class="scene-slot"></div>
       <div id="anaEmpty" class="empty">Seleziona una traccia per i dettagli.</div>
       <div id="ana" hidden>
         <h3 id="anaTitle"></h3>
