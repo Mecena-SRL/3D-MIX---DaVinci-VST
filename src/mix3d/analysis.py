@@ -96,7 +96,8 @@ def analyze(wav: str, channels: list[int], duration: float, is_float: bool,
             rms100.extend(np.sqrt((x[: k * n100].reshape(k, n100) ** 2).mean(axis=1)))
         peak = max(peak, float(np.abs(x).max(initial=0)))
         if not is_float:
-            clips += int(np.count_nonzero(np.abs(x) >= 0.999))
+            c = np.abs(x) >= 0.999  # clipping vero: almeno 3 campioni di fila in cima (picco piatto)
+            clips += int(np.count_nonzero(c[:-2] & c[1:-1] & c[2:]))
         if len(x) >= 8192:
             f, p = welch(x, sr, nperseg=8192)
             psd_acc = p if psd_acc is None else psd_acc + p

@@ -128,11 +128,19 @@
             <div class="ab"><button id="bA" class="on">A · mix 3D</button><button id="bB">B · somma</button></div>
             <label class="small" title="Ogni traccia riceve l'EQ per ottava che serve perché la somma dei mic dia il diretto e il riverbero che sentiresti nel punto dell'ascoltatore, secondo le gaussiane stimate"><input type="checkbox" id="campoOn"> Ascolto dal campo (gaussiane): sposta l'ascoltatore e cambia il punto d'ascolto</label>
             <p class="muted small">Il ▶ in basso suona il mix MIX3D, non la timeline di Resolve. Confronta il mix spaziale con la semplice somma.</p></div>
+          <div class="panel"><h4>Suono e spazio</h4>
+            <label class="slider" title="Quanto si sentono camere, action cam e registratori rispetto a linea e microfoni vicini">Ambiente <input type="range" id="fxAmb" min="0" max="1.5" step="0.05"><output id="oFxAmb"></output></label>
+            <label class="slider" title="Toglie la coda di riverbero dal bus ambiente: suono più preciso e asciutto">Asciuga <input type="range" id="fxDry" min="0" max="1" step="0.05"><output id="oFxDry"></output></label>
+            <label class="slider" title="Compressione del master: dinamica più compatta e voce più presente">Compressione <input type="range" id="fxComp" min="0" max="1" step="0.05"><output id="oFxComp"></output></label>
+            <label class="slider" title="Riverbero aggiunto con il carattere scelto qui sotto">Riverbero <input type="range" id="fxRev" min="0" max="1" step="0.05"><output id="oFxRev"></output></label>
+            <label>Carattere <select id="fxCar"></select></label>
+            <p class="muted small">Per un suono preciso: ambiente basso, asciuga alto, poi riverbero quanto basta.</p></div>
           <div id="place" class="panel" hidden><h4>Posizione · <span id="plName"></span></h4>
             <label class="slider" title="Sinistra (−) / destra (+) rispetto al centro della sala">Lato <input type="range" id="px" step="0.1"><output id="oPx"></output></label>
             <label class="slider" title="0 = bordo palco; più alto = più verso il fondo sala">Profondità <input type="range" id="pz" step="0.1"><output id="oPz"></output></label>
             <label class="slider">Altezza <input type="range" id="py" min="0" step="0.1"><output id="oPy"></output></label>
             <label class="slider" title="Spostamento stereo aggiunto a quello della posizione">Pan extra <input type="range" id="ppan" min="-1" max="1" step="0.05"><output id="oPpan"></output></label>
+            <label title="Diretto: linea e microfoni vicini, il suono preciso. Ambiente: camere e registratori, il suono dello spazio.">Ruolo<span class="seg"><button id="rDir">Diretto</button><button id="rAmb">Ambiente</button></span></label>
             <p id="plInfo" class="muted small"></p>
             <div class="row-actions"><button id="plSolo" class="ghost small">Solo questa</button><button id="plAuto" class="ghost small">Posizione automatica</button></div>
             <p class="hint">Scegli la traccia a sinistra o cliccala nella scena.</p></div>

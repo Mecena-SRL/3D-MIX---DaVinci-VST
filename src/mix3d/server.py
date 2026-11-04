@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, urlparse
 import numpy as np
 import soundfile as sf
 
-from . import analysis, autotune, devices, eq, fusion, geometry, localize, look, media, mixer, spazi, splat
+from . import ambiente, analysis, autotune, devices, eq, fusion, geometry, localize, look, media, mixer, spazi, splat
 
 WEB = Path(__file__).parent / "web"
 AUDIO_EXT = {".wav", ".bwf", ".mp4", ".mov", ".mxf", ".m4a", ".aac", ".mp3", ".flac", ".aif", ".aiff"}
@@ -167,25 +167,61 @@ def job_analyze(job):
     ref = next((t for t in ts if t["id"] == p["riferimento"]), max(ts, key=lambda t: t["info"]["duration"], default=None))
     if ref:
         p["riferimento"] = ref["id"]
-    others = [t for t in ts if ref and t is not ref]
-    synced = []
-
-    def sync(t):
-        try:
-            s = analysis.sync_pair(ref, t)
-            t.update(offset_s=s["offset_s"], drift_ppm=s["drift_ppm"], sync_t0=s["sync_t0"], sync=s)
-        except Exception as e:  # es. clip senza parte comune con il riferimento: resta il sync di Resolve
-            t["sync"] = {"errore": str(e), "fiducia": 0}
-        synced.append(t)
-        job.update(msg=f"sync {len(synced)}/{len(others)}", progress=0.6 + 0.3 * len(synced) / max(len(others), 1))
-    with ThreadPoolExecutor(WORKERS) as ex:
-        list(ex.map(sync, others))
+    sync_chain(ref, [t for t in ts if ref and t is not ref], job)
     job["msg"] = "posizionamento e stima delle sorgenti"
     p["spazio_stimato"] = estimate_space(ts)
     p["immagini"] = sound_images(p, ref)
     auto_place(p)
     job["progress"] = 1.0
     return {"tracce": len(ts)}
+
+
+SYNC_MIN_FID = 0.3   # sotto: la correzione non è credibile, resta la posizione di Resolve
+SYNC_MAX_S = 0.5     # correzione massima rispetto alla posizione di partenza (Resolve o file)
+
+
+def sync_chain(ref: dict, others: list[dict], job: dict) -> None:
+    """Sync a catena: ogni clip si allinea alla traccia già allineata con cui ha più parte in comune.
+    Si parte dalle posizioni di Resolve e si corregge solo di poco: una correzione grande o debole
+    è un falso picco della correlazione (applausi, rumore) e si scarta."""
+    anchors, pending, done = [ref], list(others), []
+
+    def overlap(a, t):
+        return min(a["offset_s"] + a["info"]["duration"], t["offset_s"] + t["info"]["duration"]) - max(a["offset_s"], t["offset_s"])
+
+    def sync(pair):
+        t, a = pair
+        try:
+            s = analysis.sync_pair(a, t)
+            fix = s["offset_s"] - t["offset_s"]
+            s.update(ancora=a["id"], correzione_ms=round(fix * 1000, 1))
+            if t.get("da_resolve") and abs(fix) > SYNC_MAX_S:
+                s.update(errore=f"correzione di {fix:+.2f} s non credibile: resta la posizione di Resolve", fiducia=0)
+            elif s["fiducia"] < SYNC_MIN_FID:
+                s["errore"] = f"fiducia {s['fiducia']:.2f} troppo bassa: resta la posizione di Resolve"
+            else:
+                t.update(offset_s=s["offset_s"], drift_ppm=s["drift_ppm"], sync_t0=s["sync_t0"])
+            t["sync"] = s
+        except Exception as e:
+            t["sync"] = {"errore": str(e), "fiducia": 0}
+        done.append(t)
+        job.update(msg=f"sync {len(done)}/{len(others)}", progress=0.6 + 0.3 * len(done) / max(len(others), 1))
+        return t
+
+    while pending:
+        pairs = []
+        for t in pending:
+            a = max(anchors, key=lambda a: overlap(a, t))
+            if overlap(a, t) >= 20:
+                pairs.append((t, a))
+        if not pairs:
+            break
+        tried = {id(t) for t, _ in pairs}
+        pending = [t for t in pending if id(t) not in tried]
+        with ThreadPoolExecutor(WORKERS) as ex:
+            anchors += [t for t in ex.map(sync, pairs) if not t["sync"].get("errore")]
+    for t in pending:
+        t["sync"] = {"errore": "nessuna parte in comune con le tracce allineate: resta la posizione di Resolve", "fiducia": 0}
 
 
 def fuse_scene(p: dict):
@@ -389,7 +425,9 @@ def devices_payload() -> dict:
 def public_state() -> dict:
     p = STATE["project"]
     span = mixer.span(p) if p["tracks"] else (0, 0)
-    return {**p, "span": span}
+    return {**p, "span": span, "ambiente_fx": ambiente.settings(p),
+            "caratteri": {k: c["nome"] for k, c in ambiente.CARATTERI.items()},
+            "tracks": [{**t, "ruolo_eff": ambiente.ruolo(t)} for t in p["tracks"]]}
 
 
 def browse(d: str, ext: str | None = None) -> dict:

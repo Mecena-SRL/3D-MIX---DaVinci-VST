@@ -67,6 +67,8 @@ Nel pannello: **In Resolve…** › *Installa pannello e script* (oppure `mix3d 
 
 ## Plugin in Fairlight e aggiornamenti
 
+- **Suono e spazio** (passo Ascolto e mix): le tracce sono divise in *diretto* (linea del mixer, microfoni vicini) e *ambiente* (camere, action cam, registratori), con il ruolo modificabile per ogni traccia. Il bus ambiente si somma a potenza costante e si dosa con *Ambiente*. *Asciuga* toglie la coda di riverbero, *Compressione* agisce sul master, *Riverbero* e *Carattere* aggiungono lo spazio scelto: piazza con impianto, chiesa, teatro, sala da concerto, club, studio.
+- **Sync a catena**: si parte dalle posizioni di Resolve e ogni clip si allinea alla traccia già allineata con cui ha più parte in comune. Le correzioni deboli o oltre 0,5 s vengono scartate e la clip resta dov'è.
 - **Plugin VST3/AU "MIX3D"** (iPlug2, licenza libera): in MIX3D premi **Resolve › Installa tutto**, poi in Fairlight aggiungi l'effetto **Mecena › MIX3D** al bus master. Avvia l'app se è chiusa e mostra il pannello nella sua finestra. Con il play di Resolve suona il mix di MIX3D alla posizione della timeline, al posto dell'audio in ingresso (il pannello segue il playhead); da fermo, o con il parametro *Ascolto MIX3D* spento, lascia passare l'audio. Il codice è in `plugin/MIX3D`; si compila con `plugin/build_plugin.sh` (macOS, CMake + Xcode).
 - **Aggiornamenti**: all'avvio MIX3D controlla l'ultima GitHub Release. Se è più nuova compare **Aggiorna a x.y.z**: scarica il dmg per il tuo Mac, sostituisce l'app e la riapre.
 

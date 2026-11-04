@@ -14,7 +14,7 @@ import numpy as np
 import soundfile as sf
 from scipy.signal import firwin2, oaconvolve
 
-from . import devices, eq, look, media
+from . import ambiente, devices, eq, look, media
 from .analysis import Loudness
 from .geometry import spatial_params
 
@@ -51,6 +51,8 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     sr = project.get("sr", 48000)
     n, m = int(round(dur * sr)), int(round(PAD_S * sr))
     out = np.zeros((n + m, 2), np.float32)
+    amb, n_amb = np.zeros((n + m, 2), np.float32), 0  # bus ambiente (camere, action cam, registratori)
+    fx = ambiente.settings(project)
     levels, env = {}, {}
     field = (project.get("ascolto_campo") or {}) if project.get("campo_ascolto") else {}
 
@@ -100,13 +102,25 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
             th = (pan + 1) * np.pi / 4  # pan a potenza costante
             x = x * np.array([np.cos(th), np.sin(th)]) * np.sqrt(2)
         x = x * g
-        out[: len(x)] += x
+        if not bypass and ambiente.ruolo(t) == "ambiente":
+            amb[: len(x)] += x
+            n_amb += 1
+            x = x * fx["ambiente"] / np.sqrt(n_amb)  # solo per il livello mostrato (circa)
+        else:
+            out[: len(x)] += x
         levels[t["id"]] = round(float(20 * np.log10(np.sqrt(np.mean(x[m:] ** 2)) + 1e-10)), 1)
+    if n_amb:  # a potenza costante: più camere non vuol dire più riverbero
+        rt = (project.get("spazio_stimato") or {}).get("rt60") or 1.2
+        out += ambiente.asciuga(amb, sr, rt, fx["asciuga"]) * (fx["ambiente"] / np.sqrt(n_amb))
     if project.get("eq_master") and not bypass:
         out = eq.process(out, project["eq_master"], sr)
     if project.get("look") and not bypass:  # uscita della pipeline: carattere, EQ, colla
         out = look.apply(out, project, sr)
-    out = out[m:] * 10 ** (project.get("master_db", 0) / 20)
+    if not bypass:
+        out = ambiente.reverb(ambiente.compress(out, project, sr)[m:], project, sr, t0)
+    else:
+        out = out[m:]
+    out = out * 10 ** (project.get("master_db", 0) / 20)
     levels["master"] = round(float(20 * np.log10(np.abs(out).max(initial=0) + 1e-10)), 1)
     levels["env"] = env
     if errors:

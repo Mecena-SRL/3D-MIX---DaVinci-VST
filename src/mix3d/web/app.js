@@ -56,8 +56,8 @@ const status = (t) => (t.mute ? "muta" : audible(t) ? "in ascolto" : "esclusa da
 function health(t) {
   const a = t.analisi, sy = t.sync;
   if (!a) return "warn";
-  if (a.clip_campioni > 0 || sy?.errore) return "bad";
-  if (a.peak_dbfs > -1 || (sy && sy.fiducia < 0.4) || chainRisks(t).length > 2) return "warn";
+  if (a.clip_campioni > 0) return "bad";
+  if (a.peak_dbfs > -1 || sy?.errore || (sy && sy.fiducia < 0.4) || chainRisks(t).length > 2) return "warn";
   return "ok";
 }
 
@@ -98,7 +98,7 @@ function renderStep() {
 function renderSummary() {
   const ts = S.tracks, n = ts.length, conf = ts.filter((t) => t.confermato).length;
   const synced = ts.filter((t) => t.sync && !t.sync.errore).length + (S.riferimento ? 1 : 0);
-  const clips = ts.reduce((a, t) => a + (t.analisi?.clip_campioni || 0), 0);
+  const clips = ts.filter((t) => t.analisi?.clip_campioni > 0).length; // tracce con clipping vero
   const peaks = ts.filter((t) => t.analisi).map((t) => t.analisi.peak_dbfs);
   const sp = space(), [s0, s1] = S.span || [0, 0];
   const k = [
@@ -108,7 +108,7 @@ function renderSummary() {
     ["Sync", n ? `${Math.min(synced, n)}/${n}` : "–", synced >= n && n ? "ok" : ""],
     ["Durata", s1 > s0 ? fmt(s1 - s0).split(".")[0] : "–", ""],
     ["Picco max", peaks.length ? `${Math.max(...peaks)} dBFS` : "–", peaks.some((p) => p > -1) ? "warn" : ""],
-    ["Saturazioni", peaks.length ? clips : "–", clips ? "bad" : peaks.length ? "ok" : ""],
+    ["Tracce sature", peaks.length ? clips : "–", clips ? "bad" : peaks.length ? "ok" : ""],
     ["Sorgenti", (S.sorgenti || []).length || "–", ""],
   ];
   $("summary").innerHTML = k.map(([a, b, c]) => `<div class="kpi ${c}"><span>${a}</span><b>${b}</b></div>`).join("");
@@ -121,9 +121,10 @@ function syncBadge(t) {
   const sy = t.sync;
   if (t.id === S.riferimento) return `<span class="badge ok">riferimento</span>`;
   if (!sy) return `<span class="badge">da sincronizzare</span>`;
-  if (sy.errore) return `<span class="badge bad" title="${sy.errore}">sync fallito</span>`;
-  const c = sy.fiducia > 0.6 ? "ok" : sy.fiducia > 0.3 ? "warn" : "bad";
-  return `<span class="badge ${c}" title="residuo ${sy.residuo_us} µs, fiducia ${sy.fiducia}">${t.offset_s.toFixed(3)} s</span>`;
+  if (sy.errore) return `<span class="badge warn" title="${sy.errore}">pos. Resolve</span>`;
+  const c = sy.fiducia > 0.6 ? "ok" : "warn";
+  const fix = sy.correzione_ms ?? 0;
+  return `<span class="badge ${c}" title="corretto di ${fix} ms rispetto alla posizione di partenza, residuo ${sy.residuo_us} µs, fiducia ${sy.fiducia}">${fix > 0 ? "+" : ""}${fix} ms</span>`;
 }
 // canali: le clip della stessa traccia di Resolve (A1, A2…) stanno in una sola carta; i file aggiunti a mano, una carta ciascuno
 const lane = (t) => t.canale || t.id;
@@ -488,6 +489,9 @@ function renderMixSide() {
   $("oMaster").textContent = `${(+S.master_db).toFixed(1)} dB`;
   $("oWidth").textContent = `${Math.round(S.larghezza * 100)}%`;
   $("oAtten").textContent = `${Math.round(S.attenuazione * 100)}%`;
+  const fx = S.ambiente_fx, pc = (v) => `${Math.round(v * 100)}%`;
+  FX.forEach(([id, k]) => { $(id).value = fx[k]; $(`o${id[0].toUpperCase()}${id.slice(1)}`).textContent = pc(fx[k]); });
+  $("fxCar").innerHTML = Object.entries(S.caratteri).map(([k, n]) => `<option value="${k}" ${k === fx.carattere ? "selected" : ""}>${n}</option>`).join("");
   $("mixMeters").innerHTML = S.tracks.map((t) => `<div data-id="${t.id}"><span style="color:${color(t)}">${t.nome}</span><div class="meter"><i data-meter="${t.id}"></i></div><span class="st small"></span></div>`).join("");
   renderMonitor(); renderPlace();
 }
@@ -507,12 +511,21 @@ function renderPlace() {
   const pan = Math.sin(Math.atan2(dx, -dz)) * S.larghezza + (t.pan || 0), side = Math.abs(pan) < 0.1 ? "al centro" : `${Math.round(Math.min(Math.abs(pan), 1) * 100)}% a ${pan < 0 ? "sinistra" : "destra"}`;
   $("oPx").textContent = `${(+t.pos[0]).toFixed(1)} m`; $("oPy").textContent = `${(+t.pos[1]).toFixed(1)} m`;
   $("oPz").textContent = `${(+t.pos[2]).toFixed(1)} m`; $("oPpan").textContent = `${Math.round((t.pan || 0) * 100)}%`;
+  $("rDir").classList.toggle("on", t.ruolo_eff === "diretto"); $("rAmb").classList.toggle("on", t.ruolo_eff === "ambiente");
   $("plInfo").innerHTML = `Dall'ascoltatore: <b>${dist.toFixed(1)} m</b>, <b>${side}</b> · ${t.pos_mode === "manuale" ? "posizione manuale" : "posizione automatica"}`;
 }
 PLACE.forEach(([id, i]) => ($(id).oninput = () => {
   const t = selected(), pos = [...t.pos]; pos[i] = +$(id).value;
   pushGroup(members(t), { pos, pos_mode: "manuale" }); renderPlace(); scene.sync();
 }));
+for (const [id, r] of [["rDir", "diretto"], ["rAmb", "ambiente"]]) $(id).onclick = () => {
+  members(selected()).forEach((t) => (t.ruolo = t.ruolo_eff = r));
+  pushGroup(members(selected()), { ruolo: r }); renderPlace();
+};
+const FX = [["fxAmb", "ambiente"], ["fxDry", "asciuga"], ["fxComp", "compressione"], ["fxRev", "riverbero"]];
+const pushFx = (patch) => { Object.assign(S.ambiente_fx, patch); renderMixSide(); push({ ambiente_fx: S.ambiente_fx }); };
+FX.forEach(([id, k]) => ($(id).oninput = (e) => pushFx({ [k]: +e.target.value })));
+$("fxCar").onchange = (e) => pushFx({ carattere: e.target.value });
 $("ppan").oninput = () => { pushGroup(members(selected()), { pan: +$("ppan").value }); renderPlace(); };
 $("plAuto").onclick = () => { pushGroup(members(selected()), { pos_mode: "auto", orient: null, pan: 0 }); setTimeout(refresh, 400); };
 $("plSolo").onclick = () => { // solo esclusivo del canale selezionato (di nuovo: lo toglie)
