@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/data/devices.json": {
-    "mtime": 1793785265.6843398,
-    "seen": 1793785887.4603624,
-    "ast_hash": "61e0271a6ce486f7bd250d56bb38ae3f",
+    "mtime": 1793788630.3742561,
+    "seen": 1793788659.4033487,
+    "ast_hash": "562b1fad8cee6259f1f3b6e9c19d400e",
     "semantic_hash": ""
   },
   "src/mix3d/devices.py": {
@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "docs/database_dispositivi.md": {
-    "mtime": 1793785265.5373106,
-    "seen": 1793785887.4603953,
-    "ast_hash": "4a21fac460b0e4e60627cb488b33422e",
+    "mtime": 1793788630.3742561,
+    "seen": 1793788659.4034076,
+    "ast_hash": "d1aadb526da5eba0e24f0c1edb67d71f",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "tests/test_metadata.py": {
-    "mtime": 1793785265.6916254,
-    "seen": 1793785887.4603896,
-    "ast_hash": "9b2c7ede834b79281dccce9ebcb0ad2e",
+    "mtime": 1793788630.3742561,
+    "seen": 1793788659.4033978,
+    "ast_hash": "18d6b231c6c5acde04df2f6e82aedf80",
     "semantic_hash": ""
   },
   "plugin/MIX3D/CMakeLists.txt": {
