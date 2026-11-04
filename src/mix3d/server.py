@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, urlparse
 import numpy as np
 import soundfile as sf
 
-from . import analysis, autotune, devices, eq, geometry, look, media, mixer, spazi
+from . import analysis, autotune, devices, eq, geometry, localize, look, media, mixer, spazi
 
 WEB = Path(__file__).parent / "web"
 AUDIO_EXT = {".wav", ".bwf", ".mp4", ".mov", ".mxf", ".m4a", ".aac", ".mp3", ".flac", ".aif", ".aiff"}
@@ -180,15 +180,31 @@ def job_analyze(job):
     with ThreadPoolExecutor(WORKERS) as ex:
         list(ex.map(sync, others))
     job["msg"] = "posizionamento e stima delle sorgenti"
+    p["spazio_stimato"] = estimate_space(ts)
+    p["immagini"] = sound_images(p, ref)
     auto_place(p)
     try:
         est = geometry.estimate_sources(ts, p["sala"], p.get("palco", {}).get("d", 4))
     except Exception:  # stima facoltativa: se i file non bastano si va avanti senza
         est = []
     p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
-    p["spazio_stimato"] = estimate_space(ts)
     job["progress"] = 1.0
     return {"tracce": len(ts)}
+
+
+def sound_images(p: dict, ref: dict | None) -> dict | None:
+    """Cosa sente ogni mic (sorgenti, ritardi, direzione, distanza) rispetto alla linea del mixer,
+    o al riferimento se non c'è linea. Facoltativo: se le tracce non bastano si va avanti senza."""
+    ts = [t for t in p["tracks"] if not t.get("mute")]
+    line = next((t for t in ts if mixer.is_line(t)), None)
+    ref = line or ref
+    if not ref or len(ts) < 2:
+        return None
+    rt60 = (p.get("spazio_stimato") or {}).get("rt60") or 1.5
+    try:
+        return localize.images(ts, ref, p["sala"], rt60, devices.load()["microfoni"], line=bool(line))
+    except Exception as e:
+        return {"errore": str(e)[:160]}
 
 
 def estimate_space(ts: list[dict]) -> dict | None:
