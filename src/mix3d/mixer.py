@@ -7,6 +7,7 @@ all'ascoltatore virtuale. In modalità B (bypass) solo somma con i guadagni.
 from __future__ import annotations
 
 import os
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 
 import numpy as np
@@ -17,6 +18,7 @@ from . import devices, eq, look, media
 from .analysis import Loudness
 from .geometry import spatial_params
 
+POOL = ThreadPoolExecutor(8)
 FIR_TAPS = 1023
 PAD_S = 0.25  # pre-roll: assesta FIR, filtri IIR e inviluppi dell'EQ fra un blocco e l'altro
 
@@ -41,12 +43,29 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     n, m = int(round(dur * sr)), int(round(PAD_S * sr))
     out = np.zeros((n + m, 2), np.float32)
     levels, env = {}, {}
-    for t in active(project["tracks"]):
+
+    errors = {}
+
+    def load(t):  # lettura allineata (offset + drift); le letture dei video vanno in parallelo
+        try:
+            return _load(t)
+        except Exception as e:  # una clip illeggibile tace, l'ascolto delle altre continua
+            errors[t["id"]] = str(e)[:160]
+
+    def _load(t):
         off = t["offset_s"] - t.get("drift_ppm", 0) * 1e-6 * (t0 - t.get("sync_t0", 0))
         x = media.read(t["wav"], t["channels"], t0 - off - m / sr, (n + m) / sr, sr)[: n + m]
         if d := t.get("destra"):  # due mono uniti in stereo: il secondo canale è il destro
             r = media.read(d["wav"], d["channels"], t0 - off - d.get("delta_s", 0) - m / sr, (n + m) / sr, sr)[: n + m]
             x = np.hstack([x[:, :1], r[:, :1]])
+        return x
+
+    # solo le clip che suonano in questo blocco: in una timeline da ore le altre non si leggono
+    ts = [t for t in active(project["tracks"])
+          if t["offset_s"] - PAD_S < t0 + dur and t0 - PAD_S < t["offset_s"] + t["info"]["duration"]]
+    for t, x in zip(ts, POOL.map(load, ts)):
+        if x is None:
+            continue
         mic = t.get("microfono")
         line = is_line(t)
         if mic and not line and project.get("correzione", True) and not bypass:
@@ -77,6 +96,8 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     out = out[m:] * 10 ** (project.get("master_db", 0) / 20)
     levels["master"] = round(float(20 * np.log10(np.abs(out).max(initial=0) + 1e-10)), 1)
     levels["env"] = env
+    if errors:
+        levels["errori"] = errors
     return out, levels
 
 

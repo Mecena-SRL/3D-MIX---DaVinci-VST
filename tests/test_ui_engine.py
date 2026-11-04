@@ -140,8 +140,13 @@ def test_file_video_aac(concert):
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(concert / "TX01_MIC001.wav"), "-c:a", "aac",
                     "-b:a", "128k", str(mp4)], check=True)
     t = server.tracks_from_file(str(mp4))[0]
-    assert t["info"]["codec"] == "aac" and t["wav"].endswith(".wav")
+    # niente copia decodificata: il video si legge a pezzi con ffmpeg (sessioni da ore)
+    assert t["info"]["codec"] == "aac" and t["wav"] == str(mp4) and t["info"]["duration"] > 60
     assert t["profile"] == "osmo_action"
+    from mix3d import media
+    x = media.read(t["wav"], t["channels"], 30.0, 0.5, FS)
+    assert x.shape == (FS // 2, 1) and np.abs(x).max() > 0.01
+    assert media.read(t["wav"], t["channels"], -1.0, 0.5, FS).any() == False  # prima del file: silenzio
 
 
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg assente")
