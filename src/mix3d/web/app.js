@@ -785,14 +785,17 @@ const player = (() => {
     const cur = [...queue].reverse().find((q) => q.when <= ctx?.currentTime);
     if (cur) {
       scene.levels(cur.lv.env, Math.min(9, Math.floor((ctx.currentTime - cur.when) / CHUNK * 10)));
-      const w = (db) => `${Math.max(0, (db + 60) / 60) * 100}%`;
-      for (const [id, db] of Object.entries(cur.lv)) if (id !== "env") document.querySelectorAll(`[data-meter="${id}"]`).forEach((m) => (m.style.width = w(db)));
-      document.querySelectorAll("[data-gmeter]").forEach((m) => (m.style.width = w(Math.max(-100, ...m.dataset.gmeter.split(" ").map((id) => cur.lv[id] ?? -100)))));
-      $("lufsLive").textContent = `picco ${cur.lv.master} dBFS`;
-      $("lufsLive").style.color = cur.lv.master > -1 ? css("--bad") : "";
+      showLevels(cur.lv);
     }
     queue = queue.filter((q) => q.when + CHUNK > (ctx?.currentTime ?? 0) - 1);
     fill();
+  }
+  function showLevels(lv) {
+    const w = (db) => `${Math.max(0, (db + 60) / 60) * 100}%`;
+    for (const [id, db] of Object.entries(lv)) if (id !== "env") document.querySelectorAll(`[data-meter="${id}"]`).forEach((m) => (m.style.width = w(db)));
+    document.querySelectorAll("[data-gmeter]").forEach((m) => (m.style.width = w(Math.max(-100, ...m.dataset.gmeter.split(" ").map((id) => lv[id] ?? -100)))));
+    $("lufsLive").textContent = `picco ${lv.master} dBFS`;
+    $("lufsLive").style.color = lv.master > -1 ? css("--bad") : "";
   }
   function meters() {
     const d = new Float32Array(1024);
@@ -817,7 +820,16 @@ const player = (() => {
     fill();
   }
   function setBypass(b) { bypass = b; flush(); }
-  return { start, stop, flush, setBypass, toggle: () => (playing ? stop() : start()), seek: (t) => (playing ? start(t) : ((pos = t), tick())), tick };
+  // play dal plugin in Fairlight: il pannello non suona, segue il playhead e i livelli di Resolve
+  function host(h) {
+    $("time").classList.toggle("host", !!h?.play);
+    if (!h?.play) return;
+    if (playing) stop();
+    pos = h.t + h.age;
+    tick();
+    if (h.lv) showLevels(h.lv);
+  }
+  return { start, stop, host, flush, setBypass, toggle: () => (playing ? stop() : start()), seek: (t) => (playing ? start(t) : ((pos = t), tick())), tick };
 })();
 
 // --- lavori lunghi (analisi, stampa) con barra di avanzamento -------------------------------
@@ -984,9 +996,11 @@ go(S.tracks.length ? saved : 0);
 let rev = (await api("/api/rev")).rev;
 setInterval(async () => {
   const r = await api("/api/rev").catch(() => null);
-  if (!r || r.rev === rev) return;
+  if (!r) return;
+  player.host(r.host);
+  if (r.rev === rev) return;
   rev = r.rev; await refresh(); resolveToast(); go(1);
-}, 2000);
+}, 400);
 // aperto dal pannello o dal plugin dentro Resolve: prova a leggere la timeline (serve Resolve Studio)
 if (location.hash === "#resolve" && !S.tracks.length) $("bResolve").click();
 

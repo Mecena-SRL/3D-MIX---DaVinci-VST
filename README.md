@@ -67,7 +67,7 @@ Nel pannello: **In Resolve…** › *Installa pannello e script* (oppure `mix3d 
 
 ## Plugin in Fairlight e aggiornamenti
 
-- **Plugin VST3/AU "MIX3D"** (iPlug2, licenza libera): in MIX3D premi **Resolve › Installa tutto**, poi in Fairlight aggiungi l'effetto **Mecena › MIX3D** a una traccia o al bus. Lascia passare l'audio, avvia l'app se è chiusa e mostra il pannello nella sua finestra. Il codice è in `plugin/MIX3D`; si compila con `plugin/build_plugin.sh` (macOS, CMake + Xcode).
+- **Plugin VST3/AU "MIX3D"** (iPlug2, licenza libera): in MIX3D premi **Resolve › Installa tutto**, poi in Fairlight aggiungi l'effetto **Mecena › MIX3D** al bus master. Avvia l'app se è chiusa e mostra il pannello nella sua finestra. Con il play di Resolve suona il mix di MIX3D alla posizione della timeline, al posto dell'audio in ingresso (il pannello segue il playhead); da fermo, o con il parametro *Ascolto MIX3D* spento, lascia passare l'audio. Il codice è in `plugin/MIX3D`; si compila con `plugin/build_plugin.sh` (macOS, CMake + Xcode).
 - **Aggiornamenti**: all'avvio MIX3D controlla l'ultima GitHub Release. Se è più nuova compare **Aggiorna a x.y.z**: scarica il dmg per il tuo Mac, sostituisce l'app e la riapre.
 
 ## Installazione da sorgente (macOS)

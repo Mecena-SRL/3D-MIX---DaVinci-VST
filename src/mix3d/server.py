@@ -33,7 +33,20 @@ def new_project() -> dict:
             "sorgenti": [], "lobi": True, "tracks": []}
 
 
-STATE = {"project": new_project(), "jobs": {}, "rev": 0, "poll": 0.0}
+STATE = {"project": new_project(), "jobs": {}, "rev": 0, "poll": 0.0, "mix": 0, "host": None, "host_rel": False}
+
+
+def host_time(h: float) -> float:
+    """Posizione del plugin in Fairlight -> secondi MIX3D (0 = inizio timeline).
+    L'host può contare dall'inizio della timeline o dal timecode (01:00:00:00): se una posizione
+    cade prima del timecode d'inizio, l'host conta dall'inizio e così resta."""
+    r = STATE["project"].get("resolve")
+    if not r:
+        return h
+    z = r["start_frame"] / r["fps"]
+    if h < z - 1:
+        STATE["host_rel"] = True
+    return h if STATE["host_rel"] else h - z
 # timeline mandata dallo script MIX3D dentro Resolve (Workspace > Scripts > MIX3D)
 SESSION = Path.home() / ".mix3d" / "resolve" / "sessione.json"
 LOCK = threading.Lock()
@@ -257,6 +270,7 @@ def import_resolve(info: dict | None = None) -> int:
     p["tracks"] = [t for t in p["tracks"] if not t.get("da_resolve")]
     fps = float(info["fps"])
     p["resolve"] = {"start_frame": info["start_frame"], "fps": fps, "timeline": info["timeline"]}
+    STATE["host_rel"] = False
     added, seen, errors = 0, set(), []
     clips = sorted(info["clips"], key=lambda c: c.get("kind", "audio") != "audio")
     key = lambda c: (c["file_path"], c["start_frame"] - c["left_offset"])
@@ -358,9 +372,13 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json(resolve_install.status())
             if u.path == "/api/browse":
                 return self.send_json(browse(q.get("dir", ""), q.get("ext")))
-            if u.path == "/api/rev":  # il pannello aperto controlla se Resolve ha mandato una timeline
-                STATE["poll"] = time.time()
-                return self.send_json({"rev": STATE["rev"]})
+            if u.path == "/api/rev":  # il pannello (e il plugin, con p=1) controllano cosa è cambiato
+                if q.get("p") != "1":
+                    STATE["poll"] = time.time()
+                h = STATE["host"]
+                return self.send_json({"rev": STATE["rev"], "mix": STATE["mix"],
+                                       "tracce": len(mixer.active(STATE["project"]["tracks"])),
+                                       "host": {**h, "age": time.time() - h["at"]} if h and time.time() - h["at"] < 1 else None})
             if u.path == "/api/update":
                 from . import updater
                 return self.send_json(updater.check(q.get("force") == "1"))
@@ -373,8 +391,13 @@ class Handler(SimpleHTTPRequestHandler):
             if u.path == "/api/eq/curve":
                 return self.send_json(eq_curve(q["track"]))
             if u.path == "/api/render":
-                p = STATE["project"]
-                x, lv = mixer.render(p, float(q["t0"]), float(q.get("dur", 2)), q.get("b") == "1")
+                p, t0 = STATE["project"], float(q["t0"])
+                if "pos" in q:  # richiesta del plugin: tempi dell'host, playhead in `pos`
+                    t0 = host_time(t0)
+                    STATE["host"] = {"t": host_time(float(q["pos"])), "play": q.get("play") == "1", "at": time.time()}
+                x, lv = mixer.render(p, t0, float(q.get("dur", 2)), q.get("b") == "1")
+                if "pos" in q:
+                    STATE["host"]["lv"] = lv
                 b, lv = wav_bytes(x, p["sr"]), json.dumps(lv)
                 self.send_response(200)
                 self.send_header("Content-Type", "audio/wav")
@@ -392,6 +415,7 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             b = self.body()
             with LOCK:
+                STATE["mix"] += 1  # ogni modifica: il plugin butta l'audio già preparato
                 if u.path == "/api/files":
                     for path in b["paths"]:
                         p["tracks"] += tracks_from_file(path)
