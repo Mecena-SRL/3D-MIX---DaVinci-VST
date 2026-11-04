@@ -59,6 +59,9 @@ def apply_profile(t: dict, pid: str):
     p = devices.profile(pid)
     t.update(profile=pid, registratore=p["registratore"], microfono=p["microfono"], posizione_tipica=p["posizione"],
              ruolo=p["ruolo"], mute=p["gain_db"] is None, gain_db=p["gain_db"] or 0.0)
+    # profilo mono (es. audio macchina mono): solo il primo canale; gli altri profili tornano ai canali del file
+    orig = t.setdefault("canali_file", t["channels"])
+    t["channels"] = orig[:1] if p.get("mono") else orig
 
 
 def tracks_from_file(path: str, offset_s: float = 0.0, name: str | None = None) -> list[dict]:
@@ -93,7 +96,7 @@ def split_track(p: dict, tid: str) -> list[dict]:
     if len(t["channels"]) < 2:
         raise ValueError("la traccia è già mono")
     base = t["nome"].rsplit(" ch", 1)[0]
-    parts = [{**t, "id": t["id"] if k == 0 else uuid.uuid4().hex[:8], "channels": [c], "nome": f"{base} ch{c}",
+    parts = [{**t, "id": t["id"] if k == 0 else uuid.uuid4().hex[:8], "channels": [c], "canali_file": [c], "nome": f"{base} ch{c}",
               "analisi": None, "sync": None} for k, c in enumerate(t["channels"])]
     p["tracks"][i:i + 1] = parts
     return parts
@@ -107,7 +110,7 @@ def join_tracks(p: dict, left_id: str, right_id: str) -> dict:
     if len(left["channels"]) != 1 or len(right["channels"]) != 1 or left.get("destra") or right.get("destra"):
         raise ValueError("si uniscono solo due tracce mono")
     if left["wav"] == right["wav"]:  # stesso file: basta leggere i due canali insieme
-        left["channels"] = [left["channels"][0], right["channels"][0]]
+        left["channels"] = left["canali_file"] = [left["channels"][0], right["channels"][0]]
     else:
         left["destra"] = {**right, "delta_s": right["offset_s"] - left["offset_s"]}
     left["nome"] = f"{left['nome']} + {right['nome']}"

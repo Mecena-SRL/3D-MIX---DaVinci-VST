@@ -2897,6 +2897,31 @@
       "rischi": ["agc"],
       "fiducia": {},
       "fonti": ["https://www.bhphotovideo.com/c/product/1832684-REG/panasonic_dmw_xlr2_xlr_microphone_adapter.html"]
+    },
+    "camera_mirrorless": {
+      "nome": "Camera mirrorless (qualsiasi, non in elenco)",
+      "marca": "Generico",
+      "tipo": "mirrorless",
+      "formato": "audio della camera: LPCM 16/24 bit o AAC, 48 kHz",
+      "canali": 2,
+      "ingressi": [
+        {
+          "tipo": "mini_jack",
+          "n": 1,
+          "nome": "3.5 mm mic (plug-in power)",
+          "plug_in_power": true
+        }
+      ],
+      "mic_interno": ["camera_interno"],
+      "bit": [16, 24],
+      "sr": [48000],
+      "codec": ["pcm_s16le", "pcm_s16be", "pcm_s24le", "pcm_s24be", "aac"],
+      "clock_ppm": 20,
+      "timecode": "no",
+      "rischi": ["agc"],
+      "note": "Per camere non in database: audio interno o mic sul jack 3.5 mm.",
+      "fiducia": {},
+      "fonti": []
     }
   },
   "rischi": {
@@ -3260,6 +3285,27 @@
       "file": [
         "^P\\d{7}\\.(MOV|MP4)$"
       ]
+    },
+    {
+      "id": "camera_audio_stereo",
+      "nome": "Camera mirrorless, audio macchina (stereo)",
+      "registratore": "camera_mirrorless",
+      "microfono": "camera_interno",
+      "ruolo": "spot",
+      "posizione": "laterale",
+      "canali": [1, 2],
+      "file": ["\\.(MOV|MP4|MXF|MTS|M2TS)$"]
+    },
+    {
+      "id": "camera_audio_mono",
+      "nome": "Camera mirrorless, audio macchina (mono)",
+      "registratore": "camera_mirrorless",
+      "microfono": "camera_interno",
+      "ruolo": "spot",
+      "posizione": "laterale",
+      "canali": [1],
+      "file": ["\\.(MOV|MP4|MXF|MTS|M2TS)$"],
+      "mono": true
     },
     {
       "id": "generico",

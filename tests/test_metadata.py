@@ -68,3 +68,19 @@ def test_panasonic():
     assert c("lumix_s1h", "videomic_go")["via"].startswith("3.5 mm")
     assert "DMW-XLR1" in c("lumix_s1h", "mkh416")["via"] and "DMW-XLR2" in c("lumix_gh7", "mkh416")["via"]
     assert c("lumix_s9", "mkh416")["ok"] is False
+
+
+def test_mov_panasonic_senza_tag(tmp_path):
+    # modello solo dentro un atomo proprio del moov (come fa Panasonic): ffmpeg non lo mostra
+    p = tmp_path / "P1043201.MOV"
+    udta = struct.pack(">I", 8 + 24) + b"PANA" + b"\0\0DC-S1H\0\0LUMIX 2.0\0\0\0\0\0"
+    moov = struct.pack(">I", 8 + len(udta)) + b"moov" + udta
+    p.write_bytes(struct.pack(">I", 16) + b"ftypqt  \0\0\0\0" + moov)
+    m = metadata.read(str(p))
+    assert m["modello"] == "DC-S1H" and metadata.detect(m)["id"] == "lumix_s1h"
+
+
+def test_preset_camera_generica():
+    s = devices.suggest({"name": "MVI_0001.MOV", "codec": "aac", "bits": None, "sr": 48000, "ch_index": 1})
+    assert s[0]["id"].startswith("camera_audio_")
+    assert devices.compat("camera_mirrorless", "videomic_go")["ok"] and devices.compat("camera_mirrorless", "camera_interno")["ok"]
