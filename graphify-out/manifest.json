@@ -1,14 +1,14 @@
 {
   "pyproject.toml": {
-    "mtime": 1793788618.510621,
-    "seen": 1793788623.4861352,
-    "ast_hash": "a47d6d85248eb992e2b6be0ca7d45caa",
+    "mtime": 1793789786.314141,
+    "seen": 1793789789.5668764,
+    "ast_hash": "5fac8484f7349759c2fec9ea2f9e0a49",
     "semantic_hash": ""
   },
   "src/mix3d/__init__.py": {
-    "mtime": 1793788618.508881,
-    "seen": 1793788623.4861374,
-    "ast_hash": "4be8ac0f16fa7a9c1eaa644d845d36c9",
+    "mtime": 1793789786.3126006,
+    "seen": 1793789789.566879,
+    "ast_hash": "94ef57ae7bdb48c70f4821498fa5d578",
     "semantic_hash": ""
   },
   "src/mix3d/cli.py": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/web/app.js": {
-    "mtime": 1793787985.4567196,
-    "seen": 1793788623.4861708,
-    "ast_hash": "ac95fb0a6a372790aad64dc432fd6800",
+    "mtime": 1793789711.0528715,
+    "seen": 1793789789.5669205,
+    "ast_hash": "f98e7810229eaadfd043555bd4efdfac",
     "semantic_hash": ""
   },
   "tests/test_ui_engine.py": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/web/index.html": {
-    "mtime": 1793787960.506093,
-    "seen": 1793788623.4861922,
-    "ast_hash": "c7b8238874cb43468037ea5688a4956b",
+    "mtime": 1793789711.0514889,
+    "seen": 1793789789.5669494,
+    "ast_hash": "8cdbc7d23de243e36aa8342402b7e739",
     "semantic_hash": ""
   },
   "docs/database_dispositivi.md": {
@@ -168,9 +168,9 @@
     "semantic_hash": ""
   },
   "src/mix3d/resolve_plugin/workflow/package.json": {
-    "mtime": 1793788618.5095448,
-    "seen": 1793788623.4861646,
-    "ast_hash": "27378b2b68878d30ccafb45ef3321cd1",
+    "mtime": 1793789786.3134499,
+    "seen": 1793789789.5669122,
+    "ast_hash": "88f6470bfa77b23a9ad9297d510c8622",
     "semantic_hash": ""
   },
   "src/mix3d/data/spazi.json": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "plugin/MIX3D/config.h": {
-    "mtime": 1793788618.514006,
-    "seen": 1793788623.486127,
-    "ast_hash": "4c9a84e040a1856345e9319666bff021",
+    "mtime": 1793789786.3169866,
+    "seen": 1793789789.5668664,
+    "ast_hash": "71e79b5bbc59b9b653bbf6e116ac3d70",
     "semantic_hash": ""
   },
   "plugin/MIX3D/resources/resource.h": {
