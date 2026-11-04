@@ -66,6 +66,41 @@ def tracks_from_file(path: str, offset_s: float = 0.0, name: str | None = None) 
     return out
 
 
+def split_track(p: dict, tid: str) -> list[dict]:
+    """Una traccia a due canali diventa due tracce mono (es. ch1 microfono, ch2 linea dal mixer)."""
+    i, t = next((i, t) for i, t in enumerate(p["tracks"]) if t["id"] == tid)
+    if t.get("destra"):  # era un doppio mono unito: torna com'era
+        right = t.pop("destra")  # la traccia destra era conservata intera
+        right.pop("delta_s", None)
+        t["nome"] = t["nome"].split(" + ")[0]
+        p["tracks"].insert(i + 1, right)
+        return [t, right]
+    if len(t["channels"]) < 2:
+        raise ValueError("la traccia è già mono")
+    base = t["nome"].rsplit(" ch", 1)[0]
+    parts = [{**t, "id": t["id"] if k == 0 else uuid.uuid4().hex[:8], "channels": [c], "nome": f"{base} ch{c}",
+              "analisi": None, "sync": None} for k, c in enumerate(t["channels"])]
+    p["tracks"][i:i + 1] = parts
+    return parts
+
+
+def join_tracks(p: dict, left_id: str, right_id: str) -> dict:
+    """Due tracce mono diventano una stereo: la prima a sinistra, la seconda a destra
+    (es. uscita L/R del mixer su due ingressi del Tascam o dell'FX6)."""
+    left = next(t for t in p["tracks"] if t["id"] == left_id)
+    right = next(t for t in p["tracks"] if t["id"] == right_id)
+    if len(left["channels"]) != 1 or len(right["channels"]) != 1 or left.get("destra") or right.get("destra"):
+        raise ValueError("si uniscono solo due tracce mono")
+    if left["wav"] == right["wav"]:  # stesso file: basta leggere i due canali insieme
+        left["channels"] = [left["channels"][0], right["channels"][0]]
+    else:
+        left["destra"] = {**right, "delta_s": right["offset_s"] - left["offset_s"]}
+    left["nome"] = f"{left['nome']} + {right['nome']}"
+    left["analisi"] = None
+    p["tracks"].remove(right)
+    return left
+
+
 def auto_place(p: dict):
     auto = [t for t in p["tracks"] if t["pos_mode"] == "auto"]
     if any("extra_dist_m" not in t for t in auto):  # costoso (GCC): solo con tracce nuove
@@ -199,8 +234,9 @@ def import_resolve(info: dict | None = None) -> int:
     p["tracks"] = [t for t in p["tracks"] if not t.get("da_resolve")]
     fps = float(info["fps"])
     p["resolve"] = {"start_frame": info["start_frame"], "fps": fps, "timeline": info["timeline"]}
-    added, seen = 0, set()
-    for c in info["clips"]:
+    added, seen, errors = 0, set(), []
+    # prima le clip audio (nomi A1, A2…), poi le video: stesso file e posizione = una sola traccia
+    for c in sorted(info["clips"], key=lambda c: c.get("kind", "audio") != "audio"):
         # una clip video compare su più tracce audio (es. FX6 ch1-2 su A1, ch3-4 su A2):
         # il file si importa una volta sola, con tutti i suoi canali
         key = (c["file_path"], c["start_frame"] - c["left_offset"])
@@ -208,9 +244,16 @@ def import_resolve(info: dict | None = None) -> int:
             continue
         seen.add(key)
         off = (c["start_frame"] - c["left_offset"] - info["start_frame"]) / fps
-        for t in tracks_from_file(c["file_path"], off, f"A{c['track']} {c['name']}"):
-            p["tracks"].append({**t, "da_resolve": True})
+        label = f"{'V' if c.get('kind') == 'video' else 'A'}{c['track']} {c['name']}"
+        try:
+            new = tracks_from_file(c["file_path"], off, label)
+        except Exception as e:  # file mancante, offline o senza audio: le altre clip arrivano lo stesso
+            if c.get("kind") != "video":
+                errors.append(f"{c['name']}: {e}")
+            continue
+        p["tracks"] += [{**t, "da_resolve": True} for t in new]
         added += 1
+    p["resolve"]["non_lette"] = errors
     return added
 
 
@@ -322,6 +365,10 @@ class Handler(SimpleHTTPRequestHandler):
                     for path in b["paths"]:
                         p["tracks"] += tracks_from_file(path)
                     auto_place(p)
+                elif u.path == "/api/tracce/dividi":
+                    split_track(p, b["id"])
+                elif u.path == "/api/tracce/unisci":
+                    join_tracks(p, b["sinistra"], b["destra"])
                 elif u.path == "/api/resolve/import":
                     import_resolve()
                     auto_place(p)

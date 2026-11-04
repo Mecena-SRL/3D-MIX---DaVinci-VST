@@ -207,3 +207,8 @@ button.update { background: linear-gradient(135deg, var(--ok), var(--accent)); c
   .scene-tools { gap: 4px 8px; padding: 5px 8px; font-size: 12px; } .scene-tools .hint { display: none; }
   .scene-tools input, .scene-tools select, .scene-tools button { padding: 3px 7px; }
 }
+/* ingresso e canali della traccia */
+.chain-pick.io { grid-template-columns: auto 1fr; margin-top: 8px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.seg button.on { background: var(--accent); color: #06131f; }
+#ioCh { color: var(--text); font-weight: 500; }

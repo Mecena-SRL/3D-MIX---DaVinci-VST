@@ -70,6 +70,7 @@ def connect():
 
 @dataclass
 class AudioClip:
+    kind: str               # "audio" o "video": l'audio di camera può stare solo nella clip video
     track: int
     name: str
     start_frame: int        # posizione sulla timeline
@@ -94,12 +95,12 @@ def read_audio_clips(resolve) -> dict:
     """Passi 1-2 del piano: tracce audio, posizioni e file originali."""
     project, tl = current_timeline(resolve)
     clips = []
-    for track in range(1, tl.GetTrackCount("audio") + 1):
-        for item in tl.GetItemListInTrack("audio", track) or []:
+    for kind, track in [(k, i) for k in ("audio", "video") for i in range(1, tl.GetTrackCount(k) + 1)]:
+        for item in tl.GetItemListInTrack(kind, track) or []:
             mpi = item.GetMediaPoolItem()
             prop = (lambda k: mpi.GetClipProperty(k)) if mpi else (lambda k: "")
             clips.append(AudioClip(
-                track=track, name=item.GetName(), start_frame=item.GetStart(),
+                kind=kind, track=track, name=item.GetName(), start_frame=item.GetStart(),
                 end_frame=item.GetEnd(), left_offset=item.GetLeftOffset(),
                 file_path=prop("File Path"), sample_rate=prop("Sample Rate"),
                 channels=prop("Audio Ch"),

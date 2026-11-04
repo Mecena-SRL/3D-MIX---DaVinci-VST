@@ -7,11 +7,14 @@ if not tl then print("MIX3D: apri un progetto con una timeline") return end
 
 local function q(s) return '"' .. tostring(s or ""):gsub('[%c"\\]', function(c) return string.format("\\u%04x", c:byte()) end) .. '"' end
 local clips = {}
-for t = 1, tl:GetTrackCount("audio") do
-  for _, it in pairs(tl:GetItemListInTrack("audio", t) or {}) do
-    local mpi = it:GetMediaPoolItem()
-    clips[#clips + 1] = string.format('{"track":%d,"name":%s,"start_frame":%d,"end_frame":%d,"left_offset":%d,"file_path":%s}',
-      t, q(it:GetName()), it:GetStart(), it:GetEnd(), it:GetLeftOffset(), q(mpi and mpi:GetClipProperty("File Path")))
+-- tracce audio e anche video: l'audio di camera arriva anche se in timeline c'è solo la clip video
+for _, kind in ipairs({"audio", "video"}) do
+  for t = 1, tl:GetTrackCount(kind) do
+    for _, it in pairs(tl:GetItemListInTrack(kind, t) or {}) do
+      local mpi = it:GetMediaPoolItem()
+      clips[#clips + 1] = string.format('{"kind":"%s","track":%d,"name":%s,"start_frame":%d,"end_frame":%d,"left_offset":%d,"file_path":%s}',
+        kind, t, q(it:GetName()), it:GetStart(), it:GetEnd(), it:GetLeftOffset(), q(mpi and mpi:GetClipProperty("File Path")))
+    end
   end
 end
 local json = string.format('{"project":%s,"timeline":%s,"fps":%s,"start_frame":%d,"clips":[%s]}',
@@ -28,4 +31,4 @@ os.execute('/usr/bin/curl -sf -m 120 -X POST http://127.0.0.1:8730/api/resolve/p
 local h = io.open(res); local out = h and h:read("*a") or ""; if h then h:close() end
 if out == "" then os.execute("open -a MIX3D")
 elseif not out:find('"pannello": true', 1, true) then os.execute("open http://127.0.0.1:8730/") end
-print("MIX3D: " .. #clips .. " clip inviate da " .. tl:GetName())
+print("MIX3D: " .. #clips .. " clip inviate da " .. tl:GetName() .. " " .. out)
