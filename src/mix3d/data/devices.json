@@ -25,6 +25,7 @@
       "usb": "USB",
       "nessuna": "nessuna (dinamico)"
     },
+    "metadati": "Regex sul testo dei metadati del file (bext Originator, iXML, INFO ISFT, XML Sony, tag ffmpeg): riconoscono il registratore. Firme da verificare con file reali.",
     "compatibilita": "Calcolata da devices.compat(registratore, microfono): connettore diretto, poi adattatori; il mic deve avere l'alimentazione che l'ingresso (o l'adattatore) fornisce."
   },
   "microfoni": {
@@ -1139,6 +1140,7 @@
   "registratori": {
     "fx6": {
       "nome": "Sony FX6",
+      "metadati": ["ILME-FX6"],
       "formato": "LPCM 24 bit 48 kHz, 4 canali",
       "bit": [24],
       "sr": [48000],
@@ -1174,6 +1176,7 @@
     },
     "fx30": {
       "nome": "Sony FX30",
+      "metadati": ["ILME-FX30"],
       "formato": "LPCM 24 bit 48 kHz, 2 canali (4 con maniglia XLR)",
       "bit": [24, 16],
       "sr": [48000],
@@ -1210,6 +1213,7 @@
     },
     "a6300": {
       "nome": "Sony a6300",
+      "metadati": ["ILCE-6300"],
       "formato": "LPCM 16 bit 48 kHz, 2 canali (XAVC S)",
       "bit": [16],
       "sr": [48000],
@@ -1272,6 +1276,7 @@
     },
     "tascam_x8": {
       "nome": "Tascam Portacapture X8",
+      "metadati": ["Portacapture ?X8", "TASCAM ?X8"],
       "formato": "WAV/BWF fino a 192 kHz, 16/24/32 bit float, 6 ingressi + mix",
       "bit": [32, 24, 16],
       "sr": [44100, 48000, 96000, 192000],
@@ -1314,6 +1319,7 @@
     },
     "dji_mic2": {
       "nome": "DJI Mic 2 (registrazione interna)",
+      "metadati": ["DJI ?Mic ?2"],
       "formato": "WAV 48 kHz 24 bit o 32 bit float, traccia di sicurezza -6 dB",
       "bit": [24, 32],
       "sr": [48000],
@@ -1373,6 +1379,7 @@
     },
     "fx9": {
       "nome": "Sony FX9",
+      "metadati": ["PXW-FX9"],
       "marca": "Sony",
       "tipo": "cinema camera",
       "formato": "LPCM 24 bit 48 kHz, 4 canali",
@@ -1402,6 +1409,7 @@
     },
     "fx3": {
       "nome": "Sony FX3",
+      "metadati": ["ILME-FX3(?!0)"],
       "marca": "Sony",
       "tipo": "cinema camera",
       "formato": "LPCM 24 bit 48 kHz, 2 canali (4 con XLR-H1)",
@@ -1436,6 +1444,7 @@
     },
     "fx2": {
       "nome": "Sony FX2",
+      "metadati": ["ILME-FX2"],
       "marca": "Sony",
       "tipo": "cinema camera",
       "formato": "LPCM 24 bit 48 kHz, 4 canali con XLR-H1",
@@ -1469,6 +1478,7 @@
     },
     "a7s3": {
       "nome": "Sony a7S III",
+      "metadati": ["ILCE-7SM3"],
       "marca": "Sony",
       "tipo": "mirrorless",
       "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
@@ -1503,6 +1513,7 @@
     },
     "a7iv": {
       "nome": "Sony a7 IV",
+      "metadati": ["ILCE-7M4"],
       "marca": "Sony",
       "tipo": "mirrorless",
       "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
@@ -1537,6 +1548,7 @@
     },
     "a6700": {
       "nome": "Sony a6700",
+      "metadati": ["ILCE-6700"],
       "marca": "Sony",
       "tipo": "mirrorless",
       "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
@@ -1571,6 +1583,7 @@
     },
     "zv_e1": {
       "nome": "Sony ZV-E1",
+      "metadati": ["ZV-E1(?!0)"],
       "marca": "Sony",
       "tipo": "mirrorless",
       "formato": "LPCM 24 bit 48 kHz, 4 canali con slitta digitale (16 bit 2 canali analogico)",
@@ -1605,6 +1618,7 @@
     },
     "a6400": {
       "nome": "Sony a6400",
+      "metadati": ["ILCE-6400"],
       "marca": "Sony",
       "tipo": "mirrorless",
       "formato": "LPCM 16 bit 48 kHz, 2 canali (XAVC S)",
@@ -1635,6 +1649,7 @@
     },
     "osmo_action4": {
       "nome": "DJI Osmo Action 4",
+      "metadati": ["Action ?4"],
       "marca": "DJI",
       "tipo": "action cam",
       "formato": "AAC 48 kHz 16 bit",
@@ -1667,6 +1682,7 @@
     },
     "osmo_action5pro": {
       "nome": "DJI Osmo Action 5 Pro",
+      "metadati": ["Action ?5"],
       "marca": "DJI",
       "tipo": "action cam",
       "formato": "AAC 48 kHz 16 bit, 3 mic",
@@ -1700,6 +1716,7 @@
     },
     "osmo_action6": {
       "nome": "DJI Osmo Action 6",
+      "metadati": ["Action ?6"],
       "marca": "DJI",
       "tipo": "action cam",
       "formato": "AAC 48 kHz 16 bit, 3 mic omni",
@@ -1734,6 +1751,7 @@
     },
     "osmo_pocket3": {
       "nome": "DJI Osmo Pocket 3",
+      "metadati": ["Pocket ?3"],
       "marca": "DJI",
       "tipo": "gimbal camera",
       "formato": "AAC 48 kHz 16 bit, 3 mic",
@@ -1789,6 +1807,7 @@
     },
     "dji_mic3": {
       "nome": "DJI Mic 3 (registrazione interna)",
+      "metadati": ["DJI ?Mic ?3"],
       "marca": "DJI",
       "tipo": "wireless (registra)",
       "formato": "WAV 48 kHz 32 bit float o 24 bit, timecode",
@@ -1810,6 +1829,7 @@
     },
     "rode_wireless_go_ii": {
       "nome": "RODE Wireless GO II (registrazione interna)",
+      "metadati": ["Wireless ?GO ?II"],
       "marca": "RODE",
       "tipo": "wireless (registra)",
       "formato": "registrazione interna nel TX (oltre 40 h)",
@@ -1834,6 +1854,7 @@
     },
     "rode_wireless_pro": {
       "nome": "RODE Wireless PRO (registrazione interna)",
+      "metadati": ["Wireless ?PRO"],
       "marca": "RODE",
       "tipo": "wireless (registra)",
       "formato": "32 bit float interno, timecode",
@@ -1861,6 +1882,7 @@
     },
     "tascam_x6": {
       "nome": "Tascam Portacapture X6",
+      "metadati": ["Portacapture ?X6", "TASCAM ?X6"],
       "marca": "Tascam",
       "tipo": "registratore",
       "formato": "WAV/BWF 44.1-96 kHz, 16/24/32 bit float",
@@ -1899,6 +1921,7 @@
     },
     "tascam_dr40x": {
       "nome": "Tascam DR-40X",
+      "metadati": ["DR-40X"],
       "marca": "Tascam",
       "tipo": "registratore",
       "formato": "WAV 44.1-96 kHz 16/24 bit, 4 tracce",
@@ -1923,6 +1946,7 @@
     },
     "tascam_dr05x": {
       "nome": "Tascam DR-05X",
+      "metadati": ["DR-05X"],
       "marca": "Tascam",
       "tipo": "registratore",
       "formato": "WAV 44.1-96 kHz 16/24 bit",
@@ -1947,6 +1971,7 @@
     },
     "tascam_dr07x": {
       "nome": "Tascam DR-07X",
+      "metadati": ["DR-07X"],
       "marca": "Tascam",
       "tipo": "registratore",
       "formato": "WAV 44.1-96 kHz 16/24 bit",
@@ -1971,6 +1996,7 @@
     },
     "tascam_dr10l_pro": {
       "nome": "Tascam DR-10L Pro",
+      "metadati": ["DR-10L"],
       "marca": "Tascam",
       "tipo": "registratore lav",
       "formato": "WAV 32 bit float 44.1-96 kHz",
@@ -1995,6 +2021,7 @@
     },
     "tascam_fr_av2": {
       "nome": "Tascam FR-AV2",
+      "metadati": ["FR-AV2"],
       "marca": "Tascam",
       "tipo": "registratore",
       "formato": "WAV 32 bit float, timecode",
@@ -2019,6 +2046,7 @@
     },
     "tascam_dr701d": {
       "nome": "Tascam DR-701D",
+      "metadati": ["DR-701D"],
       "marca": "Tascam",
       "tipo": "registratore per camera",
       "formato": "WAV fino a 192 kHz 24 bit, 6 tracce",
@@ -2043,6 +2071,7 @@
     },
     "tascam_dr60d_mk2": {
       "nome": "Tascam DR-60D MkII",
+      "metadati": ["DR-60D"],
       "marca": "Tascam",
       "tipo": "registratore per camera",
       "formato": "WAV 96 kHz 24 bit, 4 tracce",
@@ -2073,6 +2102,7 @@
     },
     "zoom_f6": {
       "nome": "Zoom F6",
+      "metadati": ["ZOOM ?F6"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV/BWF 32 bit float, fino a 192 kHz, doppio A/D",
@@ -2106,6 +2136,7 @@
     },
     "zoom_f3": {
       "nome": "Zoom F3",
+      "metadati": ["ZOOM ?F3"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV/BWF 32 bit float, fino a 192 kHz, doppio A/D",
@@ -2138,6 +2169,7 @@
     },
     "zoom_f8n_pro": {
       "nome": "Zoom F8n Pro",
+      "metadati": ["F8n"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 32 bit float/24 bit, fino a 192 kHz",
@@ -2162,6 +2194,7 @@
     },
     "zoom_h6essential": {
       "nome": "Zoom H6essential",
+      "metadati": ["H6essential"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 32 bit float 44.1-96 kHz",
@@ -2194,6 +2227,7 @@
     },
     "zoom_h4essential": {
       "nome": "Zoom H4essential",
+      "metadati": ["H4essential"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 32 bit float",
@@ -2218,6 +2252,7 @@
     },
     "zoom_h1essential": {
       "nome": "Zoom H1essential",
+      "metadati": ["H1essential"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 32 bit float",
@@ -2242,6 +2277,7 @@
     },
     "zoom_h6": {
       "nome": "Zoom H6 (2013/Black)",
+      "metadati": ["ZOOM ?H6(?!e)"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 24 bit fino a 96 kHz",
@@ -2271,6 +2307,7 @@
     },
     "zoom_h5": {
       "nome": "Zoom H5",
+      "metadati": ["ZOOM ?H5(?!s)"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 24 bit fino a 96 kHz",
@@ -2300,6 +2337,7 @@
     },
     "zoom_h5studio": {
       "nome": "Zoom H5studio",
+      "metadati": ["H5studio"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 32 bit float",
@@ -2329,6 +2367,7 @@
     },
     "zoom_h8": {
       "nome": "Zoom H8",
+      "metadati": ["ZOOM ?H8"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 24 bit fino a 96 kHz",
@@ -2358,6 +2397,7 @@
     },
     "zoom_h4n_pro": {
       "nome": "Zoom H4n Pro",
+      "metadati": ["H4n"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 24 bit fino a 96 kHz",
@@ -2382,6 +2422,7 @@
     },
     "zoom_h1n": {
       "nome": "Zoom H1n",
+      "metadati": ["H1n"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 24 bit fino a 96 kHz",
@@ -2406,6 +2447,7 @@
     },
     "zoom_m3": {
       "nome": "Zoom M3 MicTrak",
+      "metadati": ["MicTrak ?M3", "ZOOM ?M3"],
       "marca": "Zoom",
       "tipo": "mic-registratore",
       "formato": "WAV 32 bit float",
@@ -2423,6 +2465,7 @@
     },
     "zoom_m4": {
       "nome": "Zoom M4 MicTrak",
+      "metadati": ["MicTrak ?M4", "ZOOM ?M4"],
       "marca": "Zoom",
       "tipo": "registratore",
       "formato": "WAV 32 bit float",
@@ -2447,6 +2490,7 @@
     },
     "zoom_f2": {
       "nome": "Zoom F2",
+      "metadati": ["ZOOM ?F2"],
       "marca": "Zoom",
       "tipo": "registratore lav",
       "formato": "WAV 32 bit float",

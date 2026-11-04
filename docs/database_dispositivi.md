@@ -43,6 +43,18 @@ Copertura: Sony (FX6, FX9, FX3, FX30, FX2, a7S III, a7 IV, a6700, ZV-E1, a6300, 
 - **DJI Mic Mini**: nessuna registrazione interna. **DJI Mic 3**: 32 bit float e timecode (±0.5 ppm).
 - **Zoom F6/F3/H6essential, Tascam X6/X8**: 32 bit float; EIN -120…-127 dBu.
 
+## Riconoscimento dai metadati
+
+`metadata.py` legge, senza decodificare l'audio:
+
+- **WAV/BWF**: `bext` (Originator, Description, data/ora, TimeReference = timecode), `iXML` (progetto, scena, take, nomi tracce, timestamp), `LIST/INFO` (ISFT = registratore/software).
+- **Clip Sony**: l'XML accanto al file (`C0001M01.XML`, `A001C001_…M01.XML`): modello (`ILME-FX6V`…), canali audio e porte, timecode LTC (`ffssmmhh`).
+- **Tutti**: tag di ffmpeg (encoder, handler, make/model).
+
+`detect()` confronta il testo con le firme `metadati` (regex) dei registratori. Se trova il modello, il profilo con quel registratore prende +4 nel suggerimento (motivo "metadati: …") e la traccia usa quel registratore anche senza un profilo pronto. Il pannello mostra "dai metadati: modello · TC".
+
+Firme e formato LTC Sony sono da verificare con file reali (X8, DJI Mic, Osmo Action, FX6 con XML).
+
 ## Come i dati diventano utili
 
 | Dato | Uso |

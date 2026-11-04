@@ -187,6 +187,7 @@ function niceTicks(a, b, n) {
   const step = p * [1, 2, 5, 10].find((m) => (b - a) / (p * m) <= n);
   const out = []; for (let v = Math.ceil(a / step) * step; v <= b; v += step) out.push(+v.toFixed(6)); return out;
 }
+const fmtTc = (s) => [s / 3600, (s / 60) % 60, s % 60].map((v) => String(Math.floor(v)).padStart(2, "0")).join(":");
 const kHz = (v) => (v >= 1000 ? `${v / 1000}k` : `${v}`);
 
 // --- passo 2: dispositivi ------------------------------------------------------------
@@ -220,6 +221,10 @@ function renderDevice() {
   const p = DB.profili.find((x) => x.id === t.profile), m = mic(t), r = rec(t);
   $("devTitle").textContent = `${t.nome}: ${m.nome} › ${r.nome}`;
   $("devRole").textContent = `Ruolo nel mix: ${p?.ruolo || "-"} · posizione tipica: ${p?.posizione || "-"} · file ${t.info.bits === 32 ? "32 bit float" : (t.info.bits || "?") + " bit"}, ${t.info.sr / 1000} kHz`;
+  const md = t.info.metadati || {}, tc = md.timecode_s;
+  const fromMeta = [t.info.rilevato && `${t.info.rilevato.nome} (${t.info.rilevato.indizio})`,
+    tc != null && `TC ${fmtTc(tc)}`, md.originator, md.modello].filter(Boolean);
+  if (fromMeta.length) $("devRole").textContent += ` · dai metadati: ${[...new Set(fromMeta)].join(" · ")}`;
   const why = t.suggeriti[0]?.motivi || [];
   $("devWhy").innerHTML = t.confermato ? `<b>Confermato.</b> ${m.note || ""}` : `<b>Suggerito</b> perché: ${why.join(", ") || "nessun indizio dal file"}. <button id="bConfirm" class="primary small">Conferma</button>`;
   $("bConfirm")?.addEventListener("click", () => setChain(t, { confermato: true }));

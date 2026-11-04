@@ -57,6 +57,8 @@ def tracks_from_file(path: str, offset_s: float = 0.0, name: str | None = None) 
              "confermato": False, "solo": False, "pan": 0.0, "pos_mode": "auto", "pos": [0, 1.5, 3],
              "analisi": None}
         apply_profile(t, sug[0]["id"])
+        if (hit := info.get("rilevato")) and t["registratore"] != hit["id"]:
+            t["registratore"] = hit["id"]  # nessun profilo pronto: il registratore viene comunque dai metadati
         out.append(t)
     return out
 

@@ -131,7 +131,8 @@ def polar_gain(mic: dict, theta: np.ndarray) -> np.ndarray:
 def suggest(info: dict, top: int = 3) -> list[dict]:
     """Classifica i profili per un file: nome, codec, bit, canali.
 
-    `info`: {name, codec, bits, sr, channels, ch_index (1-based, canale iniziale)}.
+    `info`: {name, codec, bits, sr, channels, ch_index (1-based, canale iniziale),
+    rilevato (registratore riconosciuto dai metadati, vedi metadata.detect)}.
     Ritorna [{id, nome, score, motivi}], il migliore per primo.
     """
     db = load()
@@ -139,6 +140,8 @@ def suggest(info: dict, top: int = 3) -> list[dict]:
     for p in db["profili"]:
         rec = db["registratori"][p["registratore"]]
         score, why = 0.0, []
+        if (hit := info.get("rilevato")) and hit["id"] == p["registratore"]:
+            score += 4; why.append(f"metadati: {hit['indizio']}")
         if any(re.search(rx, info.get("name", ""), re.I) for rx in p["file"]):
             score += 2; why.append("nome file")
         if info.get("codec") in rec.get("codec", []):
