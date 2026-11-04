@@ -184,3 +184,8 @@ dialog label { display: block; margin: 8px 0; } dialog label input:not([type=che
 button.update { background: linear-gradient(135deg, var(--ok), var(--accent)); color: #05130c; border: 0; font-weight: 650; }
 .notes { white-space: pre-wrap; max-height: 220px; overflow: auto; background: var(--panel2); padding: 10px; border-radius: 8px; font: 12px/1.4 inherit; }
 #upPage { margin-right: auto; color: var(--accent); align-self: center; }
+/* ingresso e canali della traccia */
+.chain-pick.io { grid-template-columns: auto 1fr; margin-top: 8px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.seg button.on { background: var(--accent); color: #06131f; }
+#ioCh { color: var(--text); font-weight: 500; }

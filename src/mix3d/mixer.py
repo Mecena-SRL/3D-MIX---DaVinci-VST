@@ -44,8 +44,12 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     for t in active(project["tracks"]):
         off = t["offset_s"] - t.get("drift_ppm", 0) * 1e-6 * (t0 - t.get("sync_t0", 0))
         x = media.read(t["wav"], t["channels"], t0 - off - m / sr, (n + m) / sr, sr)[: n + m]
+        if d := t.get("destra"):  # due mono uniti in stereo: il secondo canale è il destro
+            r = media.read(d["wav"], d["channels"], t0 - off - d.get("delta_s", 0) - m / sr, (n + m) / sr, sr)[: n + m]
+            x = np.hstack([x[:, :1], r[:, :1]])
         mic = t.get("microfono")
-        if mic and project.get("correzione", True) and not bypass:
+        line = is_line(t)
+        if mic and not line and project.get("correzione", True) and not bypass:
             x = oaconvolve(x, correction_fir(mic, sr)[:, None], axes=0)[FIR_TAPS // 2:][: len(x)]
         if t.get("eq") and not bypass:
             x = eq.process(x, t["eq"], sr)
@@ -53,7 +57,11 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
         env[t["id"]] = envelope_db(x[m:] * g)
         if x.shape[1] == 1:
             x = np.repeat(x, 2, axis=1)
-        if not bypass:
+        if line:  # ingresso di linea (mixer): niente distanza né posizione, solo il pan della traccia
+            th = (np.clip(t.get("pan", 0), -1, 1) + 1) * np.pi / 4
+            if t.get("pan"):
+                x = x * np.array([np.cos(th), np.sin(th)]) * np.sqrt(2)
+        elif not bypass:
             dist, pan = spatial_params(t["pos"], project["listener"])
             pan = np.clip(pan * project.get("larghezza", 1.0) + t.get("pan", 0), -1, 1)
             g *= (project.get("dist_ref_m", 5.0) / dist) ** project.get("attenuazione", 0.5)
@@ -70,6 +78,12 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     levels["master"] = round(float(20 * np.log10(np.abs(out).max(initial=0) + 1e-10)), 1)
     levels["env"] = env
     return out, levels
+
+
+def is_line(t: dict) -> bool:
+    """Traccia registrata in linea (uscita del mixer), non da un microfono in sala."""
+    mic = devices.load()["microfoni"].get(t.get("microfono") or "", {})
+    return mic.get("tipo") == "linea"
 
 
 def envelope_db(x: np.ndarray, frames: int = 10) -> list[float]:
