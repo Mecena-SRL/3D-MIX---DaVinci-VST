@@ -31,6 +31,15 @@ def correction_fir(mic_id: str, sr: int) -> np.ndarray:
     return firwin2(FIR_TAPS, f / (sr / 2), g)
 
 
+@lru_cache(maxsize=256)
+def band_fir(bands_db: tuple, sr: int) -> np.ndarray:
+    """FIR a fase lineare dai guadagni per ottava (125 Hz .. 8 kHz), interpolati in log-frequenza."""
+    from .localize import BANDS
+    f = np.linspace(0, sr / 2, 512)
+    g = 10 ** (np.interp(np.log2(np.maximum(f, 20)), np.log2(BANDS), bands_db) / 20)
+    return firwin2(FIR_TAPS, f / (sr / 2), g)
+
+
 def active(tracks: list[dict]) -> list[dict]:
     solo = any(t.get("solo") for t in tracks)
     return [t for t in tracks if not t.get("mute") and (t.get("solo") or not solo)]
@@ -45,6 +54,7 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
     amb, n_amb = np.zeros((n + m, 2), np.float32), 0  # bus ambiente (camere, action cam, registratori)
     fx = ambiente.settings(project)
     levels, env = {}, {}
+    field = (project.get("ascolto_campo") or {}) if project.get("campo_ascolto") else {}
 
     errors = {}
 
@@ -74,6 +84,8 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
             x = oaconvolve(x, correction_fir(mic, sr)[:, None], axes=0)[FIR_TAPS // 2:][: len(x)]
         if t.get("eq") and not bypass:
             x = eq.process(x, t["eq"], sr)
+        if (bands := field.get(t["id"])) and not bypass:  # ascolto dal campo: EQ per ottava dalle gaussiane
+            x = oaconvolve(x, band_fir(tuple(bands), sr)[:, None], axes=0)[FIR_TAPS // 2:][: len(x)]
         g = 10 ** (t.get("gain_db", 0) / 20)
         env[t["id"]] = envelope_db(x[m:] * g)
         if x.shape[1] == 1:
@@ -85,7 +97,8 @@ def render(project: dict, t0: float, dur: float, bypass: bool = False) -> tuple[
         elif not bypass:
             dist, pan = spatial_params(t["pos"], project["listener"])
             pan = np.clip(pan * project.get("larghezza", 1.0) + t.get("pan", 0), -1, 1)
-            g *= (project.get("dist_ref_m", 5.0) / dist) ** project.get("attenuazione", 0.5)
+            if not field:  # col campo la distanza è già nei pesi delle bande
+                g *= (project.get("dist_ref_m", 5.0) / dist) ** project.get("attenuazione", 0.5)
             th = (pan + 1) * np.pi / 4  # pan a potenza costante
             x = x * np.array([np.cos(th), np.sin(th)]) * np.sqrt(2)
         x = x * g

@@ -90,7 +90,7 @@ function go(i) {
 function renderStep() {
   if (step === 1) renderDevice();
   if (step === 2) renderSpaces();
-  if (step === 3) { renderHealth(); renderUnderstood(); renderAnalysis(); }
+  if (step === 3) { renderHealth(); renderUnderstood(); renderField(); renderAnalysis(); }
   if (step === 4) renderMixSide();
 }
 
@@ -437,6 +437,24 @@ function renderUnderstood() {
   $("capTab").innerHTML = `<tr><th></th><th>Mic / sorgente</th><th>Sorgenti sentite</th><th>Distanza</th><th>Posizione x / z</th></tr>${rows}${srcRows}`;
   $("capTab").querySelectorAll("tr[data-id]").forEach((r) => (r.onclick = () => select(r.dataset.id)));
 }
+// gaussian splatting sonoro: il campo stimato, con raggio e livello correggibili a mano
+const splatRadius = (g) => S.campo_mod?.[g.id]?.raggio_m ?? g.raggio_m;
+function renderField() {
+  const c = S.campo, box = $("campo");
+  box.hidden = !c;
+  if (!c) return;
+  if (c.errore) { $("campoTab").innerHTML = `<tr><td class="muted">Campo non stimato: ${c.errore}</td></tr>`; return; }
+  $("campoInfo").textContent = `· scarto medio fra previsto e misurato ${c.errore_db} dB · riverbero diffuso ${Math.round(c.diffuso_db.reduce((a, b) => a + b) / c.diffuso_db.length)} dB`;
+  const bars = (db) => { const m = Math.max(...db); return `<span class="bands">${db.map((v) => `<i style="height:${Math.max(2, 18 + (v - m))}px"></i>`).join("")}</span>`; };
+  $("campoTab").innerHTML = `<tr><th>Gaussiana</th><th>Posizione x / z</th><th>Raggio</th><th>Timbro 125 Hz → 8 kHz</th><th>Livello</th></tr>` +
+    c.gaussiane.map((g) => `<tr><td>Sorgente ${g.k + 1}</td><td>${g.pos[0]} / ${g.pos[2]} m ±${g.incertezza_m}</td>
+      <td><input type="number" class="num" min="0.1" max="15" step="0.1" data-g="${g.id}" value="${splatRadius(g)}"> m${S.campo_mod?.[g.id] ? " ✋" : ""}</td>
+      <td>${bars(g.bande_db)} <span class="muted small">${g.centroide_hz >= 1000 ? (g.centroide_hz / 1000).toFixed(1) + " kHz" : g.centroide_hz + " Hz"}</span></td><td>${g.livello_db} dB</td></tr>`).join("");
+  $("campoTab").querySelectorAll("input[data-g]").forEach((el) => (el.onchange = () => {
+    S.campo_mod = { ...(S.campo_mod || {}), [el.dataset.g]: { raggio_m: +el.value } };
+    push({ campo_mod: S.campo_mod }); scene.sync(); renderField();
+  }));
+}
 function renderAnalysis() {
   const t = selected(), a = t?.analisi;
   $("anaEmpty").hidden = !!a; $("ana").hidden = !a;
@@ -526,7 +544,7 @@ const scene = (() => {
   sc.add(new THREE.HemisphereLight(0xdfe8ff, 0x1a1d26, 2.0));
   const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(10, 30, 20); sc.add(sun);
   sc.fog = new THREE.Fog(0x0b0e14, 60, 260);
-  const room = new THREE.Group(), devs = new Map(), lobes = new Map(), srcs = new Map(), labels = new Map(), rings = new Map();
+  const room = new THREE.Group(), devs = new Map(), lobes = new Map(), srcs = new Map(), labels = new Map(), rings = new Map(), splats = new Map();
   sc.add(room);
   const listener = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.9, 20), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x333333 }));
   listener.rotation.x = -Math.PI / 2; listener.userData = { kind: "listener" }; sc.add(listener);
@@ -678,6 +696,17 @@ const scene = (() => {
       let o = rings.get(id);
       if (!o) { o = new THREE.Mesh(new THREE.RingGeometry(0.94, 1, 64), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.5, side: THREE.DoubleSide })); o.rotation.x = -Math.PI / 2; sc.add(o); rings.set(id, o); }
       o.position.set(pos[0], 0.03, pos[2]); o.scale.setScalar(Math.max(0.3, Math.min(r, Math.max(S.sala.w, S.sala.d))));
+    }
+    // gaussiane del campo sonoro: alone = raggio, colore = timbro (rosso grave, azzurro brillante), opacità = livello
+    const gs = S.campo?.gaussiane || [], top = Math.max(...gs.map((g) => g.livello_db), -200);
+    prune(splats, new Set(gs.map((g) => `g:${g.id}`)));
+    for (const g of gs) {
+      let o = splats.get(`g:${g.id}`);
+      if (!o) { o = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); sc.add(o); splats.set(`g:${g.id}`, o); }
+      o.position.set(...g.pos); o.scale.setScalar(Math.max(0.25, splatRadius(g)));
+      o.material.color.setHSL(Math.min(0.6, Math.max(0, Math.log2(g.centroide_hz / 125) / 6 * 0.6)), 0.9, 0.55);
+      o.material.opacity = 0.12 + 0.3 * Math.max(0, 1 + (g.livello_db - top) / 20);
+      o.visible = $("showSources").checked;
     }
     if (drag?.obj !== listener) listener.position.set(...S.listener);
     field.set(fieldContext());
@@ -895,11 +924,12 @@ async function runJob(path, body, label) {
 async function refresh() {
   S = await api("/api/state");
   $("pname").value = S.nome; $("roomW").value = S.sala.w; $("roomD").value = S.sala.d; $("roomH").value = S.sala.h;
-  $("master").value = S.master_db; $("width").value = S.larghezza; $("atten").value = S.attenuazione; $("corr").checked = S.correzione;
+  $("master").value = S.master_db; $("width").value = S.larghezza; $("atten").value = S.attenuazione; $("corr").checked = S.correzione; $("campoOn").checked = !!S.campo_ascolto;
   if (!selected()) sel = S.tracks[0]?.id ?? null;
   renderTracks(); renderSummary(); renderSpaceSelect(); scene.sync(); renderStep(); player.tick();
 }
 
+$("campoOn").onchange = (e) => { if (e.target.checked && !S.campo?.gaussiane) { e.target.checked = false; return toast("Prima lancia l'analisi: il campo nasce da lì", true); } S.campo_ascolto = e.target.checked; push({ campo_ascolto: e.target.checked }); };
 $("bPrev").onclick = () => go(step - 1);
 $("bNext").onclick = () => go(step + 1);
 $("pname").onchange = (e) => push({ nome: e.target.value }, false);

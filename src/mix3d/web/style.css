@@ -205,3 +205,5 @@ button.update { background: var(--ok); color: #04140c; border: 0; font-weight: 6
 @media (max-width: 1100px) { .steps button { font-size: 0; gap: 0; } .steps button i { font-size: 10px; } .space-layout, .mix-layout, .grid2, .cards2, .space-info { grid-template-columns: 1fr; } main { grid-template-columns: 240px 1fr; } }
 .dims { display: flex; gap: 6px; align-items: center; } .dims label { display: flex; gap: 3px; align-items: center; }
 .scene-wrap.in-mix .dims, .scene-wrap.in-mix .presence { display: none; }
+.bands { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; vertical-align: middle; } .bands i { width: 6px; background: var(--accent); border-radius: 1px; }
+input.num { width: 64px; }
