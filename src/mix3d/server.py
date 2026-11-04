@@ -481,7 +481,8 @@ class Handler(SimpleHTTPRequestHandler):
                         if "profile" in patch and patch["profile"] != t["profile"]:
                             apply_profile(t, patch["profile"])
                         t.update({k: v for k, v in patch.items() if k != "profile"})
-                    if "sala" in b or any(x.get("pos_mode") == "auto" for x in b.get("tracks", [])):
+                    # un mic spostato a mano diventa un'ancora: la scena si riallinea attorno
+                    if "sala" in b or "palco" in b or any("pos" in x or x.get("pos_mode") == "auto" for x in b.get("tracks", [])):
                         auto_place(p)
                 elif u.path == "/api/spazio":
                     sp = spazi.get(b["id"])
