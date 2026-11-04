@@ -16,7 +16,7 @@ mic) e si ottimizzano le gaussiane finché coincide con le energie misurate
 from __future__ import annotations
 
 import numpy as np
-from scipy.optimize import least_squares
+from scipy.optimize import least_squares, nnls
 
 from .localize import BANDS
 
@@ -87,7 +87,7 @@ def fit(obs: list[tuple[str, int, list[float]]], mics: dict[str, dict], seeds: l
 
     v0 = np.concatenate([p0[:, [0, 2]].ravel(), np.zeros(K), np.ravel(e0), np.full(B, -15.0), np.zeros(len(ids))])
     sol = least_squares(residuals, v0, loss="soft_l1", f_scale=2.0)
-    pos, r, e, dif, _ = unpack(sol.x)
+    pos, r, e, dif, g = unpack(sol.x)
     try:
         sd = np.sqrt(np.clip(np.diag(np.linalg.pinv(sol.jac.T @ sol.jac)), 0, None))
     except np.linalg.LinAlgError:
@@ -102,6 +102,7 @@ def fit(obs: list[tuple[str, int, list[float]]], mics: dict[str, dict], seeds: l
                     "centroide_hz": int(np.exp((lin * np.log(BANDS)).sum() / lin.sum())),
                     "incertezza_m": round(float(min(np.hypot(sd[2 * n], sd[2 * n + 1]), 99)), 2)})
     return {"bande_hz": BANDS.astype(int).tolist(), "gaussiane": out,
+            "sensibilita_db": {i: round(float(g[mi[i]]), 1) for i in ids},
             "diffuso_db": np.round(dif, 1).tolist(), "errore_db": round(float(np.sqrt(np.mean(err ** 2))), 1)}
 
 
@@ -116,3 +117,36 @@ def field_at(field: dict, p, a: float = 1.0, axis=None) -> dict:
         direct = np.asarray(s["bande_db"]) + 10 * np.log10(dirg / (np.sum((c - p) ** 2) + s["raggio_m"] ** 2))
         out[s["id"]] = {"diretto_db": np.round(direct, 1).tolist(), "diffuso_db": np.round(np.asarray(s["bande_db"]) + dif, 1).tolist()}
     return out
+
+
+def listener_mix(field: dict, mics: dict[str, dict], listener, stage: dict, radii: dict | None = None) -> dict:
+    """Ascolto dal campo: EQ per ottava di ogni traccia (dB) perché la somma dei mic dia, per ogni
+    sorgente, il suono diretto e il riverbero che sentirebbe l'ascoltatore in quel punto.
+
+    Per banda: NNLS sui pesi in potenza w_i, con una riga per il diretto e una per il diffuso di ogni
+    sorgente (energie dei mic previste dal campo), normalizzate al bersaglio. `radii` = raggi corretti a mano."""
+    L = np.asarray(listener, float)
+    gs, dif = field["gaussiane"], np.asarray(field["diffuso_db"])
+    ids = [i for i in mics if i in field["sensibilita_db"]]
+    if not ids or not gs:
+        return {}
+    W = np.zeros((len(ids), len(BANDS)))
+    for b in range(len(BANDS)):
+        rows, rhs = [], []
+        for s in gs:
+            c, e = np.asarray(s["pos"], float), s["bande_db"][b]
+            r2 = (radii or {}).get(s["id"], s["raggio_m"]) ** 2
+            t_dir = e + 10 * np.log10(1 / (np.sum((c - L) ** 2) + r2))
+            mic_dir, mic_dif = [], []
+            for i in ids:
+                m, gi = np.asarray(mics[i]["pos"], float), field["sensibilita_db"][i]
+                dg = directivity(mics[i].get("a", 1.0), m, stage_axis(m, stage), c)
+                mic_dir.append(gi + e + 10 * np.log10(dg / (np.sum((c - m) ** 2) + r2)))
+                mic_dif.append(gi + e + dif[b])
+            rows += [10 ** ((np.array(mic_dir) - t_dir) / 10), 10 ** ((np.array(mic_dif) - (e + dif[b])) / 10)]
+            rhs += [1.0, 1.0]
+        A = np.vstack(rows + [np.eye(len(ids)) * 0.05])      # un filo di regolarizzazione: niente pesi enormi
+        W[:, b] = nnls(A, np.concatenate([rhs, np.zeros(len(ids))]))[0]
+    db = 10 * np.log10(W + 1e-3)                              # -30 dB = traccia quasi esclusa in quella banda
+    db = np.apply_along_axis(lambda v: np.convolve(np.pad(v, 1, mode="edge"), [0.25, 0.5, 0.25], "valid"), 1, db)
+    return {i: np.round(np.clip(db[n], -30, 12), 1).tolist() for n, i in enumerate(ids)}

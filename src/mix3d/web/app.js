@@ -911,11 +911,12 @@ async function runJob(path, body, label) {
 async function refresh() {
   S = await api("/api/state");
   $("pname").value = S.nome; $("roomW").value = S.sala.w; $("roomD").value = S.sala.d; $("roomH").value = S.sala.h;
-  $("master").value = S.master_db; $("width").value = S.larghezza; $("atten").value = S.attenuazione; $("corr").checked = S.correzione;
+  $("master").value = S.master_db; $("width").value = S.larghezza; $("atten").value = S.attenuazione; $("corr").checked = S.correzione; $("campoOn").checked = !!S.campo_ascolto;
   if (!selected()) sel = S.tracks[0]?.id ?? null;
   renderTracks(); renderSummary(); renderSpaceSelect(); scene.sync(); renderStep(); player.tick();
 }
 
+$("campoOn").onchange = (e) => { if (e.target.checked && !S.campo?.gaussiane) { e.target.checked = false; return toast("Prima lancia l'analisi: il campo nasce da lì", true); } S.campo_ascolto = e.target.checked; push({ campo_ascolto: e.target.checked }); };
 $("bPrev").onclick = () => go(step - 1);
 $("bNext").onclick = () => go(step + 1);
 $("pname").onchange = (e) => push({ nome: e.target.value }, false);
