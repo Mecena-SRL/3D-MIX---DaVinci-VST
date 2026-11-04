@@ -20,9 +20,9 @@ const cut = (b) => b.tipo.startsWith("passa");
 const kHz = (f) => (f >= 1000 ? `${+(f / 1000).toFixed(1)}k` : `${Math.round(f)}`);
 
 function mount() {
-  const side = document.querySelector('[data-step="4"] .mix-side');
+  const side = $("place"); // dopo Ascolto e Posizione
   if (!side || $("eqPanel")) return;
-  side.insertAdjacentHTML("afterbegin", `<div id="eqPanel" class="panel eq">
+  side.insertAdjacentHTML("afterend", `<div id="eqPanel" class="panel eq">
     <h4>EQ dinamico</h4>
     <div class="eq-bar"><select id="eqTrack"></select>
       <button id="eqAuto" class="small primary" title="Analizza la traccia e propone le bande">Auto-tara</button>
