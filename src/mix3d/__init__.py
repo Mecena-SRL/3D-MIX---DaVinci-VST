@@ -1,2 +1,2 @@
 """MIX3D: motore offline di sync, fusione e mix per DaVinci Resolve."""
-__version__ = "0.0.1"
+__version__ = "0.0.5"

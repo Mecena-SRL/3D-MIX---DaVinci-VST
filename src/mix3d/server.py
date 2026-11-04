@@ -278,6 +278,9 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json(resolve_install.status())
             if u.path == "/api/browse":
                 return self.send_json(browse(q.get("dir", ""), q.get("ext")))
+            if u.path == "/api/update":
+                from . import updater
+                return self.send_json(updater.check(q.get("force") == "1"))
             if u.path == "/api/spazi":
                 return self.send_json([{**s, "distanza_critica": spazi.critical_distance(s)} for s in spazi.all_spaces()])
             if u.path.startswith("/api/jobs/"):
@@ -337,6 +340,9 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.send_json({"job": start_job("analisi", job_analyze)})
                 elif u.path == "/api/eq/auto":
                     return self.send_json({"job": start_job("eq", lambda j: job_eq_auto(j, b.get("tracks")))})
+                elif u.path == "/api/update/install":
+                    from . import updater
+                    return self.send_json({"job": start_job("aggiornamento", updater.install)})
                 elif u.path == "/api/print":
                     return self.send_json({"job": start_job("stampa", lambda j: job_print(j, b))})
                 elif u.path == "/api/save":

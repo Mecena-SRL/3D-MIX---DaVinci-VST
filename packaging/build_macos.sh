@@ -10,6 +10,12 @@ python3 -m PyInstaller --noconfirm --clean --windowed --name MIX3D \
   --collect-data mix3d --collect-all imageio_ffmpeg --collect-all soundfile \
   --hidden-import scipy.signal --hidden-import scipy.interpolate \
   packaging/launcher.py
+# plugin Fairlight (VST3/AU, compilati da plugin/build_plugin.sh) dentro l'app, se presenti
+if [ -d dist/plugin/MIX3D.vst3 ]; then
+  mkdir -p dist/MIX3D.app/Contents/Resources/fairlight
+  cp -R dist/plugin/MIX3D.vst3 dist/plugin/MIX3D.component dist/MIX3D.app/Contents/Resources/fairlight/
+  codesign --force --deep -s - dist/MIX3D.app
+fi
 rm -rf dist/dmg && mkdir -p dist/dmg
 cp -R dist/MIX3D.app dist/dmg/
 ln -s /Applications dist/dmg/Applications
