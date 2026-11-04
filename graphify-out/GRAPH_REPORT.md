@@ -1,17 +1,17 @@
 # Graph Report - 3D-MIX---DaVinci-VST  (2026-11-04)
 
 ## Corpus Check
-- 54 files · ~83,877 words
+- 54 files · ~84,220 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: .plist 4, (none) 1, .xib 1)
 
 ## Summary
-- 2889 nodes · 5205 edges · 151 communities (70 shown, 81 thin omitted)
+- 2891 nodes · 5212 edges · 153 communities (72 shown, 81 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 208 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a39f1805`
+- Built from commit: `4709084d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -32,7 +32,7 @@
 - .constructor
 - Yp
 - ei
-- ta
+- .constructor
 - Ui
 - cs
 - Ii
@@ -44,7 +44,7 @@
 - Kr
 - Nr
 - As
-- bd
+- xd
 - eu
 - $p
 - Np
@@ -63,7 +63,7 @@
 - la
 - Nh
 - tr
-- .constructor
+- vl
 - bt
 - xr
 - mixer.py
@@ -85,15 +85,15 @@
 - pm
 - t
 - ld
-- na
+- em
 - analysis.py
 - bl
 - nm
 - ua
 - eq.js
 - .constructor
-- il
-- yh
+- ta
+- jn
 - Hn
 - ml
 - numpy
@@ -101,6 +101,7 @@
 - Sc
 - ap
 - qs
+- qd
 - od
 - rp
 - up
@@ -111,34 +112,35 @@
 - README.md
 - package.json
 - mu
-- jh
+- lm
 - Zh
 - .constructor
-- su
+- mp
 - om
 - Dh
-- qh
+- vc
 - $h
 - jd
 - im
 - .setHSL
-- kh
+- ai
 - zp
 - gh
 - es
 - wh
-- Ai
+- yi
 - numpy
 - MIX3D
 - xs
 - EMsgTags
 - EParams
 - Hu
-- $l
+- .parseObject
 - Ci
 - dp
 - Ph
 - Gu
+- iu
 - Rh
 - Yu
 - Zc
@@ -181,7 +183,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (151 total, 81 thin omitted)
+## Communities (153 total, 81 thin omitted)
 
 ### Community 0 - "test_resolve_bridge.py"
 Cohesion: 0.05
@@ -209,7 +211,7 @@ Nodes (6): concert(), _FakeTimeline, _music(), test_file_video_aac(), test_mxf_c
 
 ### Community 6 - "app.js"
 Cohesion: 0.05
-Nodes (96): api(), audible(), barChart(), browse(), CAMERAS, chainRisks(), checkUpdate(), color() (+88 more)
+Nodes (98): api(), audible(), barChart(), browse(), CAMERAS, chainRisks(), checkUpdate(), color() (+90 more)
 
 ### Community 7 - "MIX3D.cpp"
 Cohesion: 0.12
@@ -235,45 +237,53 @@ Nodes (39): OrbitControls, addPointer(), dollyIn(), dollyOut(), getSecondPointer
 Cohesion: 0.08
 Nodes (3): constructor(), setValue(), Yp
 
-### Community 16 - "ta"
-Cohesion: 0.07
-Nodes (8): em, Gl, jl, Ka, A(), C(), R(), Wl
+### Community 16 - ".constructor"
+Cohesion: 0.08
+Nodes (9): jl, Ft(), Jt(), kt(), Qt(), Yt(), zt(), Li (+1 more)
 
 ### Community 18 - "cs"
 Cohesion: 0.06
 Nodes (9): bc, cs, ds, fs, gs, hs, ms, ps (+1 more)
 
 ### Community 20 - "vs"
-Cohesion: 0.08
-Nodes (8): Ku, ma, nu, pu, ru, td, $u, vs
+Cohesion: 0.13
+Nodes (3): Ku, $u, vs
 
 ### Community 21 - "updater.py"
 Cohesion: 0.18
 Nodes (7): app_bundle(), arch(), check(), download(), _fetch_json(), install(), parse()
 
+### Community 25 - "Kr"
+Cohesion: 0.07
+Nodes (3): fi(), gi(), Kr
+
 ### Community 26 - "Nr"
 Cohesion: 0.07
 Nodes (4): gm, np, Nr, uc
 
-### Community 28 - "bd"
-Cohesion: 0.06
-Nodes (10): ad, bd, ed(), md(), Md, pd(), rd, sd (+2 more)
+### Community 27 - "As"
+Cohesion: 0.08
+Nodes (6): As, ma, nu, pu, ru, td
 
-### Community 29 - "eu"
-Cohesion: 0.11
-Nodes (3): eu, iu, xm
+### Community 28 - "xd"
+Cohesion: 0.17
+Nodes (4): md(), sd, xd, yd
+
+### Community 30 - "$p"
+Cohesion: 0.07
+Nodes (6): bd, ed(), Md, $p, pd(), rd
 
 ### Community 32 - "steps"
 Cohesion: 0.06
 Nodes (37): needs, runs-on, steps, strategy, release, jobs, dmg, plugin (+29 more)
 
 ### Community 33 - "Oa"
-Cohesion: 0.08
-Nodes (8): $d, Ha(), Oa, qa(), ta, Va(), wp, za()
+Cohesion: 0.13
+Nodes (7): Ai, Ha(), Oa, qa(), Ri, Va(), za()
 
 ### Community 35 - "e"
-Cohesion: 0.08
-Nodes (11): _d(), e, hd, Id(), sp, a(), Vd, c() (+3 more)
+Cohesion: 0.09
+Nodes (10): _d(), e, hd, Id(), a(), Vd, c(), wd (+2 more)
 
 ### Community 36 - "fp"
 Cohesion: 0.22
@@ -296,20 +306,24 @@ Cohesion: 0.14
 Nodes (3): $n(), rs(), _s
 
 ### Community 43 - "lr"
-Cohesion: 0.06
-Nodes (6): am(), lr, rm, sm(), Tl(), yr
+Cohesion: 0.07
+Nodes (5): am(), lr, rm, sm(), yr
 
 ### Community 45 - "Nh"
-Cohesion: 0.17
-Nodes (4): dh, _h, Nh, zh
+Cohesion: 0.06
+Nodes (10): dh, _h, jh, kh, Nh, qh, Wh(), Xh() (+2 more)
 
-### Community 47 - ".constructor"
-Cohesion: 0.07
-Nodes (36): ai(), fi(), hl(), j(), K(), q(), W(), Ft() (+28 more)
+### Community 47 - "vl"
+Cohesion: 0.23
+Nodes (20): vl(), b(), D(), E(), f(), g(), I(), L() (+12 more)
 
 ### Community 48 - "bt"
-Cohesion: 0.10
-Nodes (14): ba(), Ga(), ii(), ja(), bt(), Rt(), ka(), kl() (+6 more)
+Cohesion: 0.09
+Nodes (15): ba(), Ga(), ii(), ja(), bt(), Rt(), ka(), kl() (+7 more)
+
+### Community 49 - "xr"
+Cohesion: 0.07
+Nodes (9): Gl, il, Ka, A(), ol(), A(), C(), R() (+1 more)
 
 ### Community 50 - "mixer.py"
 Cohesion: 0.13
@@ -321,31 +335,23 @@ Nodes (9): fuse(), dist(), residuals(), unpack(), _wrap(), _imgs(), _start(), te
 
 ### Community 53 - "ts"
 Cohesion: 0.12
-Nodes (4): fl, mh, rc, ts
+Nodes (4): fl, id, mh, ts
 
 ### Community 54 - "main.js"
 Cohesion: 0.27
 Nodes (7): { app, BrowserWindow }, createWindow(), { execFile }, http, isUp(), load(), page()
 
-### Community 56 - "ec"
-Cohesion: 0.12
-Nodes (4): ec, Mi(), Xn(), yi
-
 ### Community 57 - "kd"
-Cohesion: 0.17
+Cohesion: 0.13
 Nodes (3): Gd, o(), kd
 
 ### Community 60 - ".setValues"
 Cohesion: 0.12
-Nodes (4): dd, Fl, id, Mh
+Nodes (4): dd, Fl, Mh, rc
 
 ### Community 61 - "MIX3D"
 Cohesion: 0.14
 Nodes (11): MIX3D, kRing, mBase, mEnd, mFeed, mPlay, mPos, mReady (+3 more)
-
-### Community 62 - ".copy"
-Cohesion: 0.12
-Nodes (4): cd, ud, vc, xc()
 
 ### Community 63 - "xh"
 Cohesion: 0.09
@@ -356,11 +362,11 @@ Cohesion: 0.20
 Nodes (7): directivity(), field_at(), fit(), render(), residuals(), unpack(), stage_axis()
 
 ### Community 67 - "t"
-Cohesion: 0.24
+Cohesion: 0.27
 Nodes (6): t(), n(), c(), l(), o(), r()
 
 ### Community 68 - "ld"
-Cohesion: 0.21
+Cohesion: 0.19
 Nodes (3): fd(), gd(), ld
 
 ### Community 70 - "analysis.py"
@@ -376,12 +382,8 @@ Cohesion: 0.17
 Nodes (30): api(), auto(), bands, css(), cut(), dbl(), down(), draw() (+22 more)
 
 ### Community 75 - ".constructor"
-Cohesion: 0.18
+Cohesion: 0.16
 Nodes (4): lu, ou, a(), o()
-
-### Community 76 - "il"
-Cohesion: 0.25
-Nodes (3): il, A(), ol()
 
 ### Community 78 - "Hn"
 Cohesion: 0.18
@@ -399,13 +401,17 @@ Nodes (13): balance(), _band(), masking(), resonances(), room(), run(), run_mast
 Cohesion: 0.11
 Nodes (20): _ap1(), _ap2(), component(), dyn_gain_db(), level_db(), process(), response_db(), _sos_cut() (+12 more)
 
+### Community 84 - "ap"
+Cohesion: 0.23
+Nodes (3): ap, Rp(), sp
+
 ### Community 91 - "nl"
 Cohesion: 0.22
 Nodes (5): el(), Ko, nl(), $o, Qo
 
 ### Community 92 - ".parse"
-Cohesion: 0.17
-Nodes (6): s(), r(), mp, i(), pp, si()
+Cohesion: 0.25
+Nodes (5): s(), r(), i(), pp, si()
 
 ### Community 93 - "s"
 Cohesion: 0.36
@@ -424,20 +430,20 @@ Cohesion: 0.15
 Nodes (7): Compatibilità, Cose emerse dalla ricerca, Il kit di Ivan, da(), r(), mu, n
 
 ### Community 107 - "jd"
-Cohesion: 0.07
-Nodes (6): hp, jd, lp, op, qd, tc
+Cohesion: 0.12
+Nodes (3): hp, jd, lp
 
 ### Community 109 - ".setHSL"
 Cohesion: 0.33
 Nodes (3): Jr(), qn(), Yn()
 
+### Community 110 - "ai"
+Cohesion: 0.50
+Nodes (3): ai(), oi(), vi
+
 ### Community 112 - "gh"
 Cohesion: 0.10
-Nodes (4): gh, Gm, lm, zm
-
-### Community 113 - "es"
-Cohesion: 0.22
-Nodes (3): es, Mm, Zu
+Nodes (6): au, es, gh, Gm, su, zm
 
 ### Community 117 - "numpy"
 Cohesion: 0.07
@@ -455,13 +461,17 @@ Nodes (3): EMsgTags, kMsgLaunch, kMsgOpenBrowser
 Cohesion: 0.67
 Nodes (3): EParams, kListen, kNumParams
 
+### Community 125 - ".parseObject"
+Cohesion: 0.14
+Nodes (3): $l, op, tc
+
 ### Community 129 - "Ph"
 Cohesion: 0.50
 Nodes (3): ih, lh(), Ph
 
 ### Community 153 - "zl"
-Cohesion: 0.07
-Nodes (26): v(), Ea(), Fa(), li, Ma(), pi, p(), ra (+18 more)
+Cohesion: 0.06
+Nodes (31): v(), Ea(), Fa(), hl(), j(), K(), q(), W() (+23 more)
 
 ## Knowledge Gaps
 - **15 isolated node(s):** `mix3d`, `kMsgLaunch`, `kMsgOpenBrowser`, `kListen`, `kNumParams` (+10 more)
@@ -471,17 +481,17 @@ Nodes (26): v(), Ea(), Fa(), li, Ma(), pi, p(), ra (+18 more)
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `da()` connect `mu` to `ta`, `three.module.min.js`, `.constructor`?**
-  _High betweenness centrality (0.289) - this node is a cross-community bridge._
+- **Why does `da()` connect `mu` to `.constructor`, `three.module.min.js`, `xr`?**
+  _High betweenness centrality (0.348) - this node is a cross-community bridge._
 - **What connects `mix3d`, `kMsgLaunch`, `kMsgOpenBrowser` to the rest of the system?**
   _15 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `test_resolve_bridge.py` be split into smaller, more focused modules?**
   _Cohesion score 0.05391120507399577 - nodes in this community are weakly interconnected._
 - **Why does `Compatibilità` connect `mu` to `devices.py`, `README.md`?**
-  _High betweenness centrality (0.288) - this node is a cross-community bridge._
+  _High betweenness centrality (0.347) - this node is a cross-community bridge._
 - **Should `media.py` be split into smaller, more focused modules?**
   _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._
 - **Why does `compat()` connect `devices.py` to `mu`?**
-  _High betweenness centrality (0.230) - this node is a cross-community bridge._
+  _High betweenness centrality (0.314) - this node is a cross-community bridge._
 - **Should `cli.py` be split into smaller, more focused modules?**
   _Cohesion score 0.09390243902439024 - nodes in this community are weakly interconnected._
