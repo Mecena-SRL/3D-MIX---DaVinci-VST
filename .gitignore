@@ -7,3 +7,5 @@ out/
 graphify-out/cache/
 # spazi privati: mai nel repository
 *.mix3d-space.json
+build/
+dist/

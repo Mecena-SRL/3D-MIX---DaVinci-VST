@@ -802,13 +802,37 @@ $("fsOk").onclick = safe(async () => {
 async function integr() {
   const st = await api("/api/resolve/integration");
   $("itStatus").innerHTML = !st.macos ? "Disponibile solo su macOS." :
-    `Pannello: <b>${st.pannello ? "installato ✓" : "non installato"}</b> · Script: <b>${st.script ? "installato ✓" : "non installato"}</b>`;
+    `Pannello: <b>${st.pannello ? "installato ✓" : "non installato"}</b> · Script: <b>${st.script ? "installato ✓" : "non installato"}</b>` +
+    (st.fairlight_incluso ? ` · Plugin Fairlight: <b>${st.fairlight ? "installato ✓" : "non installato"}</b>` : "");
 }
 $("bIntegr").onclick = safe(async () => { await integr(); $("dlgIntegr").showModal(); });
 $("itClose").onclick = () => $("dlgIntegr").close();
 const installIt = (pannello) => safe(async () => { await api("/api/resolve/install", { pannello }); await integr(); toast("Installato: riavvia Resolve"); });
 $("itOk").onclick = installIt(true);
 $("itScript").onclick = installIt(false);
+
+// aggiornamenti dalle GitHub Releases: controllo all'avvio, installazione con riavvio
+let UPD = null;
+async function checkUpdate() {
+  UPD = await api("/api/update").catch(() => null);
+  if (!UPD?.disponibile) return;
+  $("bUpdate").hidden = false; $("bUpdate").textContent = `Aggiorna a ${UPD.ultima}`;
+}
+$("bUpdate").onclick = () => {
+  $("upTitle").textContent = `MIX3D ${UPD.ultima} disponibile`;
+  $("upInfo").textContent = `Hai la ${UPD.corrente}. ` + (UPD.installabile ? "Scarico il dmg per questo Mac, sostituisco l'app e la riapro: salva prima il progetto." : "Da qui non posso sostituire l'app: scarica il dmg dalla pagina della release.");
+  $("upNotes").textContent = UPD.note || "";
+  $("upPage").href = UPD.pagina || "#"; $("upOk").hidden = !UPD.installabile;
+  $("dlgUpdate").showModal();
+};
+$("upClose").onclick = () => $("dlgUpdate").close();
+$("upOk").onclick = safe(async () => {
+  $("dlgUpdate").close(); player.stop();
+  const r = await runJob("/api/update/install", {}, "Aggiornamento");
+  if (!r.riavvio) return toast(r.messaggio);
+  document.body.innerHTML = `<p style="padding:40px">Installo MIX3D ${r.versione}: si riapre da solo tra qualche secondo.</p>`;
+  await fetch("/api/quit", { method: "POST" }).catch(() => {});
+});
 
 $("prOk").onclick = safe(async () => {
   const tr = $("prTrack").value, lufs = $("prLufs").value, regione = $("prRegion").checked;
@@ -819,6 +843,7 @@ $("prOk").onclick = safe(async () => {
 });
 
 [DB, SPACES] = await Promise.all([api("/api/devices"), api("/api/spazi")]);
+checkUpdate();
 await refresh();
 let saved = 0; try { saved = +(localStorage.getItem("mix3d.step") || 0); } catch {}
 go(S.tracks.length ? saved : 0);

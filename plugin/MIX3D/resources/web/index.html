@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>MIX3D</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0d0f13; color: #e9ecf1; font: 14px/1.5 -apple-system, sans-serif; }
+  main { height: 100%; display: grid; place-items: center; text-align: center; }
+  .logo { width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 14px; background: linear-gradient(135deg, #5ab8ff, #8f7bff); }
+  .muted { color: #8a93a3; } button { margin-top: 14px; padding: 8px 16px; border-radius: 8px; border: 0; background: #5ab8ff; color: #06131f; font-weight: 600; cursor: pointer; }
+  .bar { width: 220px; height: 4px; margin: 16px auto 0; border-radius: 3px; background: #1f242d; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 30%; background: #5ab8ff; animation: go 1.2s infinite ease-in-out; }
+  @keyframes go { from { margin-left: -30%; } to { margin-left: 100%; } }
+</style>
+<script src="script.js"></script>
+</head>
+<body>
+<main><div>
+  <div class="logo"></div>
+  <b>MIX3D</b>
+  <p class="muted" id="msg">Avvio del pannello…</p>
+  <div class="bar" id="bar"><i></i></div>
+  <button id="retry" hidden onclick="start()">Riprova</button>
+  <button id="ext" hidden onclick="SAMFUI(1)">Apri nel browser</button>
+</div></main>
+<script>
+// Il plugin non fa il mix: avvia l'app MIX3D (se serve) e mostra qui il suo pannello locale.
+const URL = "http://127.0.0.1:8730/";
+const alive = () => fetch(URL + "api/update", { mode: "no-cors", cache: "no-store" }).then(() => true, () => false);
+const show = (id, on) => (document.getElementById(id).hidden = !on);
+
+async function start() {
+  show("retry", false); show("ext", false); show("bar", true);
+  if (!(await alive())) { document.getElementById("msg").textContent = "Avvio dell'app MIX3D…"; SAMFUI(0); }
+  for (let i = 0; i < 60; i++) {           // fino a ~30 s: il primo avvio dell'app è lento
+    if (await alive()) { location.href = URL; return; }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  document.getElementById("msg").textContent = "MIX3D non risponde. È installata in Applicazioni?";
+  show("bar", false); show("retry", true); show("ext", true);
+}
+start();
+</script>
+</body>
+</html>

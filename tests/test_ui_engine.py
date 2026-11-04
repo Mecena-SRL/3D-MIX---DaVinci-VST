@@ -226,3 +226,17 @@ def test_inviluppo_per_le_onde(concert):
     _, lv = mixer.render(p, 10.0, 1.0)
     env = lv["env"][p["tracks"][0]["id"]]
     assert len(env) == 10 and all(-60 < v < 0 for v in env)
+
+
+def test_versione_e_aggiornamento():
+    import tomllib
+    from pathlib import Path
+    from mix3d import __version__, updater
+    assert tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"] == __version__
+    assert updater.parse("v0.0.10") > updater.parse("0.0.9")
+    rel = {"tag_name": "v9.0.0", "html_url": "u", "body": "note",
+           "assets": [{"name": f"MIX3D-9.0.0-macos-{updater.arch()}.dmg", "browser_download_url": "https://x/d.dmg"}]}
+    st = updater.check(force=True, fetch=lambda url: rel)
+    assert st["disponibile"] and st["url"] == "https://x/d.dmg" and not st["installabile"]  # non è l'app impacchettata
+    assert not updater.check(force=True, fetch=lambda url: {**rel, "tag_name": updater.__version__})["disponibile"]
+    assert "errore" in updater.check(force=True, fetch=lambda url: 1 / 0)

@@ -12,6 +12,7 @@
   <div class="brand"><span class="logo-mark"></span><b>MIX3D</b><input id="pname" class="pname" title="Nome progetto"></div>
   <nav id="steps" class="steps"></nav>
   <div class="top-actions">
+    <button id="bUpdate" class="update" hidden></button>
     <button id="bIntegr" class="ghost" title="Apri MIX3D da Resolve">Resolve</button>
     <button id="bOpen" class="ghost">Apri</button>
     <button id="bSave" class="ghost">Salva</button>
@@ -186,9 +187,17 @@
 <dialog id="dlgIntegr">
   <h3>MIX3D dentro DaVinci Resolve</h3>
   <p class="muted">Pannello: <b>Workspace › Workflow Integrations › MIX3D</b> (Studio). Script: <b>Workspace › Scripts › MIX3D</b>.</p>
+  <p class="muted">Plugin: in <b>Fairlight</b> aggiungi l'effetto <b>Mecena › MIX3D</b> (VST3 o AU) a una traccia o al bus: apre il pannello dentro la sua finestra e lascia passare l'audio.</p>
   <p id="itStatus"></p>
   <p class="muted small">Il pannello va in una cartella di sistema: macOS chiederà la password. Riavvia Resolve dopo l'installazione.</p>
-  <div class="actions"><button id="itClose" class="ghost">Chiudi</button><button id="itScript" class="ghost">Solo script</button><button id="itOk" class="primary">Installa pannello e script</button></div>
+  <div class="actions"><button id="itClose" class="ghost">Chiudi</button><button id="itScript" class="ghost">Solo script e plugin</button><button id="itOk" class="primary">Installa tutto</button></div>
+</dialog>
+
+<dialog id="dlgUpdate">
+  <h3 id="upTitle">Aggiornamento disponibile</h3>
+  <p class="muted" id="upInfo"></p>
+  <pre id="upNotes" class="notes"></pre>
+  <div class="actions"><a id="upPage" class="ghost" target="_blank">Pagina della release</a><button id="upClose" class="ghost">Più tardi</button><button id="upOk" class="primary">Aggiorna e riavvia</button></div>
 </dialog>
 
 <div id="toast" class="toast" hidden></div>

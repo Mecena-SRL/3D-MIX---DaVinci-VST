@@ -4,7 +4,7 @@ on:
   push:
     tags: ["v*"]
   pull_request:  # prova la build quando cambia il packaging
-    paths: ["packaging/**", ".github/workflows/release.yml", "pyproject.toml"]
+    paths: ["packaging/**", "plugin/**", ".github/workflows/release.yml", "pyproject.toml"]
   workflow_dispatch:
     inputs:
       release:
@@ -16,7 +16,21 @@ permissions:
   contents: write
 
 jobs:
+  plugin:  # VST3 + AU universali (iPlug2): un solo build per entrambi i Mac
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build plugin
+        run: plugin/build_plugin.sh
+      - name: Pacchetto (tar conserva permessi e firma)
+        run: tar -czf dist/MIX3D-plugin.tgz -C dist/plugin .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: dist/MIX3D-plugin.tgz
+
   dmg:
+    needs: plugin
     strategy:
       matrix:
         os: [macos-14, macos-15-intel]  # Apple Silicon e Intel
@@ -30,8 +44,14 @@ jobs:
         run: |
           python -m pip install -q ".[dev]"
           python -m pytest -q
+      - uses: actions/download-artifact@v4
+        with:
+          name: plugin
+          path: dist
       - name: Build app e dmg
-        run: packaging/build_macos.sh
+        run: |
+          mkdir -p dist/plugin && tar -xzf dist/MIX3D-plugin.tgz -C dist/plugin
+          packaging/build_macos.sh
       - uses: actions/upload-artifact@v4
         with:
           name: dmg-${{ matrix.os }}
@@ -49,3 +69,5 @@ jobs:
             MIX3D: pannello di mix multi-sorgente per Resolve.
             Scegli il dmg per il tuo Mac (arm64 = Apple Silicon, x86_64 = Intel), trascina MIX3D in Applicazioni.
             App non firmata: al primo avvio tasto destro su MIX3D > Apri > Apri.
+            Plugin Fairlight (VST3/AU): in MIX3D premi Resolve > Installa tutto, poi in Fairlight aggiungi l'effetto Mecena > MIX3D.
+            Da questa versione MIX3D si aggiorna da solo: quando esce una release compare il pulsante "Aggiorna".

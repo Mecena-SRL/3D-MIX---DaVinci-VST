@@ -179,3 +179,8 @@ dialog label { display: block; margin: 8px 0; } dialog label input:not([type=che
 .presence b { color: var(--text); }
 .legend-dr { display: flex; height: 6px; border-radius: 3px; overflow: hidden; width: 120px;
   background: linear-gradient(90deg, rgb(70,110,255), rgb(50,190,230), rgb(70,235,140), rgb(170,240,90), rgb(255,180,60), rgb(255,80,90)); }
+
+/* aggiornamento */
+button.update { background: linear-gradient(135deg, var(--ok), var(--accent)); color: #05130c; border: 0; font-weight: 650; }
+.notes { white-space: pre-wrap; max-height: 220px; overflow: auto; background: var(--panel2); padding: 10px; border-radius: 8px; font: 12px/1.4 inherit; }
+#upPage { margin-right: auto; color: var(--accent); align-self: center; }
