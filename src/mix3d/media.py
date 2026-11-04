@@ -11,6 +11,8 @@ import numpy as np
 import soundfile as sf
 from scipy.signal import resample_poly
 
+from . import metadata
+
 CACHE = Path.home() / ".mix3d" / "cache"
 
 
@@ -29,12 +31,14 @@ def probe(path: str) -> dict:
     Legge sempre il WAV decodificato (sr, canali, durata esatti); codec e bit
     vengono dall'originale, dal banner di ffmpeg.
     """
-    m = re.search(r"Audio: (\w+)", banner(path))
+    ban = banner(path)
+    m = re.search(r"Audio: (\w+)", ban)
     codec = m.group(1) if m else "sconosciuto"
     i = sf.info(decoded(path))
     bits = 32 if "f32" in codec else int(b.group(1)) if (b := re.match(r"pcm_[su](\d+)", codec)) else None
+    meta = metadata.read(path, ban, i.samplerate)
     return {"name": Path(path).name, "codec": codec, "sr": i.samplerate, "channels": i.channels,
-            "bits": bits, "duration": i.duration}
+            "bits": bits, "duration": i.duration, "metadati": meta, "rilevato": metadata.detect(meta)}
 
 
 def banner(path: str) -> str:
