@@ -103,6 +103,25 @@ def sony_xml(path: str) -> dict:
     return m
 
 
+def qt_strings(path: str, limit: int = 4 << 20) -> str:
+    """Testo leggibile del box `moov` di MOV/MP4 (modello, firmware: Panasonic, Sony, DJI
+    lo scrivono in atomi propri che ffmpeg non mostra)."""
+    out = []
+    with open(path, "rb") as f:
+        while (h := f.read(8)) and len(h) == 8:
+            size, kind = struct.unpack(">I", h[:4])[0], h[4:]
+            head = 8
+            if size == 1:
+                size, head = struct.unpack(">Q", f.read(8))[0], 16
+            if size == 0:  # fino a fine file
+                break
+            if kind in (b"moov", b"udta", b"meta", b"uuid"):
+                out += re.findall(rb"[ -~]{5,}", f.read(min(size - head, limit)))
+            else:
+                f.seek(size - head, 1)
+    return " ".join(x.decode("ascii") for x in out)[:20000]
+
+
 def tags(banner: str) -> dict:
     """Tag di container/stream dal banner di ffmpeg (encoder, handler_name, model...)."""
     keep = ("encoder", "handler_name", "make", "model", "com.apple.quicktime.model", "comment",
@@ -120,6 +139,12 @@ def read(path: str, banner: str = "", sr: int | None = None) -> dict:
         m.update(wav(path, sr))
     else:
         m.update(sony_xml(path))
+        if path.lower().endswith((".mov", ".mp4", ".m4a")):
+            try:  # solo la firma trovata, non tutto il testo
+                if hit := detect({"t": qt_strings(path)}):
+                    m.setdefault("modello", hit["indizio"])
+            except (OSError, struct.error):
+                pass
     return m
 
 
