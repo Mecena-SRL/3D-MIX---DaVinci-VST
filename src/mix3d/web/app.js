@@ -25,12 +25,29 @@ const space = () => SPACES.find((s) => s.id === S.spazio);
 const selected = () => S.tracks.find((t) => t.id === sel);
 const mic = (t) => DB.microfoni[t.microfono];
 const rec = (t) => DB.registratori[t.registratore];
-let pushT = null;
-function push(patch, flush = true) { // modifica locale + invio al server con debounce
+// modifiche locali accumulate e inviate insieme dopo 120 ms: due clic ravvicinati non si perdono
+let pushT = null, pending = { tracks: {} }, pendingFlush = false;
+function push(patch, flush = true) {
+  const { tracks = [], ...rest } = patch;
+  Object.assign(pending, rest);
+  for (const t of tracks) pending.tracks[t.id] = { ...pending.tracks[t.id], ...t };
+  pendingFlush ||= flush;
   clearTimeout(pushT);
-  pushT = setTimeout(safe(async () => { S = await api("/api/state", patch); if (flush) player.flush(); scene.sync(); renderSummary(); }), 120);
+  pushT = setTimeout(safe(async () => {
+    const body = { ...pending, tracks: Object.values(pending.tracks) }, f = pendingFlush;
+    pending = { tracks: {} }; pendingFlush = false;
+    S = await api("/api/state", body);
+    if (f) player.flush();
+    scene.sync(); renderSummary(); renderMonitor();
+  }), 120);
 }
-const pushTrack = (t, fields) => { Object.assign(t, fields); push({ tracks: [{ id: t.id, ...fields }] }); };
+const track = (id) => S.tracks.find((t) => t.id === id);
+const pushTrack = (t, fields) => { Object.assign(track(t.id) || t, fields); push({ tracks: [{ id: t.id, ...fields }] }); renderMonitor(); };
+
+// cosa si sente: muto vince, poi il solo esclude chi non è in solo
+const soloOn = () => S.tracks.some((t) => t.solo);
+const audible = (t) => !t.mute && (t.solo || !soloOn());
+const status = (t) => (t.mute ? "muta" : audible(t) ? "in ascolto" : "esclusa dal solo");
 
 // stato di salute di una traccia: ok / warn / bad
 function health(t) {
@@ -47,7 +64,7 @@ const STEPS = [
   { t: "Dispositivi", h: "Per ogni traccia scegli registratore e microfono. MIX3D suggerisce, tu confermi.", done: () => S.tracks.length > 0 && S.tracks.every((t) => t.confermato) },
   { t: "Spazio", h: "Scegli il tipo di sala. Dimensioni, riverbero e consigli si aggiornano; i dispositivi si piazzano da soli.", done: () => !!S.spazio },
   { t: "Analisi", h: "Livelli, rumore, spettro, loudness, sync al campione e stima della posizione delle sorgenti.", done: () => S.tracks.length > 0 && S.tracks.every((t) => t.analisi) },
-  { t: "Ascolto e mix", h: "Sposta ascoltatore, microfoni e sorgenti nella scena e ascolta in tempo reale.", done: () => S.tracks.some((t) => t.analisi) },
+  { t: "Ascolto e mix", h: "Premi ▶ per ascoltare il mix. Seleziona una traccia per posizionarla; M = muto, S = solo.", done: () => S.tracks.some((t) => t.analisi) },
   { t: "Stampa", h: "Render del mix su file o direttamente in una traccia di Resolve.", done: () => printed },
 ];
 function renderSteps() {
@@ -119,9 +136,10 @@ function renderTracks() {
       <div class="sub">${mic(t).nome} › ${rec(t).nome}${t.confermato ? "" : " · da confermare"}</div>
       <canvas></canvas>
       <div class="meter"><i data-meter="${t.id}"></i></div>
-      <div class="ctl"><span class="muted small">Gain</span><input type="range" min="-30" max="12" step="0.5" value="${t.gain_db}"><span class="small gv">${t.gain_db.toFixed(1)} dB</span></div>`;
-    el.querySelector(".m").onclick = (e) => { e.stopPropagation(); pushTrack(t, { mute: !t.mute }); e.target.classList.toggle("on"); };
-    el.querySelector(".s").onclick = (e) => { e.stopPropagation(); pushTrack(t, { solo: !t.solo }); e.target.classList.toggle("on"); };
+      <div class="ctl"><span class="st small"></span><span class="muted small">Gain</span><input type="range" min="-30" max="12" step="0.5" value="${t.gain_db}"><span class="small gv">${t.gain_db.toFixed(1)} dB</span></div>`;
+    el.dataset.id = t.id;
+    el.querySelector(".m").onclick = (e) => { e.stopPropagation(); pushTrack(t, { mute: !track(t.id).mute }); };
+    el.querySelector(".s").onclick = (e) => { e.stopPropagation(); pushTrack(t, { solo: !track(t.id).solo }); };
     const g = el.querySelector("input[type=range]");
     g.onclick = (e) => e.stopPropagation();
     g.oninput = () => { el.querySelector(".gv").textContent = `${(+g.value).toFixed(1)} dB`; pushTrack(t, { gain_db: +g.value }); };
@@ -129,6 +147,25 @@ function renderTracks() {
     box.appendChild(el);
     drawMiniWave(el.querySelector("canvas"), t);
   }
+  renderMonitor();
+}
+
+// monitor: stato di ogni traccia (carte, livelli del mix) e riepilogo nella barra di trasporto
+function renderMonitor() {
+  if (!S) return;
+  for (const t of S.tracks) {
+    const on = audible(t);
+    document.querySelectorAll(`[data-id="${t.id}"]`).forEach((el) => {
+      el.classList.toggle("off", !on);
+      el.querySelector(".m")?.classList.toggle("on", !!t.mute);
+      el.querySelector(".s")?.classList.toggle("on", !!t.solo);
+      const st = el.querySelector(".st"); if (st) st.textContent = status(t);
+    });
+  }
+  const on = S.tracks.filter(audible), n = S.tracks.length;
+  $("monitor").innerHTML = !n ? "Nessuna traccia" :
+    `${soloOn() ? "<b class='solo'>SOLO</b> " : ""}In ascolto <b>${on.length}/${n}</b>: ${on.map((t) => t.nome).join(", ") || "nessuna"}`;
+  $("bAll").hidden = on.length === n;
 }
 function drawMiniWave(cv, t) {
   const ctx = fit(cv), W = cv.width, H = cv.height, ov = t.analisi?.overview;
@@ -143,7 +180,7 @@ function drawMiniWave(cv, t) {
 }
 function select(id) {
   sel = id;
-  document.querySelectorAll(".trk").forEach((e, i) => e.classList.toggle("sel", S.tracks[i]?.id === id));
+  document.querySelectorAll(".trk").forEach((e) => e.classList.toggle("sel", e.dataset.id === id));
   scene.highlight(); renderStep();
 }
 
@@ -287,11 +324,14 @@ function renderSpaces() {
   $("spaces").innerHTML = SPACES.map((s) => `<button class="space ${s.id === S.spazio ? "on" : ""}" data-id="${s.id}">
     <span class="tag ${s.privato ? "priv" : ""}">${s.privato ? "privato" : s.tipo}</span><b>${s.nome}</b>
     <span>${s.sala.w}×${s.sala.d}×${s.sala.h} m${s.posti ? ` · ${s.posti} posti` : ""}${s.rt60?.["500"] ? ` · RT60 ${s.rt60["500"]} s` : ""}</span></button>`).join("");
-  $("spaces").querySelectorAll(".space").forEach((b) => (b.onclick = safe(async () => {
-    S = await api("/api/spazio", { id: b.dataset.id }); await refresh(); scene.home(); toast(`Spazio: ${space().nome}`);
-  })));
+  $("spaces").querySelectorAll(".space").forEach((b) => (b.onclick = () => setSpace(b.dataset.id)));
   renderSpaceInfo();
 }
+const setSpace = safe(async (id) => { S = await api("/api/spazio", { id }); player.flush(); await refresh(); scene.home(); toast(`Spazio: ${space().nome}`); });
+function renderSpaceSelect() {
+  $("spaceSel").innerHTML = (S.spazio ? "" : `<option value="">Spazio…</option>`) + options(SPACES.map((s) => [s.id, s.nome]), S.spazio);
+}
+$("spaceSel").onchange = (e) => e.target.value && setSpace(e.target.value);
 function renderSpaceInfo() {
   const sp = space();
   if (!sp) { $("spaceInfo").innerHTML = `<div class="empty">Scegli uno spazio a sinistra: è il punto di partenza per posizioni, riverbero e consigli.</div>`; return; }
@@ -373,8 +413,34 @@ function renderMixSide() {
   $("oMaster").textContent = `${(+S.master_db).toFixed(1)} dB`;
   $("oWidth").textContent = `${Math.round(S.larghezza * 100)}%`;
   $("oAtten").textContent = `${Math.round(S.attenuazione * 100)}%`;
-  $("mixMeters").innerHTML = S.tracks.map((t) => `<div><span style="color:${color(t)}">${t.nome}</span><div class="meter"><i data-meter="${t.id}"></i></div></div>`).join("");
+  $("mixMeters").innerHTML = S.tracks.map((t) => `<div data-id="${t.id}"><span style="color:${color(t)}">${t.nome}</span><div class="meter"><i data-meter="${t.id}"></i></div><span class="st small"></span></div>`).join("");
+  renderMonitor(); renderPlace();
 }
+
+// posizione della traccia selezionata: cursori al posto del trascinamento nella scena
+const PLACE = [["px", 0], ["py", 1], ["pz", 2]];
+function renderPlace() {
+  const t = selected(), box = $("place");
+  box.hidden = !t;
+  if (!t) return;
+  const { w, d, h } = S.sala, pd = S.palco?.d || 4;
+  $("plName").textContent = t.nome; $("plName").style.color = color(t);
+  $("px").min = -w / 2; $("px").max = w / 2; $("pz").min = -pd; $("pz").max = d; $("py").max = h;
+  PLACE.forEach(([id, i]) => ($(id).value = t.pos[i]));
+  $("ppan").value = t.pan || 0;
+  const [dx, dy, dz] = t.pos.map((v, i) => v - S.listener[i]), dist = Math.hypot(dx, dy, dz);
+  const pan = Math.sin(Math.atan2(dx, -dz)) * S.larghezza + (t.pan || 0), side = Math.abs(pan) < 0.1 ? "al centro" : `${Math.round(Math.min(Math.abs(pan), 1) * 100)}% a ${pan < 0 ? "sinistra" : "destra"}`;
+  $("oPx").textContent = `${(+t.pos[0]).toFixed(1)} m`; $("oPy").textContent = `${(+t.pos[1]).toFixed(1)} m`;
+  $("oPz").textContent = `${(+t.pos[2]).toFixed(1)} m`; $("oPpan").textContent = `${Math.round((t.pan || 0) * 100)}%`;
+  $("plInfo").innerHTML = `Dall'ascoltatore: <b>${dist.toFixed(1)} m</b>, <b>${side}</b> · ${t.pos_mode === "manuale" ? "posizione manuale" : "posizione automatica"}`;
+}
+PLACE.forEach(([id, i]) => ($(id).oninput = () => {
+  const t = selected(), pos = [...t.pos]; pos[i] = +$(id).value;
+  pushTrack(t, { pos, pos_mode: "manuale" }); renderPlace(); scene.sync();
+}));
+$("ppan").oninput = () => { pushTrack(selected(), { pan: +$("ppan").value }); renderPlace(); };
+$("plAuto").onclick = () => { pushTrack(selected(), { pos_mode: "auto", orient: null, pan: 0 }); setTimeout(refresh, 400); };
+$("plSolo").onclick = () => { const id = sel; push({ tracks: S.tracks.map((t) => ({ id: t.id, solo: t.id === id && !track(id).solo })) }); S.tracks.forEach((t) => (t.solo = t.id === id && !t.solo)); renderMonitor(); };
 
 // --- scena 3D -------------------------------------------------------------------------
 const scene = (() => {
@@ -582,6 +648,7 @@ const scene = (() => {
     else pushTrack(t, { pos, pos_mode: "manuale" });
     drag = null; ctl.enabled = true;
     if (step === 2) renderSpaceInfo();
+    if (step === 4) renderPlace();
   });
   function home() {
     const { w, d } = S.sala, pd = S.palco?.d || 4, R = Math.max(w, d + pd), zc = (d - pd) / 2;
@@ -732,7 +799,7 @@ async function refresh() {
   $("pname").value = S.nome; $("roomW").value = S.sala.w; $("roomD").value = S.sala.d; $("roomH").value = S.sala.h;
   $("master").value = S.master_db; $("width").value = S.larghezza; $("atten").value = S.attenuazione; $("corr").checked = S.correzione;
   if (!selected()) sel = S.tracks[0]?.id ?? null;
-  renderTracks(); renderSummary(); scene.sync(); renderStep(); player.tick();
+  renderTracks(); renderSummary(); renderSpaceSelect(); scene.sync(); renderStep(); player.tick();
 }
 
 $("bPrev").onclick = () => go(step - 1);
@@ -768,7 +835,12 @@ $("bAnalyze").onclick = safe(async () => {
 const resolveToast = () => { const e = S.resolve?.non_lette || []; toast(e.length ? `Timeline letta, ${e.length} clip non lette: ${e.join("; ")}` : "Timeline di Resolve letta", !!e.length); };
 $("bResolve").onclick = safe(async () => { S = await api("/api/resolve/import", {}); await refresh(); resolveToast(); go(1); });
 $("bSave").onclick = safe(async () => { const r = await api("/api/save", {}); toast(`Salvato in ${r.path}`); });
-$("bQuit").onclick = async () => { if (!confirm("Chiudere MIX3D? Salva prima il progetto.")) return; player.stop(); await fetch("/api/quit", { method: "POST" }).catch(() => {}); document.body.innerHTML = "<p style='padding:40px'>MIX3D chiuso.</p>"; };
+$("bAll").onclick = () => { push({ tracks: S.tracks.map((t) => ({ id: t.id, mute: false, solo: false })) }); S.tracks.forEach((t) => (t.mute = t.solo = false)); renderMonitor(); };
+// confirm() non funziona nella finestra del plugin (WebView senza dialoghi): secondo clic per confermare
+$("bQuit").onclick = async (e) => {
+  const b = e.currentTarget;
+  if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Esci davvero?"; setTimeout(() => { delete b.dataset.sure; b.textContent = "Esci"; }, 3000); return; }
+  player.stop(); await fetch("/api/quit", { method: "POST" }).catch(() => {}); document.body.innerHTML = "<p style='padding:40px'>MIX3D chiuso.</p>"; };
 $("bOpen").onclick = () => $("dlgOpen").showModal();
 $("opCancel").onclick = () => $("dlgOpen").close();
 $("opOk").onclick = safe(async () => { await api("/api/load", { path: $("opPath").value }); $("dlgOpen").close(); await refresh(); });

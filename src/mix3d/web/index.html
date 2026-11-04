@@ -115,7 +115,15 @@
         <div class="mix-side">
           <div class="panel"><h4>Ascolto</h4>
             <div class="ab"><button id="bA" class="on">A · mix 3D</button><button id="bB">B · somma</button></div>
-            <p class="muted small">Confronta il mix spaziale con la semplice somma. Il buffer si rifà a ogni modifica.</p></div>
+            <p class="muted small">Il ▶ in basso suona il mix MIX3D, non la timeline di Resolve. Confronta il mix spaziale con la semplice somma.</p></div>
+          <div id="place" class="panel" hidden><h4>Posizione · <span id="plName"></span></h4>
+            <label class="slider" title="Sinistra (−) / destra (+) rispetto al centro della sala">Lato <input type="range" id="px" step="0.1"><output id="oPx"></output></label>
+            <label class="slider" title="0 = bordo palco; più alto = più verso il fondo sala">Profondità <input type="range" id="pz" step="0.1"><output id="oPz"></output></label>
+            <label class="slider">Altezza <input type="range" id="py" min="0" step="0.1"><output id="oPy"></output></label>
+            <label class="slider" title="Spostamento stereo aggiunto a quello della posizione">Pan extra <input type="range" id="ppan" min="-1" max="1" step="0.05"><output id="oPpan"></output></label>
+            <p id="plInfo" class="muted small"></p>
+            <div class="row-actions"><button id="plSolo" class="ghost small">Solo questa</button><button id="plAuto" class="ghost small">Posizione automatica</button></div>
+            <p class="hint">Scegli la traccia a sinistra o cliccala nella scena.</p></div>
           <div class="panel"><h4>Mix</h4>
             <label class="slider">Master <input type="range" id="master" min="-24" max="12" step="0.5"><output id="oMaster"></output></label>
             <label class="slider">Larghezza <input type="range" id="width" min="0" max="1.5" step="0.05"><output id="oWidth"></output></label>
@@ -153,6 +161,7 @@
         <label>L <input type="number" id="roomW" step="1" min="4"> m</label>
         <label>P <input type="number" id="roomD" step="1" min="4"> m</label>
         <label>H <input type="number" id="roomH" step="0.5" min="2"> m</label>
+        <select id="spaceSel" title="Tipo di spazio"></select>
         <label class="check"><input type="checkbox" id="showLobes" checked> Lobi polari</label>
         <label class="check"><input type="checkbox" id="showSources" checked> Sorgenti</label>
         <label class="check" title="Fronti d'onda dalle sorgenti mentre ascolti"><input type="checkbox" id="showWaves" checked> Onde</label>
@@ -173,6 +182,8 @@
   <span id="time" class="time">0:00.0</span>
   <div id="seek" class="seek"><i id="seekBar"></i><b id="bufBar"></b></div>
   <div class="meter master"><i id="mL"></i><i id="mR"></i></div>
+  <span id="monitor" class="monitor" title="Cosa esce dal ▶ di MIX3D. La timeline di Resolve suona a parte."></span>
+  <button id="bAll" class="ghost small" hidden title="Toglie muto e solo a tutte le tracce">Tutte in ascolto</button>
   <span id="lufsLive" class="time" title="Picco del blocco in ascolto (rosso sopra -1 dBFS)">picco -∞</span>
 </footer>
 
