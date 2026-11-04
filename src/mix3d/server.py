@@ -211,6 +211,14 @@ def fuse_scene(p: dict):
                 "errore_m": s["incertezza_m"]} for s in sc["sorgenti"]]
     p["sorgenti"] = [x for x in p.get("sorgenti", []) if not x.get("stimata")] + est
     p["campo"] = sound_field(p)
+    field_listening(p)
+
+
+def field_mics(p: dict) -> dict:
+    """Mic della scena con posizione e pattern (a = parte omni) per il campo."""
+    tracks, db = {t["id"]: t for t in p["tracks"]}, devices.load()["microfoni"]
+    return {i: {"pos": m["pos"], "a": splat.PATTERN.get(db.get(tracks[i].get("microfono") or "", {}).get("diagramma"), 1.0)}
+            for i, m in ((p.get("scena") or {}).get("mic") or {}).items() if i in tracks}
 
 
 def sound_field(p: dict) -> dict | None:
@@ -219,16 +227,21 @@ def sound_field(p: dict) -> dict | None:
     imgs, sc = p.get("immagini") or {}, p.get("scena") or {}
     if not sc.get("sorgenti"):
         return None
-    tracks = {t["id"]: t for t in p["tracks"]}
-    db = devices.load()["microfoni"]
-    mics = {i: {"pos": m["pos"], "a": splat.PATTERN.get(db.get(tracks[i].get("microfono") or "", {}).get("diagramma"), 1.0)}
-            for i, m in sc["mic"].items() if i in tracks}
+    mics = field_mics(p)
     obs = [(i, e["k"], e["bande_db"]) for i, g in imgs.get("tracce", {}).items() if i in mics
            for e in g["sorgenti"] if e.get("bande_db")]
     try:
         return splat.fit(obs, mics, sc["sorgenti"], p.get("palco", {"w": 12, "d": 4}))
     except Exception as e:
         return {"errore": str(e)[:160]}
+
+
+def field_listening(p: dict):
+    """EQ per ottava di ogni traccia per sentire il campo dal punto dell'ascoltatore (mixer: campo_ascolto)."""
+    c = p.get("campo") or {}
+    radii = {k: v["raggio_m"] for k, v in (p.get("campo_mod") or {}).items() if "raggio_m" in v}
+    p["ascolto_campo"] = splat.listener_mix(c, field_mics(p), p["listener"], p.get("palco", {"w": 12, "d": 4}), radii) \
+        if c.get("gaussiane") else {}
 
 
 def sound_images(p: dict, ref: dict | None) -> dict | None:
@@ -503,6 +516,8 @@ class Handler(SimpleHTTPRequestHandler):
                     # un mic spostato a mano diventa un'ancora: la scena si riallinea attorno
                     if "sala" in b or "palco" in b or any("pos" in x or x.get("pos_mode") == "auto" for x in b.get("tracks", [])):
                         auto_place(p)
+                    if {"listener", "campo_mod"} & set(b):  # l'ascoltatore si è mosso o un raggio è cambiato
+                        field_listening(p)
                 elif u.path == "/api/spazio":
                     sp = spazi.get(b["id"])
                     p.update(spazio=sp["id"], sala=dict(sp["sala"]), palco=dict(sp["palco"]),

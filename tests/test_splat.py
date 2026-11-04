@@ -41,3 +41,18 @@ def test_field_at_listener_near_is_louder():
     f = {"gaussiane": [{"id": "g0", "pos": [0, 1.5, 0], "raggio_m": 0.5, "bande_db": [0.0] * 7}], "diffuso_db": [-20.0] * 7}
     near, far = splat.field_at(f, [0, 1.5, 2])["g0"], splat.field_at(f, [0, 1.5, 12])["g0"]
     assert near["diretto_db"][0] > far["diretto_db"][0] + 10 and near["diffuso_db"] == far["diffuso_db"]
+
+
+def test_listener_mix_reproduces_direct_and_reverb():
+    """La somma pesata dei mic deve dare all'ascoltatore il rapporto diretto/riverbero del campo."""
+    mics = {i: {"pos": m, "a": 1.0} for i, m in MICS.items()}
+    field = {"gaussiane": [{"id": f"g{s['k']}", "k": s["k"], "pos": s["pos"], "raggio_m": s["r"], "bande_db": s["e"].tolist()} for s in TRUE],
+             "diffuso_db": [DIF] * 7, "sensibilita_db": {i: 0.0 for i in MICS}}
+    for L in ([0.0, 1.5, 4.0], [0.0, 1.5, 14.0]):
+        w = splat.listener_mix(field, mics, L, STAGE)
+        for s in field["gaussiane"]:
+            c, b = np.array(s["pos"]), 3
+            want = 10 * np.log10(1 / (np.sum((c - L) ** 2) + s["raggio_m"] ** 2)) - DIF
+            got_dir = sum(10 ** (w[i][b] / 10) / (np.sum((c - np.array(m)) ** 2) + s["raggio_m"] ** 2) for i, m in MICS.items())
+            got_dif = sum(10 ** (w[i][b] / 10) * 10 ** (DIF / 10) for i in MICS)
+            assert abs(10 * np.log10(got_dir / got_dif) - want) < 3, (L, s["id"])
