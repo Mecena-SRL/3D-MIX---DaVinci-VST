@@ -18,7 +18,10 @@ const api = async (path, body) => {
 };
 const toast = (msg, err) => { const t = $("toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => (t.hidden = true), 4500); };
 const safe = (fn) => async (...a) => { try { await fn(...a); } catch (e) { toast(e.message, true); } };
-const fmt = (s) => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, "0")}`;
+const fmt = (s) => { // m:ss.s, oltre l'ora h:mm:ss.s (sessioni da ore)
+  const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, sec = (s % 60).toFixed(1).padStart(4, "0");
+  return h ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
+};
 const color = (t) => COLORS[S.tracks.indexOf(t) % COLORS.length];
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const space = () => SPACES.find((s) => s.id === S.spazio);
@@ -78,6 +81,7 @@ function go(i) {
   $("stepTitle").textContent = STEPS[step].t; $("stepHelp").textContent = STEPS[step].h;
   $("bPrev").disabled = step === 0; $("bNext").hidden = step === STEPS.length - 1;
   const slot = { 2: "sceneSlot3", 4: "sceneSlot5" }[step];
+  $("sceneWrap").classList.toggle("in-mix", step === 4); // nel mix le misure della sala non servono
   $("sceneWrap").hidden = !slot;
   if (slot) $(slot).appendChild($("sceneWrap"));
   try { localStorage.setItem("mix3d.step", step); } catch {}
@@ -148,7 +152,7 @@ function renderTracks() {
       <div class="top-row"><span class="dot ${g.every((x) => x.confermato) ? health(t) : "warn"}"></span><span class="name" title="${g.map((x) => x.file).join("\n")}">${laneName(g)}</span>${one ? syncBadge(t) : `<span class="badge">${g.length} clip</span>`}
         <button class="ms m" title="Muto">M</button><button class="ms s" title="Solo">S</button></div>
       <div class="sub">${t.canale ? `${one ? t.nome.replace(/^[AV]\d+ /, "") + " · " : ""}` : ""}${mic(t).nome} › ${rec(t).nome}${g.every((x) => x.confermato) ? "" : " · da confermare"}</div>
-      <canvas></canvas>
+      ${t.analisi ? "<canvas></canvas>" : ""}
       <div class="meter"><i data-gmeter="${el.dataset.ids}"></i></div>
       <div class="ctl"><span class="st small"></span><span class="muted small">Gain</span><input type="range" min="-30" max="12" step="0.5" value="${t.gain_db}"><span class="small gv">${t.gain_db.toFixed(1)} dB</span></div>
       ${one ? "" : `<div class="clips">${g.map((x) => `<button class="clip ${x.id === sel ? "on" : ""}" data-id="${x.id}" title="${x.file}">${x.nome.replace(/^[AV]\d+ /, "")} <span class="muted">${fmt(x.offset_s)}</span></button>`).join("")}</div>`}`;
@@ -160,7 +164,7 @@ function renderTracks() {
     el.querySelectorAll(".clip").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); select(b.dataset.id); }));
     el.onclick = () => select(g.some((x) => x.id === sel) ? sel : t.id);
     box.appendChild(el);
-    drawMiniWave(el.querySelector("canvas"), t);
+    if (t.analisi) drawMiniWave(el.querySelector("canvas"), t);
   }
   renderMonitor();
 }

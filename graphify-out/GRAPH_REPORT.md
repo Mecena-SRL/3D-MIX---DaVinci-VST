@@ -1,7 +1,7 @@
 # Graph Report - 3D-MIX---DaVinci-VST  (2026-11-04)
 
 ## Corpus Check
-- 48 files · ~76,819 words
+- 48 files · ~76,869 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: .plist 4, (none) 1, .xib 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `06771342`
+- Built from commit: `0b0306f7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -178,12 +178,12 @@
 ## Surprising Connections (you probably didn't know these)
 - `Riconoscimento dai metadati` --references--> `detect()`  [INFERRED]
   docs/database_dispositivi.md → src/mix3d/metadata.py
-- `Compatibilità` --references--> `compat()`  [INFERRED]
-  docs/database_dispositivi.md → src/mix3d/devices.py
-- `Compatibilità` --references--> `da()`  [INFERRED]
-  docs/database_dispositivi.md → src/mix3d/web/vendor/three.module.min.js
 - `F0: verifiche su Resolve reale [V]` --references--> `MIX3D`  [INFERRED]
   docs/F0_verifiche.md → plugin/MIX3D/MIX3D.h
+- `Compatibilità` --references--> `da()`  [INFERRED]
+  docs/database_dispositivi.md → src/mix3d/web/vendor/three.module.min.js
+- `Compatibilità` --references--> `compat()`  [INFERRED]
+  docs/database_dispositivi.md → src/mix3d/devices.py
 - `MIX3D` --references--> `MIX3D`  [INFERRED]
   README.md → plugin/MIX3D/MIX3D.h
 
@@ -461,16 +461,16 @@ Nodes (3): am(), rm, sm()
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Compatibilità` connect `MIX3D.cpp` to `devices.py`, `da`?**
-  _High betweenness centrality (0.286) - this node is a cross-community bridge._
+  _High betweenness centrality (0.261) - this node is a cross-community bridge._
 - **What connects `mix3d`, `kMsgLaunch`, `kMsgOpenBrowser` to the rest of the system?**
   _4 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `test_resolve_bridge.py` be split into smaller, more focused modules?**
   _Cohesion score 0.056910569105691054 - nodes in this community are weakly interconnected._
 - **Why does `da()` connect `da` to `three.module.min.js`, `.constructor`, `.constructor`, `MIX3D.cpp`?**
-  _High betweenness centrality (0.285) - this node is a cross-community bridge._
+  _High betweenness centrality (0.258) - this node is a cross-community bridge._
 - **Should `media.py` be split into smaller, more focused modules?**
   _Cohesion score 0.13793103448275862 - nodes in this community are weakly interconnected._
 - **Why does `compat()` connect `devices.py` to `MIX3D.cpp`?**
-  _High betweenness centrality (0.269) - this node is a cross-community bridge._
+  _High betweenness centrality (0.231) - this node is a cross-community bridge._
 - **Should `server.py` be split into smaller, more focused modules?**
   _Cohesion score 0.08771929824561403 - nodes in this community are weakly interconnected._

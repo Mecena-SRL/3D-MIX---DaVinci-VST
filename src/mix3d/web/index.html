@@ -20,7 +20,6 @@
   </div>
 </header>
 
-<section id="summary" class="summary"></section>
 <div id="job" class="job" hidden><span id="jobMsg"></span><div class="bar"><i id="jobBar"></i></div></div>
 
 <main>
@@ -159,9 +158,9 @@
     <div id="sceneWrap" class="scene-wrap">
       <div id="scene" class="scene"></div>
       <div class="scene-tools">
-        <label>L <input type="number" id="roomW" step="1" min="4"> m</label>
+        <span class="dims"><label>L <input type="number" id="roomW" step="1" min="4"> m</label>
         <label>P <input type="number" id="roomD" step="1" min="4"> m</label>
-        <label>H <input type="number" id="roomH" step="0.5" min="2"> m</label>
+        <label>H <input type="number" id="roomH" step="0.5" min="2"> m</label></span>
         <select id="spaceSel" title="Tipo di spazio"></select>
         <label class="check"><input type="checkbox" id="showLobes" checked> Lobi polari</label>
         <label class="check"><input type="checkbox" id="showSources" checked> Sorgenti</label>
@@ -187,6 +186,7 @@
   <button id="bAll" class="ghost small" hidden title="Toglie muto e solo a tutte le tracce">Tutte in ascolto</button>
   <span id="lufsLive" class="time" title="Picco del blocco in ascolto (rosso sopra -1 dBFS)">picco -∞</span>
 </footer>
+<section id="summary" class="summary"></section>
 
 <dialog id="dlgFiles">
   <h3 id="fsTitle">Aggiungi file</h3>
