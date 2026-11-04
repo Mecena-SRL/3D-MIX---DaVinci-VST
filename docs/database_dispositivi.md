@@ -10,7 +10,7 @@ File: [`src/mix3d/data/devices.json`](../src/mix3d/data/devices.json) (v0.2: 73 
 
 Ogni voce ha `fiducia` per campo (`datasheet`, `misurato`, `ipotizzato`; assente = ipotizzato) e `fonti`. `datasheet` solo per i valori verificati sulla fonte citata.
 
-Copertura: Sony (FX6, FX9, FX3, FX30, FX2, a7S III, a7 IV, a6700, ZV-E1, a6300, a6400; ECM-MS2, XM1, VG1, B1M, B10, M1, G1, L1, W3, W2BT, UWP-D), Sennheiser (MKH 416, 8060, 50, MKE 600, 400, ME 66, MKE 2, EW-D, Profile, e 835/935/906/614), RODE (NTG1/2/3/4+/5, VideoMic NTG/Pro+/Micro II/GO/GO II, NT1-A/NT4/NT5, Lavalier II, Wireless GO II/PRO), Tascam (X8, X6, DR-40X, DR-05X/07X, DR-10L Pro, FR-AV2, DR-701D, DR-60D MkII, TM-80/2X/10L), Zoom (F8n Pro, F6, F3, F2, H8, H6, H6essential, H5, H5studio, H4n Pro, H4essential, H1n, H1essential, M3, M4, capsule XYH-6/MSH-6/SGH-6, ZDM-1), DJI (Osmo Action 4/5 Pro/6, Pocket 3, Mic, Mic 2, Mic 3, Mic Mini/Mini 2), Behringer (C-2, ECM8000).
+Copertura: Sony (FX6, FX9, FX3, FX30, FX2, a7S III, a7 IV, a6700, ZV-E1, a6300, a6400; ECM-MS2, XM1, VG1, B1M, B10, M1, G1, L1, W3, W2BT, UWP-D), Sennheiser (MKH 416, 8060, 50, MKE 600, 400, ME 66, MKE 2, EW-D, Profile, e 835/935/906/614), RODE (NTG1/2/3/4+/5, VideoMic NTG/Pro+/Micro II/GO/GO II, NT1-A/NT4/NT5, Lavalier II, Wireless GO II/PRO), Tascam (X8, X6, DR-40X, DR-05X/07X, DR-10L Pro, FR-AV2, DR-701D, DR-60D MkII, TM-80/2X/10L), Zoom (F8n Pro, F6, F3, F2, H8, H6, H6essential, H5, H5studio, H4n Pro, H4essential, H1n, H1essential, M3, M4, capsule XYH-6/MSH-6/SGH-6, ZDM-1), Panasonic Lumix (S1H, S1, S1R, S1II, S5, S5II, S9, GH5/GH5S, GH5 II, GH6, GH7, G9II; adattatori DMW-XLR1/XLR2), DJI (Osmo Action 4/5 Pro/6, Pocket 3, Mic, Mic 2, Mic 3, Mic Mini/Mini 2), Behringer (C-2, ECM8000).
 
 ## Compatibilità
 
@@ -34,6 +34,8 @@ Copertura: Sony (FX6, FX9, FX3, FX30, FX2, a7S III, a7 IV, a6700, ZV-E1, a6300, 
 | DJI Mic 2 / Mini | ricevitore + cavo 3.5 mm-XLR | ricevitore 3.5 mm | ricevitore 3.5 mm | diretto (OsmoAudio) | ricevitore 3.5 mm |
 
 ### Cose emerse dalla ricerca
+
+- **Panasonic Lumix**: jack 3.5 mm con plug-in power su tutte (VideoMic GO, ricevitori DJI entrano diretti). S1H: LPCM 24 bit/96 kHz solo con DMW-XLR1, senza adattatore 16 bit 48 kHz (MOV) o AAC (MP4). DMW-XLR2: 32 bit float su GH7/GH6/S1II/G9II, 4 canali a 48 kHz, anche ingresso 3.5 mm a 2.5 V. S9: nessuna slitta audio. Firme metadati `DC-S1H`, `DC-GH7`…; file `P1000001.MOV`.
 
 - **FX6**: nessun ingresso 3.5 mm per microfono; slitta MI della maniglia analogica (niente ECM-B1M/B10/M1 in digitale).
 - **ECM-MS2**: due XLR con phantom 48 V (non plug-in power).
